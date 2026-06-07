@@ -1,1 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+/* ===== Khedmetak Global Variables ===== */
+/* ضيفي ده في src/styles.scss */
+
+:root {
+  --brand-teal: #2e90a8;
+  --brand-gold: #f0a500;
+  --brand-bg: #f5f7fa;
+  --gradient-brand: linear-gradient(135deg, #1B4F5F 0%, #2e90a8 60%, #3aaec9 100%);
+
+  --foreground: #1a2d3d;
+  --muted: #6b7a8d;
+  --border: #e2e8f0;
+  --input-border: #d0dce8;
+  --danger: #d14343;
+
+  --shadow-soft: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-card: 0 8px 32px rgba(0,0,0,.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', 'Cairo', system-ui, sans-serif;
+  background: var(--brand-bg);
+  color: var(--foreground);
+}
