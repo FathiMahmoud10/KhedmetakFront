@@ -1,0 +1,145 @@
+<div class="signup-page">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-inner">
+      <div class="brand-top">
+        <div class="brand-icon">
+          <img src="assets/images/signup-illustration.jpg" alt="logo" />
+        </div>
+        <span class="brand-label">GOVERNMENT SERVICES · AI ASSISTANT</span>
+      </div>
+
+      <div class="illustration-wrap">
+        <img src="assets/images/signup-illustration.jpg" alt="illustration" class="illus-img" />
+      </div>
+
+      <div class="left-text">
+        <h2>Welcome to Khedmetak AI</h2>
+        <p class="lead">Your Smart Assistant for Government Services</p>
+        <p class="desc">Access government services, track requests, and get instant AI-powered assistance anytime.</p>
+        <div class="accent-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="form-container">
+
+      <!-- Brand header -->
+      <div class="form-brand">
+        <div class="form-brand-icon">
+          <img src="assets/images/signup-illustration.jpg" alt="logo" />
+        </div>
+        <div>
+          <div class="form-brand-name">khedmetak</div>
+          <div class="form-brand-sub">GOVERNMENT · AI ASSISTANT</div>
+        </div>
+      </div>
+
+      <!-- Card -->
+      <div class="card">
+        <h2 class="card-title">Create your account</h2>
+        <p class="card-sub">Join Khedmetak to access smart government services in seconds.</p>
+
+        <form (ngSubmit)="onSubmit()" #signupForm="ngForm" novalidate>
+
+          <!-- Google Sign Up -->
+          <button type="button" class="btn-google" (click)="signUpWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Sign up with Google
+          </button>
+
+          <div class="divider"><span>or sign up with email</span></div>
+
+          <!-- Full Name -->
+          <div class="field">
+            <label>Full Name</label>
+            <div class="input-wrap" [class.has-error]="nameError">
+              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              <input type="text" [(ngModel)]="fullName" name="fullName" placeholder="Ahmed Mohamed" (blur)="validateName()" />
+            </div>
+            <span class="err-msg" *ngIf="nameError">Full name is required</span>
+          </div>
+
+          <!-- National ID + Phone -->
+          <div class="field-row">
+            <div class="field">
+              <label>National ID</label>
+              <div class="input-wrap" [class.has-error]="nationalIdError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                <input type="text" [(ngModel)]="nationalId" name="nationalId" placeholder="14-digit ID" maxlength="14" (blur)="validateNationalId()" />
+              </div>
+              <span class="err-msg" *ngIf="nationalIdError">Must be 14 digits</span>
+            </div>
+            <div class="field">
+              <label>Phone Number</label>
+              <div class="input-wrap" [class.has-error]="phoneError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.8 19.8 0 01-3-8.59A2 2 0 012.06 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+                <input type="text" [(ngModel)]="phone" name="phone" placeholder="+20 1XX XXX X" (blur)="validatePhone()" />
+              </div>
+              <span class="err-msg" *ngIf="phoneError">Invalid phone number</span>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="field">
+            <label>Email Address</label>
+            <div class="input-wrap" [class.has-error]="emailError">
+              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+              <input type="email" [(ngModel)]="email" name="email" placeholder="you@example.com" (blur)="validateEmail()" />
+            </div>
+            <span class="err-msg" *ngIf="emailError">Valid email is required</span>
+          </div>
+
+          <!-- Password + Confirm -->
+          <div class="field-row">
+            <div class="field">
+              <label>Password</label>
+              <div class="input-wrap" [class.has-error]="passwordError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••" (blur)="validatePassword()" />
+                <button type="button" class="eye-btn" (click)="showPass = !showPass">
+                  <svg *ngIf="!showPass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg *ngIf="showPass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A11 11 0 0112 20C5 20 1 12 1 12a21 21 0 015.06-6.06M9.9 4.24A11 11 0 0112 4c7 0 11 8 11 8a21 21 0 01-3.17 4.19M14.12 14.12A3 3 0 119.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+              <span class="err-msg" *ngIf="passwordError">Min 6 characters</span>
+            </div>
+            <div class="field">
+              <label>Confirm Password</label>
+              <div class="input-wrap" [class.has-error]="confirmError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••" (blur)="validateConfirm()" />
+                <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">
+                  <svg *ngIf="!showConfirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg *ngIf="showConfirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A11 11 0 0112 20C5 20 1 12 1 12a21 21 0 015.06-6.06M9.9 4.24A11 11 0 0112 4c7 0 11 8 11 8a21 21 0 01-3.17 4.19M14.12 14.12A3 3 0 119.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+              <span class="err-msg" *ngIf="confirmError">Passwords don't match</span>
+            </div>
+          </div>
+
+          <!-- Terms -->
+          <label class="terms-label">
+            <input type="checkbox" [(ngModel)]="agreed" name="agreed" />
+            <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</span>
+          </label>
+
+          <!-- Submit -->
+          <button type="submit" class="btn-submit" [disabled]="isLoading">
+            <span class="spinner" *ngIf="isLoading"></span>
+            {{ isLoading ? 'Creating account…' : 'Create Account' }}
+          </button>
+
+        </form>
+
+        <p class="signin-link">Already have an account? <a routerLink="/login">Sign In</a></p>
+      </div>
+
+      <p class="legal-footer">Protected by government-grade encryption · © 2026 Khedmetak</p>
+    </div>
+  </div>
+
+</div>
