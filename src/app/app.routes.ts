@@ -1,14 +1,18 @@
 import { Routes } from '@angular/router';
 import { HomePage } from './Pages/home-page/home-page';
+import { LoginComponent } from './Pages/login-page/login-page';
+import { ChatPageComponent } from './Pages/chat-page/chat-page.component';
+import { SignupComponent } from './Pages/signup-page/signup-page';
 
 export const routes: Routes = [
     // redirectTo + 'patname' 
     // when use redirectTo --> should use pathMatch with it
     {path:'',redirectTo:'home',pathMatch:"full"},
     {path:'home',component:HomePage},
-    // {path:'chat'}
+    {path:'chat',component:ChatPageComponent},
     // {path:'services'},
-    // {path:'login'},
+    {path:'login',component:LoginComponent},
+    {path:'SignUp',component:SignupComponent },
     // {path:'signup'},
 
 

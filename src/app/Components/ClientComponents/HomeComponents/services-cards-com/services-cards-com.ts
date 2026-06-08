@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { SharedService } from '../../../../APIServices/shared-service';
+import { SharedService } from '../../../../APIServices/SharedServices/shared-service';
 
 @Component({
   selector: 'app-services-cards-com',
