@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 import { HomePage } from './Pages/home-page/home-page';
-import { LoginComponent } from './Pages/login-page/login-page';
+import { LoginComponent } from './Pages/login-page/login.component';
 import { ChatPageComponent } from './Pages/chat-page/chat-page.component';
-import { SignupComponent } from './Pages/signup-page/signup-page';
+import { SignupComponent } from './Pages/signup-page/signup.component';
 
 export const routes: Routes = [
-    // redirectTo + 'patname' 
+    // redirectTo + 'patname'
     // when use redirectTo --> should use pathMatch with it
     {path:'',redirectTo:'home',pathMatch:"full"},
     {path:'home',component:HomePage},

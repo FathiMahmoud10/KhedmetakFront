@@ -1,35 +1,44 @@
+// ===== COLORS =====
+$navyBlue: #023264;
+$hoverColor: #487fb9;
+$greenColor: #298b64;
+$navyLight: #0a4a8a;
+$navyDark: #011a3a;
+$white: #ffffff;
+$grayBg: #f0f4f8;
+$grayBorder: #cdd8e8;
+$grayText: #6b7a8d;
+$errorRed: #d14343;
+
 :host { display: block; }
 
 .signup-page {
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100vh;
-  font-family: 'Segoe UI', 'Cairo', system-ui, sans-serif;
+  font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif;
 
   @media (min-width: 1024px) {
-    grid-template-columns: 1fr 1.6fr;
+    grid-template-columns: 1fr 2fr;
   }
 }
 
 // ========== LEFT PANEL ==========
 .left-panel {
-  background: linear-gradient(160deg, #c8f0f5 0%, #8adce8 30%, #3aacca 65%, #1a7a9a 100%);
+  background: linear-gradient(160deg, $hoverColor 0%, $navyBlue 50%, $navyDark 100%);
   position: relative;
   overflow: hidden;
   display: none;
   padding: 3rem;
 
-  @media (min-width: 1024px) {
-    display: flex;
-    align-items: stretch;
-  }
+  @media (min-width: 1024px) { display: flex; align-items: stretch; }
 
   &::before {
     content: '';
     position: absolute;
     width: 500px; height: 500px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.1);
+    background: rgba($hoverColor, 0.15);
     top: -150px; left: -150px;
   }
   &::after {
@@ -37,7 +46,7 @@
     position: absolute;
     width: 300px; height: 300px;
     border-radius: 50%;
-    background: rgba(240,165,0,0.1);
+    background: rgba($greenColor, 0.15);
     bottom: -80px; right: -80px;
   }
 }
@@ -59,11 +68,11 @@
 
   .brand-icon {
     width: 38px; height: 38px;
-    background: rgba(255,255,255,0.3);
+    background: rgba($white, 0.15);
     border-radius: 10px;
     display: grid; place-items: center;
     backdrop-filter: blur(6px);
-
+    border: 1px solid rgba($white, 0.2);
     img { width: 26px; height: 26px; object-fit: contain; }
   }
 
@@ -71,7 +80,7 @@
     font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 2px;
-    color: rgba(255,255,255,0.9);
+    color: rgba($white, 0.85);
     text-transform: uppercase;
   }
 }
@@ -89,44 +98,39 @@
   height: auto;
   display: block;
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 32px rgba($navyDark, 0.3);
 }
 
 .left-text {
   h2 {
     font-size: 1.9rem;
     font-weight: 800;
-    color: #fff;
+    color: $white;
     margin: 0 0 8px;
-    letter-spacing: -0.5px;
   }
-
   .lead {
     font-size: 1rem;
     font-weight: 600;
-    color: rgba(255,255,255,0.95);
+    color: rgba($white, 0.9);
     margin: 0 0 10px;
   }
-
   .desc {
     font-size: 0.85rem;
-    color: rgba(255,255,255,0.8);
+    color: rgba($white, 0.75);
     line-height: 1.6;
     max-width: 320px;
     margin: 0 0 16px;
   }
-
   .accent-line {
-    width: 48px;
-    height: 3px;
-    background: #f0a500;
+    width: 48px; height: 3px;
+    background: $greenColor;
     border-radius: 2px;
   }
 }
 
 // ========== RIGHT PANEL ==========
 .right-panel {
-  background: #eaf6f9;
+  background: $grayBg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -134,91 +138,90 @@
   min-height: 100vh;
 
   @media (min-width: 1024px) {
-    padding: 2.5rem 3rem;
+    padding: 2.5rem 4rem;
     min-height: 0;
   }
 }
 
 .form-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .form-brand {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 0.25rem;
 
   .form-brand-icon {
-    width: 42px; height: 42px;
-    background: #fff;
+    width: 46px; height: 46px;
+    background: $white;
     border-radius: 12px;
     display: grid; place-items: center;
-    box-shadow: 0 2px 8px rgba(46,144,168,0.15);
-
-    img { width: 28px; height: 28px; object-fit: contain; }
+    box-shadow: 0 2px 8px rgba($navyBlue, 0.15);
+    img { width: 32px; height: 32px; object-fit: contain; }
   }
 
   .form-brand-name {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    color: #2e90a8;
+    color: $navyBlue;
   }
 
   .form-brand-sub {
-    font-size: 0.6rem;
-    color: #8aabb5;
-    letter-spacing: 2px;
+    font-size: 0.65rem;
+    color: $grayText;
+    letter-spacing: 1.5px;
     font-weight: 500;
   }
 }
 
 .card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 24px rgba(46,144,168,0.1);
-  border: 1px solid rgba(46,144,168,0.08);
+  background: $white;
+  border-radius: 18px;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 4px 30px rgba($navyBlue, 0.1);
+  border: 1px solid rgba($navyBlue, 0.08);
 }
 
 .card-title {
-  font-size: 1.4rem;
+  font-size: 1.7rem;
   font-weight: 700;
-  color: #1a2d3d;
-  margin: 0 0 4px;
+  color: $navyBlue;
+  margin: 0 0 6px;
 }
 
 .card-sub {
-  font-size: 0.85rem;
-  color: #7a9aaa;
-  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  color: $grayText;
+  margin: 0 0 1.75rem;
   line-height: 1.5;
 }
 
 .btn-google {
   width: 100%;
-  height: 42px;
-  border: 1.5px solid #e0eaee;
-  border-radius: 8px;
-  background: #fff;
+  height: 48px;
+  border: 1.5px solid $grayBorder;
+  border-radius: 10px;
+  background: $white;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #3a4a55;
+  color: $navyBlue;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  font-family: 'Cairo', sans-serif;
 
   &:hover {
-    border-color: #2e90a8;
-    box-shadow: 0 2px 8px rgba(46,144,168,0.12);
+    border-color: $hoverColor;
+    box-shadow: 0 2px 8px rgba($hoverColor, 0.15);
   }
 }
 
@@ -226,62 +229,56 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 
   &::before, &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #dceef3;
+    content: ''; flex: 1;
+    height: 1px; background: $grayBorder;
   }
 
-  span {
-    font-size: 0.75rem;
-    color: #9ab5bf;
-    white-space: nowrap;
-  }
+  span { font-size: 0.82rem; color: $grayText; white-space: nowrap; }
 }
 
-form { display: grid; gap: 1rem; }
+form { display: grid; gap: 1.25rem; }
 
 .field {
   display: grid;
-  gap: 5px;
+  gap: 6px;
 
   label {
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     font-weight: 600;
-    color: #3a4a55;
+    color: $navyBlue;
   }
 }
 
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .input-wrap {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1.5px solid #dceef3;
-  border-radius: 8px;
-  background: #fff;
+  border: 1.5px solid $grayBorder;
+  border-radius: 10px;
+  background: $white;
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus-within {
-    border-color: #2e90a8;
-    box-shadow: 0 0 0 3px rgba(46,144,168,0.1);
+    border-color: $hoverColor;
+    box-shadow: 0 0 0 3px rgba($hoverColor, 0.12);
   }
 
-  &.has-error { border-color: #e05555; }
+  &.has-error { border-color: $errorRed; }
 
   .field-icon {
     position: absolute;
-    left: 10px;
-    width: 15px; height: 15px;
-    color: #9ab5bf;
+    right: 12px;
+    width: 16px; height: 16px;
+    color: $grayText;
     pointer-events: none;
   }
 
@@ -289,32 +286,35 @@ form { display: grid; gap: 1rem; }
     flex: 1;
     border: none;
     outline: none;
-    padding: 9px 10px 9px 32px;
-    font-size: 0.85rem;
-    color: #1a2d3d;
+    padding: 12px 36px 12px 12px;
+    font-size: 0.95rem;
+    color: $navyBlue;
     background: transparent;
     width: 100%;
+    text-align: right;
+    font-family: 'Cairo', sans-serif;
 
-    &::placeholder { color: #b8cdd4; }
+    &::placeholder { color: lighten($grayText, 20%); }
   }
 
   .eye-btn {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0 10px;
-    color: #9ab5bf;
+    padding: 0 12px;
+    color: $grayText;
     display: flex;
     align-items: center;
+    order: -1;
 
-    svg { width: 15px; height: 15px; }
-    &:hover { color: #2e90a8; }
+    svg { width: 16px; height: 16px; }
+    &:hover { color: $hoverColor; }
   }
 }
 
 .err-msg {
-  font-size: 0.72rem;
-  color: #e05555;
+  font-size: 0.78rem;
+  color: $errorRed;
   font-weight: 500;
 }
 
@@ -323,54 +323,56 @@ form { display: grid; gap: 1rem; }
   align-items: flex-start;
   gap: 8px;
   cursor: pointer;
-  font-size: 0.8rem;
-  color: #5a7a88;
+  font-size: 0.88rem;
+  color: $navyBlue;
   line-height: 1.5;
 
   input[type="checkbox"] {
-    width: 15px; height: 15px;
-    accent-color: #2e90a8;
-    margin-top: 1px;
+    width: 16px; height: 16px;
+    accent-color: $greenColor;
+    margin-top: 2px;
     flex-shrink: 0;
   }
 
   a {
-    color: #2e90a8;
+    color: $hoverColor;
     text-decoration: none;
-    font-weight: 500;
-    &:hover { color: #f0a500; }
+    font-weight: 600;
+    &:hover { color: $greenColor; }
   }
 }
 
 .btn-submit {
   width: 100%;
-  height: 44px;
-  background: linear-gradient(135deg, #2a7a9a, #3aacca);
-  color: #fff;
+  height: 50px;
+  background: linear-gradient(135deg, $navyBlue, $navyLight);
+  color: $white;
   border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(46,144,168,0.3);
+  box-shadow: 0 4px 14px rgba($navyBlue, 0.35);
   transition: all 0.2s;
+  font-family: 'Cairo', sans-serif;
 
   &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $navyLight, $hoverColor);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(46,144,168,0.4);
+    box-shadow: 0 6px 20px rgba($navyBlue, 0.4);
   }
 
   &:disabled { opacity: 0.7; cursor: not-allowed; }
 }
 
 .spinner {
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-top-color: #fff;
+  width: 18px; height: 18px;
+  border: 2px solid rgba($white, 0.4);
+  border-top-color: $white;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
@@ -379,21 +381,21 @@ form { display: grid; gap: 1rem; }
 
 .signin-link {
   text-align: center;
-  font-size: 0.82rem;
-  color: #7a9aaa;
+  font-size: 0.88rem;
+  color: $grayText;
   margin: 1rem 0 0;
 
   a {
-    color: #2e90a8;
+    color: $hoverColor;
     font-weight: 700;
     text-decoration: none;
-    &:hover { color: #f0a500; }
+    &:hover { color: $greenColor; }
   }
 }
 
 .legal-footer {
   text-align: center;
-  font-size: 0.72rem;
-  color: #9ab5bf;
+  font-size: 0.75rem;
+  color: $grayText;
   margin: 0;
 }
