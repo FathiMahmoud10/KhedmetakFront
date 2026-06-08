@@ -1,0 +1,111 @@
+$navyBlue: #023264;
+$hoverColor:#487fb9;
+$greenColor: #298b64;
+
+.hero {
+    height: 100vh;
+
+    background:
+        linear-gradient(
+            to left,
+            rgba(2, 50, 100, 0.3),
+            rgba(2, 50, 100, 0.9)
+        ),
+        url("/Images/hero13.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.hero-content {
+    // position: relative;
+    margin-bottom: 2%;
+    text-align: center;
+    height: 100%;
+    width: 50%;
+    // display: flex;
+    // align-items: center;
+    // justify-content: center;
+    // margin-right: 5%;
+    z-index: 2;
+}
+.hero-content {
+    text-align: center;
+    height: 100%;
+    width: 50%;
+    z-index: 2;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: white;
+
+}
+
+.hero-content h1 {
+    font-size: 100px;
+    margin-bottom: 20px;
+}
+
+.hero-content h2 {
+    color: $greenColor;
+    font-size: 40px;
+    text-shadow: -1px -1px white;
+    margin-top: 0;
+    margin-bottom: 20px;;
+}
+.hero-content p{
+    margin-top: 5px;
+    font-size: 18px;
+}
+
+
+
+form{    margin-top: 40px;
+    // display: inline-block;
+    // margin-top: 30px;
+    // padding: 10px 20px;
+    background-color: #f7f0f0;
+    backgroung-opacity: 0.9;
+    // color: white;
+    // font-size: 1.2rem;
+    // border: 1 solid black;
+    border-radius: 10px;
+    // cursor: pointer;
+    // width: 100%;
+    // margin: 0;
+    // padding: 0;
+
+}
+form button{
+     width: 30%;
+    
+    background-color: $greenColor;//rgb(231, 197, 7);
+    opacity: 0.9;
+    color: rgb(255, 255, 255);
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 10px;
+    // text-shadow: -1px -1px rgb(0, 0, 0);
+    // border: 1 solid black;
+}
+form button:hover,
+form button:focus,
+form button:active {
+    background-color: #90bbaa;
+}
+
+.service-btn{
+    border-radius: 10px;
+    background-color: #b7d1ed;
+    margin: 10px;
+    margin-top: 15px;
+    color: $navyBlue;
+    font-weight: bold;
+    
+}

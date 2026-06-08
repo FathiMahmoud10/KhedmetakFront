@@ -1,0 +1,108 @@
+$navyBlue: #023264;
+$hoverColor:#487fb9;
+$greenColor: #298b64;
+
+h4{
+color: $navyBlue;
+
+}
+.service-card {
+  height: 300px;
+  border: 1 solid gray;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+  transition: all 0.3s ease;
+  // border: 2px solid $navyBlue;
+}
+
+.service-card:hover {
+  transform: translateY(-10px);
+border: 3px solid $greenColor; 
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.icon-container {
+  width: 100px;
+  height: 100px;
+
+  margin: 25px auto 15px;
+
+  background: #f3f4f6;
+
+  border-radius: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.card-body {
+  text-align: center;
+//   padding: 0.5rem;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  // color: $navyBlue;
+
+  min-height: 30px;
+}
+
+.card-text {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+
+  min-height: 40px;
+}
+
+.service-btn {
+  width: 100%;
+  border-radius: 12px;
+  padding: 10px;
+  color: white;
+  background-color:$greenColor; // rgb(249, 247, 247);
+border:2px solid  $greenColor;
+  font-weight: 600;
+}
+.service-btn:active{
+  background-color: white;
+  color:$greenColor; // rgb(249, 247, 247);
+border:2px solid  $greenColor;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 5%;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  color: #0d6efd;
+
+  border-radius: 50%;
+
+  width: 45px;
+  height: 45px;
+
+  padding: 12px;
+}
+
+.carousel-control-prev {
+  left: -60px;
+}
+
+.carousel-control-next {
+  right: -60px;
+}

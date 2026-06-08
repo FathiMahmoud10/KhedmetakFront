@@ -1,0 +1,77 @@
+$navyBlue: #023264;
+$hoverColor:#487fb9;
+$greenColor: #298b64;
+
+.container{
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}   
+h4{
+    color: $navyBlue;
+    padding: 20px;
+}
+.card{
+    text-align: center;
+    border: none;
+    background-color: rgb(255, 255, 255);
+
+}
+
+.card i{
+    font-size: 40px;
+    // color: #0d6efd;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    // background-color: rgb(145, 204, 221);
+      display: flex;
+  justify-content: center;
+  align-items: center;
+    // background-color: rgb(145, 204, 221);
+    
+}
+.card h5{
+    
+    font-size: 18px;
+    // color: #0d6efd;
+    font-weight: bolder;
+}
+.card p{
+    font-size: 13px;
+    color: #737476;
+    font-weight: bold;
+}
+#ques{
+    color:white;
+    background-color: rgb(206, 214, 216);
+
+
+}
+#file{
+    color:rgb(93, 142, 177);
+    background-color: rgb(198, 228, 250);
+}
+#upload{
+    color:gold;
+    background-color: rgb(255, 246, 204);
+}
+#complete{
+    color:rgb(0, 128, 0);
+    background-color: rgb(233, 245, 233);
+}
+.card .arrow{
+    font-size: 30px;
+    color: #a7abb2;
+    // background-color: white;
+      display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0px;
+  margin: 0px;
+  
+//   background-color: white;
+}
+// .card{
+//     background-color: #0d6efd;
+// }

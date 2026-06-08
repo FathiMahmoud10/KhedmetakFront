@@ -1,0 +1,37 @@
+<div class="hero">
+  <div class="hero-content mx-auto">
+
+    <h1 class="text-center" style="color: white;">Khedmetak AI</h1>
+
+    <h2 >مساعدك الذكي للخدمات الحكومية</h2>
+
+    <p>
+      اسأل عن أي خدمة حكومية واحصل على إرشادات خطوة بخطوة
+      <br>
+      حيث نقدم لك المعلومات الدقيقة والمحدثة عن الخدمات الحكومية بكل سهولة ويسر.
+    </p>
+
+    <form>
+      <div class="start-chat text-center">
+        <div class="form-group w-100">
+          <textarea
+            class="form-control"
+            rows="2"
+            placeholder="اسأل عن خدمتك الحكومية..."
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn my-3">
+          اسأل الآن
+        </button>
+      </div>
+    </form>
+
+    <div>
+       @for (item of ServicesList; track $index) {
+        <button class="btn service-btn">{{item.title}}</button>
+       }
+    </div>
+
+  </div>
+</div>

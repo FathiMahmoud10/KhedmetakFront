@@ -1,0 +1,27 @@
+$navyBlue: #023264;
+$hoverColor:#487fb9;
+
+nav, h3,a{
+    color: $navyBlue;
+    border-radius: 5px;
+}
+
+// .nave-link{
+//     padding-right: 20px;
+//     padding-left: 10px;
+// }
+.nav-link:hover{
+    background-color: $hoverColor;
+    border-radius: 5px;
+    padding-right: 10px;
+    padding-left: 10px;
+    // color: white;
+}
+
+.nav-link.active{
+    background-color: $navyBlue;
+    border-radius: 5px;
+    color: white;
+    padding-right: 20px;
+    padding-left: 20px;
+}
