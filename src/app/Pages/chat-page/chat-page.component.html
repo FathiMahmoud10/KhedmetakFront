@@ -1,0 +1,339 @@
+<div class="chat-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+
+    <!-- Brand -->
+    <div class="sidebar-header">
+      <div class="brand" *ngIf="!sidebarCollapsed">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
+            <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
+            <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.7"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">خدمتك</span>
+          <span class="brand-tag">AI</span>
+        </div>
+      </div>
+      <button class="icon-btn toggle-btn" (click)="toggleSidebar()" title="Toggle sidebar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- New Chat -->
+    <button class="new-chat-btn" (click)="startNewChat()" [title]="sidebarCollapsed ? 'محادثة جديدة' : ''">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      <span *ngIf="!sidebarCollapsed">محادثة جديدة</span>
+    </button>
+
+    <!-- History -->
+    <div class="sidebar-scroll" *ngIf="!sidebarCollapsed">
+      <p class="section-label">اليوم</p>
+      <ul class="chat-history">
+        <li *ngFor="let chat of recentChats; let i = index"
+            class="chat-item"
+            [class.active]="i === activeChat"
+            (click)="loadChat(i)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span>{{ chat }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- User -->
+    <div class="sidebar-footer" *ngIf="!sidebarCollapsed">
+      <div class="user-card">
+        <div class="user-avatar">أ</div>
+        <div class="user-info">
+          <span class="user-name"> خدماتك</span>
+          <span class="user-badge">
+            <span class="badge-dot"></span>متصل
+          </span>
+        </div>
+        <button class="icon-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="5" r="1"/>
+            <circle cx="12" cy="12" r="1"/>
+            <circle cx="12" cy="19" r="1"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main -->
+  <main class="chat-main">
+
+    <!-- Header -->
+    <header class="chat-header">
+      <div class="header-start">
+        <div class="service-selector" (click)="toggleModelMenu()">
+          <div class="service-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="service-name">المساعد العام</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+
+          <div class="service-dropdown" *ngIf="modelMenuOpen">
+            <div class="dropdown-label">اختر الخدمة الحكومية</div>
+            <div class="service-option active">
+              <span class="option-icon">🤖</span>
+              <div>
+                <span class="option-name">المساعد العام</span>
+                <span class="option-desc">أسئلة عامة عن الخدمات الحكومية</span>
+              </div>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="service-option">
+              <span class="option-icon">🚗</span>
+              <div>
+                <span class="option-name">رخصة القيادة</span>
+                <span class="option-desc">تجديد واستخراج الرخص المرورية</span>
+              </div>
+            </div>
+            <div class="service-option">
+              <span class="option-icon">🪪</span>
+              <div>
+                <span class="option-name">بطاقة الرقم القومي</span>
+                <span class="option-desc">استخراج وتجديد البطاقة الشخصية</span>
+              </div>
+            </div>
+            <div class="service-option">
+              <span class="option-icon">📄</span>
+              <div>
+                <span class="option-name">شهادة الميلاد</span>
+                <span class="option-desc">طلب واستخراج شهادات الميلاد</span>
+              </div>
+            </div>
+            <div class="service-option">
+              <span class="option-icon">🏢</span>
+              <div>
+                <span class="option-name">السجل التجاري</span>
+                <span class="option-desc">تسجيل الشركات والمنشآت التجارية</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="status-pill">
+          <span class="pulse"></span>
+          <span>متاح الآن</span>
+        </div>
+      </div>
+
+      <div class="header-end">
+        <button class="icon-btn" style="color: var(--slate-500);" title="مشاركة">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </button>
+        <div class="user-avatar header-av">أ</div>
+      </div>
+    </header>
+
+    <!-- Messages -->
+    <div class="messages-wrap" #messagesContainer>
+
+      <!-- Empty / Welcome -->
+      <div class="welcome-screen" *ngIf="messages.length === 0">
+        <div class="welcome-emblem">
+          <div class="emblem-ring outer"></div>
+          <div class="emblem-ring middle"></div>
+          <div class="emblem-ring inner"></div>
+          <div class="emblem-core">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+              <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
+              <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.6"/>
+            </svg>
+          </div>
+        </div>
+
+        <h1 class="welcome-title">كيف يمكنني مساعدتك؟</h1>
+        <p class="welcome-sub">اسألني عن أي خدمة حكومية وسأرشدك خطوة بخطوة حتى إتمام إجراءاتك</p>
+
+        <div class="chips-row">
+          <span class="chip">🚀 سريع</span>
+          <span class="chip">🔒 آمن</span>
+          <span class="chip">📋 دقيق</span>
+          <span class="chip">🕐 24/7</span>
+        </div>
+
+        <div class="suggestion-grid">
+          <button class="sug-card" *ngFor="let s of suggestions" (click)="sendSuggestion(s.text)">
+            <span class="sug-icon">{{ s.icon }}</span>
+            <span class="sug-text">{{ s.text }}</span>
+            <svg class="sug-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages List -->
+      <div class="messages-list" *ngIf="messages.length > 0">
+
+        <div *ngFor="let msg of messages"
+             class="msg-row"
+             [class.msg-user]="msg.role === 'user'"
+             [class.msg-ai]="msg.role === 'assistant'">
+
+          <!-- AI -->
+          <ng-container *ngIf="msg.role === 'assistant'">
+            <div class="ai-avatar-wrap">
+              <div class="ai-avatar">
+                <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
+                  <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
+                  <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.55"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ai-bubble-wrap">
+              <span class="sender-label">خدمتك AI</span>
+              <div class="bubble ai-bubble" [innerHTML]="msg.content"></div>
+              <div class="msg-actions">
+                <button class="act-btn" (click)="copyMessage(msg.content)" title="نسخ">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  نسخ
+                </button>
+                <button class="act-btn" title="مفيد">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+                    <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                  </svg>
+                  مفيد
+                </button>
+                <button class="act-btn" title="إعادة">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10"/>
+                    <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+                  </svg>
+                  إعادة
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- User -->
+          <ng-container *ngIf="msg.role === 'user'">
+            <div class="user-bubble-wrap">
+              <div class="bubble user-bubble">{{ msg.content }}</div>
+            </div>
+            <div class="user-av-wrap">
+              <div class="user-avatar-sm">أ</div>
+            </div>
+          </ng-container>
+
+        </div>
+
+        <!-- Typing -->
+        <div class="msg-row msg-ai" *ngIf="isTyping">
+          <div class="ai-avatar-wrap">
+            <div class="ai-avatar">
+              <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
+                <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
+                <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.55"/>
+              </svg>
+            </div>
+          </div>
+          <div class="ai-bubble-wrap">
+            <span class="sender-label">خدمتك AI</span>
+            <div class="bubble ai-bubble typing-bubble">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-zone">
+      <div class="input-inner">
+
+        <div class="file-chips" *ngIf="uploadedFiles.length > 0">
+          <div class="file-chip" *ngFor="let f of uploadedFiles; let i = index">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            {{ f }}
+            <button (click)="removeFile(i)">×</button>
+          </div>
+        </div>
+
+        <div class="input-box">
+          <button class="attach-btn" (click)="triggerUpload()" title="رفع مستند">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+          <input #fileInput type="file" style="display:none" (change)="onFileSelected($event)" multiple accept=".pdf,.jpg,.png,.doc,.docx"/>
+
+          <textarea
+            #messageInput
+            [(ngModel)]="currentMessage"
+            (keydown.enter)="onEnterKey($any($event))"
+            (input)="autoResize($event)"
+            placeholder="اكتب سؤالك عن أي خدمة حكومية..."
+            rows="1"
+            class="msg-input"
+          ></textarea>
+
+          <button
+            class="send-btn"
+            [class.ready]="currentMessage.trim().length > 0"
+            [class.stop]="isTyping"
+            (click)="isTyping ? stopGeneration() : sendMessage()"
+            [disabled]="!currentMessage.trim() && !isTyping"
+          >
+            <svg *ngIf="!isTyping" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+            <svg *ngIf="isTyping" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <p class="disclaimer-text">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          خدمتك AI قد تُخطئ — تحقق دائماً من المعلومات الرسمية
+        </p>
+      </div>
+    </div>
+
+  </main>
+</div>
