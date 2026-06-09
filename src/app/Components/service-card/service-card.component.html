@@ -1,0 +1,35 @@
+<div class="service-card" dir="rtl" (click)="viewDetails()">
+  <!-- Category Badge -->
+  <div class="card-badge" [style.background]="getCategoryColor() + '18'" [style.color]="getCategoryColor()">
+    {{ getCategoryLabel() }}
+  </div>
+
+  <!-- Icon -->
+  <div class="card-icon-wrap" [style.background]="getCategoryColor() + '15'">
+    <i [class]="'bi ' + service.icon" [style.color]="getCategoryColor()"></i>
+  </div>
+
+  <!-- Content -->
+  <div class="card-body">
+    <h3 class="card-title">{{ service.title }}</h3>
+    <p class="card-desc">{{ service.description }}</p>
+  </div>
+
+  <!-- Meta -->
+  <div class="card-meta">
+    <span class="meta-item">
+      <i class="bi bi-clock"></i>
+      {{ service.processingMinutes }} دقيقة
+    </span>
+    <span class="meta-item">
+      <i class="bi bi-file-earmark-text"></i>
+      {{ service.documentsCount }} مستندات
+    </span>
+  </div>
+
+  <!-- Action -->
+  <button class="view-btn" (click)="$event.stopPropagation(); viewDetails()">
+    <span>عرض التفاصيل</span>
+    <i class="bi bi-arrow-left"></i>
+  </button>
+</div>

@@ -1,0 +1,32 @@
+<div class="services-page" dir="rtl">
+  <!-- Page Hero -->
+  <div class="page-hero">
+    <div class="container">
+      <div class="hero-text">
+        <h1 class="hero-title">{{ pageTitle }}</h1>
+        <p class="hero-subtitle">{{ pageSubtitle }}</p>
+      </div>
+      <!-- Search Bar -->
+      <app-search-bar (searchChange)="onSearch($event)"></app-search-bar>
+      <!-- Category Tabs -->
+      <app-category-tabs></app-category-tabs>
+    </div>
+  </div>
+
+  <!-- Services Grid -->
+  <div class="container services-container">
+    <div *ngIf="services.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-search"></i>
+      </div>
+      <h3>لا توجد نتائج</h3>
+      <p>جرب البحث بكلمات مختلفة أو تصفح الفئات الأخرى</p>
+    </div>
+
+    <div class="services-grid" *ngIf="services.length > 0">
+      <div class="grid-item" *ngFor="let service of services">
+        <app-service-card [service]="service"></app-service-card>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,116 @@
+// Shared page styles used across all category pages
+.services-page {
+  min-height: 100vh;
+  background: #f0f4ff;
+}
+
+.page-hero {
+  background: linear-gradient(135deg, #012050 0%, #023264 50%, #487fb9 100%);
+  padding: 48px 0 64px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60px;
+    left: -80px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    right: -40px;
+    width: 250px;
+    height: 250px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 50%;
+  }
+}
+
+.hero-text {
+  text-align: center;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.services-container {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 8px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.grid-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  color: #94a3b8;
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: #e2e8f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+
+    i { font-size: 2rem; color: #cbd5e1; }
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}

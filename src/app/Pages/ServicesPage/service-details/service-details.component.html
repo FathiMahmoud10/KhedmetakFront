@@ -1,0 +1,169 @@
+<div class="details-page" dir="rtl" *ngIf="service; else notFoundTpl">
+
+  <!-- Hero Header -->
+  <div class="details-hero" [style.background]="'linear-gradient(135deg, ' + getCategoryColor() + 'dd 0%, ' + getCategoryColor() + ' 100%)'">
+    <div class="container">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb-nav">
+        <a routerLink="/services" class="bc-link">الخدمات</a>
+        <i class="bi bi-chevron-left bc-sep"></i>
+        <a [routerLink]="getCategoryRoute()" class="bc-link">{{ getCategoryLabel() }}</a>
+        <i class="bi bi-chevron-left bc-sep"></i>
+        <span class="bc-current">{{ service.title }}</span>
+      </nav>
+
+      <div class="hero-content">
+        <div class="hero-icon-wrap">
+          <i [class]="'bi ' + service.icon"></i>
+        </div>
+        <div class="hero-text">
+          <h1 class="hero-title">{{ service.title }}</h1>
+          <p class="hero-desc">{{ service.description }}</p>
+          <div class="hero-badges">
+            <span class="hero-badge">
+              <i class="bi bi-clock"></i>
+              {{ service.estimatedTime }}
+            </span>
+            <span class="hero-badge">
+              <i class="bi bi-currency-dollar"></i>
+              الرسوم: {{ service.fees }}
+            </span>
+            <span class="hero-badge">
+              <i class="bi bi-file-earmark-text"></i>
+              {{ service.documentsCount }} مستندات مطلوبة
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="container details-container">
+    <div class="details-grid">
+
+      <!-- Left Column: Documents + Steps -->
+      <div class="details-main">
+
+        <!-- Required Documents -->
+        <div class="details-card">
+          <div class="card-header">
+            <div class="card-header-icon" style="background:#eff6ff; color:#2563eb">
+              <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <h2 class="card-header-title">المستندات المطلوبة</h2>
+          </div>
+          <div class="documents-list">
+            <div
+              *ngFor="let doc of service.documents"
+              class="document-item"
+              [class.required]="doc.required"
+              [class.optional]="!doc.required"
+            >
+              <div class="doc-check">
+                <i class="bi" [class.bi-check-circle-fill]="doc.required" [class.bi-circle]="!doc.required"></i>
+              </div>
+              <span class="doc-name">{{ doc.name }}</span>
+              <span class="doc-tag" *ngIf="!doc.required">اختياري</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Steps -->
+        <div class="details-card">
+          <div class="card-header">
+            <div class="card-header-icon" style="background:#f0fdf4; color:#10b981">
+              <i class="bi bi-list-ol"></i>
+            </div>
+            <h2 class="card-header-title">خطوات تقديم الخدمة</h2>
+          </div>
+          <div class="steps-list">
+            <div class="step-item" *ngFor="let step of service.steps">
+              <div class="step-number">{{ step.order }}</div>
+              <div class="step-content">
+                <p class="step-desc">{{ step.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Summary + Actions -->
+      <div class="details-sidebar">
+
+        <!-- Service Summary -->
+        <div class="details-card summary-card">
+          <h3 class="summary-title">ملخص الخدمة</h3>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="bi bi-clock-fill"></i>
+              المدة المتوقعة
+            </span>
+            <span class="summary-value">{{ service.estimatedTime }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="bi bi-cash-coin"></i>
+              الرسوم
+            </span>
+            <span class="summary-value fees">{{ service.fees }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="bi bi-file-earmark-text-fill"></i>
+              عدد المستندات
+            </span>
+            <span class="summary-value">{{ service.documentsCount }} مستند</span>
+          </div>
+
+          <div class="summary-row">
+            <span class="summary-label">
+              <i class="bi bi-hourglass-split"></i>
+              وقت التقديم
+            </span>
+            <span class="summary-value">{{ service.processingMinutes }} دقيقة</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-primary-action" (click)="startService()">
+            <i class="bi bi-play-circle-fill"></i>
+            <span>ابدأ الخدمة</span>
+          </button>
+
+          <button class="btn-ai-action" (click)="askAssistant()">
+            <i class="bi bi-stars"></i>
+            <span>اسأل المساعد الذكي</span>
+          </button>
+        </div>
+
+        <!-- Back Button -->
+        <button class="btn-back" (click)="goBack()">
+          <i class="bi bi-arrow-right"></i>
+          العودة للخدمات
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 404 Template -->
+<ng-template #notFoundTpl>
+  <div class="not-found-page" dir="rtl">
+    <div class="not-found-content">
+      <div class="not-found-icon">
+        <i class="bi bi-exclamation-circle"></i>
+      </div>
+      <h2>الخدمة غير موجودة</h2>
+      <p>لم نتمكن من العثور على هذه الخدمة. يرجى التحقق من الرابط أو تصفح الخدمات المتاحة.</p>
+      <button class="btn-primary-action" routerLink="/services">
+        <i class="bi bi-grid-fill"></i>
+        تصفح جميع الخدمات
+      </button>
+    </div>
+  </div>
+</ng-template>

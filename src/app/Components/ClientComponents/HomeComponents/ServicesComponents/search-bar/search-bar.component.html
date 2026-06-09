@@ -1,0 +1,19 @@
+<div class="search-wrapper">
+  <div class="search-input-group">
+    <span class="search-icon">
+      <i class="bi bi-search"></i>
+    </span>
+    <input
+      type="text"
+      class="search-input"
+      [placeholder]="placeholder"
+      [(ngModel)]="query"
+      (ngModelChange)="onInput()"
+      autocomplete="off"
+      dir="rtl"
+    />
+    <button *ngIf="query" class="clear-btn" (click)="clear()" type="button">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+</div>

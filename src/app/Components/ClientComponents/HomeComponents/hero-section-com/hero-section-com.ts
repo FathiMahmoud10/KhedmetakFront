@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { SharedService } from '../../../../APIServices/SharedServices/shared-service';
+import { IService } from '../../../../Utilities/Interfaces/IService';
 
 @Component({
   selector: 'app-hero-section-com',

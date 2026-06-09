@@ -1,0 +1,16 @@
+<div class="category-tabs-wrapper" dir="rtl">
+  <div class="tabs-scroll-container">
+    <div class="tabs-inner">
+      <button
+        *ngFor="let cat of categories"
+        class="tab-chip"
+        [class.active]="isActive(cat.route)"
+        (click)="navigate(cat.route)"
+        type="button"
+      >
+        <i [class]="'bi ' + cat.icon + ' tab-icon'"></i>
+        <span>{{ cat.label }}</span>
+      </button>
+    </div>
+  </div>
+</div>

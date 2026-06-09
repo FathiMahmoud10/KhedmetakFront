@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { IService } from '../../Utilities/Interfaces/IService';
 
 @Injectable({
   providedIn: 'root',

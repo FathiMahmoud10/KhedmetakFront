@@ -13,6 +13,11 @@ export const routes: Routes = [
     // {path:'services'},
     {path:'login',component:LoginComponent},
     {path:'SignUp',component:SignupComponent },
+      {
+    path: 'services',
+    loadChildren: () =>
+      import('./services.routes').then(m => m.SERVICES_ROUTES),
+  },
     // {path:'signup'},
 
 
