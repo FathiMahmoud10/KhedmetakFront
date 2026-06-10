@@ -1,0 +1,136 @@
+<div class="dashboard">
+
+    <!-- 1️⃣ قسم الترحيب العلوي (Hero Section) -->
+    <div class="hero-section">
+      <div class="hero-content">
+        <h1>مرحباً بك في لوحة التحكم</h1>
+        <h2>Khedmetak AI</h2>
+        <p>مساعدك الذكي للخدمات الحكومية</p>
+      </div>
+      <div class="hero-image">
+        <img src="assets/images/dashboard-hero.png" alt="Khedmetak AI" onerror="this.style.display='none'">
+      </div>
+    </div>
+  
+    <!-- 2️⃣ حاوية كروت الإحصائيات الأربعة العلوية -->
+    <div class="stats-container">
+  
+      <div class="stat-card">
+        <div class="card-info">
+          <span class="card-title">معدل رضا المستخدمين</span>
+          <span class="card-value">94%</span>
+          <span class="card-sub positive">+5% عن الشهر الماضي</span>
+        </div>
+        <div class="card-icon-box gold">★</div>
+      </div>
+  
+      <div class="stat-card">
+        <div class="card-info">
+          <span class="card-title">المستخدمين النشطين</span>
+          <span class="card-value">842</span>
+          <span class="card-sub positive">+12% عن الشهر الماضي</span>
+        </div>
+        <div class="card-icon-box green">👤</div>
+      </div>
+  
+      <div class="stat-card">
+        <div class="card-info">
+          <span class="card-title">إجمالي الطلبات</span>
+          <span class="card-value">1,248</span>
+          <span class="card-sub positive">+15% عن الشهر الماضي</span>
+        </div>
+        <div class="card-icon-box blue">📄</div>
+      </div>
+  
+      <div class="stat-card">
+        <div class="card-info">
+          <span class="card-title">إجمالي الخدمات</span>
+          <span class="card-value">24</span>
+          <span class="card-sub positive">+3 هذا الشهر</span>
+        </div>
+        <div class="card-icon-box dark-green">🛎️</div>
+      </div>
+  
+    </div>
+  
+    <!-- 3️⃣ حاوية الجزء الأوسط: الرسم البياني والجدول -->
+    <div class="main-content-grid">
+  
+      <!-- كارت الرسم البياني -->
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>إحصائيات الطلبات</h3>
+          <div class="filter-dropdown">
+            <select>
+              <option>آخر 6 أشهر</option>
+              <option>آخر شهر</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="chart-wrapper">
+          <canvas baseChart
+                  [data]="lineChartData"
+                  [options]="lineChartOptions"
+                  [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+    
+      <!-- كارت جدول الطلبات الأخيرة -->
+      <div class="table-card">
+        <div class="card-header">
+          <h3>عرض الكل</h3>
+          <a href="#" class="view-all-link">عرض الكل</a>
+        </div>
+    
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>رقم الطلب</th>
+                <th>الخدمة</th>
+                <th>المستخدم</th>
+                <th>الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="req-number">#REQ-1250</span> <i class="far fa-copy copy-icon"></i></td>
+                <td>إصدار بطاقة رقم قومي</td>
+                <td>أحمد محمد</td>
+                <td><span class="status-badge completed">مكتمل</span></td>
+              </tr>
+              <tr>
+                <td><span class="req-number">#REQ-1249</span> <i class="far fa-copy copy-icon"></i></td>
+                <td>تجديد رخصة القيادة</td>
+                <td>فاطمة علي</td>
+                <td><span class="status-badge pending">قيد المراجعة</span></td>
+              </tr>
+              <tr>
+                <td><span class="req-number">#REQ-1248</span> <i class="far fa-copy copy-icon"></i></td>
+                <td>شهادة الميلاد</td>
+                <td>محمد حسن</td>
+                <td><span class="status-badge processing">قيد المعالجة</span></td>
+              </tr>
+              <tr>
+                <td><span class="req-number">#REQ-1247</span> <i class="far fa-copy copy-icon"></i></td>
+                <td>إصدار بطاقة رقم قومي</td>
+                <td>سارة أحمد</td>
+                <td><span class="status-badge rejected">مرفوض</span></td>
+              </tr>
+              <tr>
+                <td><span class="req-number">#REQ-1246</span> <i class="far fa-copy copy-icon"></i></td>
+                <td>تجديد رخصة القيادة</td>
+                <td>علي محمود</td>
+                <td><span class="status-badge completed">مكتمل</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    
+    </div>
+  
+  </div>
+  

@@ -1,0 +1,96 @@
+$navyBlue: #023264;
+$hoverColor: #487fb9;
+
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  right: 0;
+  top: 0;
+  background-color: $navyBlue;
+  color: #ffffff;
+  padding: 24px 16px;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  img {
+    width: 60px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin: 0;
+    color: #ffffff;
+  }
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  position: relative; // تمكين تحديد موقع المؤشر الجانبي بدقة
+  padding: 12px 16px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 12px; // ترك مسافة ثابتة ومريحة بين الأيقونة والنص
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  i {
+    font-size: 1.2rem; // تكبير حجم الأيقونة لتكون واضحة
+    transition: transform 0.25s ease;
+  }
+
+  span {
+    white-space: nowrap;
+  }
+
+  // تأثير تمرير الماوس
+  &:hover {
+    background-color: rgba($hoverColor, 0.15);
+    color: #ffffff;
+    
+    i {
+      transform: scale(1.1); // تكبير الأيقونة بشكل خفيف وتفاعلي عند التمرير
+    }
+  }
+
+  // تأثير الصفحة النشطة حالياً
+  &.active {
+    background-color: rgba($hoverColor, 0.25); // خلفية شبه شفافة أنيقة ومتناسقة
+    color: #ffffff;
+    font-weight: 600;
+
+    // إضافة الخط المضيء التفاعلي على يمين الزر النشط (بما أن المحاذاة لليمين)
+    &::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 20%;
+      height: 60%;
+      width: 4px;
+      background-color: #ffffff; // لون الخط المضيء
+      border-radius: 4px 0 0 4px;
+    
+      git remote add origin https://github.com/ayaabelaal/KhedmetakFront.git
+    }
+  }
+}
