@@ -1,0 +1,50 @@
+// تنسيقات عامة للموقع بالكامل عند تفعيل كلاس الـ dark-theme
+body.dark-theme {
+    background-color: #121212 !important; // خلفية الموقع السوداء الفخمة للـ Dark mode
+    color: #e0e0e0 !important;
+  
+    // تحويل جميع كروت لوحة التحكم والبروفايل والخدمات للوضع الداكن تلقائياً
+    .card, .profile-card, .service-management-card {
+      background-color: #1d1d1d !important;
+      border-color: #2c2c2c !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+      color: #e0e0e0 !important;
+      
+      h2, h3, h5, h6, label {
+        color: #ffffff !important;
+      }
+      p, .text-muted, small {
+        color: #b0b0b0 !important;
+      }
+    }
+  
+    // تحويل جميع خانات الإدخال والحقول للون الداكن المتناسق
+    input, select, textarea {
+      background-color: #252525 !important;
+      border-color: #3d3d3d !important;
+      color: #ffffff !important;
+      
+      &:focus {
+        border-color: #487fb9 !important;
+      }
+      &:disabled {
+        background-color: #1a1a1a !important;
+        color: #707070 !important;
+      }
+    }
+  
+    // تنسيق الجدول الداكن داخل الـ Dashboard
+    .table {
+      color: #e0e0e0 !important;
+      thead tr {
+        background-color: #252525 !important;
+        th { color: #ffffff !important; border-bottom-color: #3d3d3d !important; }
+      }
+      tbody tr {
+        border-bottom-color: #2c2c2c !important;
+        td { color: #e0e0e0 !important; border-bottom-color: #2c2c2c !important; }
+        &:hover { background-color: rgba(255,255,255,0.02) !important; }
+      }
+    }
+  }
+  

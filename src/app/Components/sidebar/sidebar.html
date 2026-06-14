@@ -1,0 +1,53 @@
+<!-- الحاوية الرئيسية للسايد بار (تم تحويلها لـ aside لتصبح مقتطعة وثابتة جانباً) -->
+<aside class="custom-admin-drawer" style="direction: rtl; font-family: 'Cairo', sans-serif;">
+    <div class="drawer-content-box">
+      
+      <div>
+        <!-- الجزء العلوي: هيدر لوحة التحكم للـ Sidebar -->
+        <div class="drawer-header-section">
+          <h5 class="drawer-main-title">لوحة التحكم</h5>
+          <small class="drawer-sub-title">نظام Khedmetak AI</small>
+        </div>
+    
+        <!-- روابط التنقل المحدثة بالكلاسات الصحيحة وتأثير الهوفر والـ Active -->
+        <ul class="drawer-nav-list">
+          
+          <!-- 1. رابط الرئيسية -->
+          <li class="drawer-item">
+            <a routerLink="/admin-dashboard" routerLinkActive="active-link" class="drawer-link">
+              <i class="fas fa-chart-pie"></i>
+              <span>الرئيسية (الإحصائيات)</span>
+            </a>
+          </li>
+    
+          <!-- 2. رابط إدارة الخدمات -->
+          <li class="drawer-item">
+            <a routerLink="/manage-services" routerLinkActive="active-link" class="drawer-link">
+              <i class="fas fa-cogs"></i>
+              <span>إدارة الخدمات الحكومية</span>
+            </a>
+          </li>
+    
+          <!-- 3. رابط ملف الأدمن -->
+          <li class="drawer-item">
+            <a routerLink="/admin-profile" routerLinkActive="active-link" class="drawer-link">
+              <i class="fas fa-user-shield"></i>
+              <span>ملف الأدمن الشخصي</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+    
+      <!-- الجزء السفلي: كارت تعريفي محدث ومستقل تماماً بالأدمن المسؤول -->
+      <div class="drawer-admin-footer">
+        <img src="assets/images/images.jpg" alt="Admin" class="rounded-circle admin-avatar" width="40" height="40" onerror="this.src='https://ui-avatars.com'">
+        <div class="admin-info-text">
+          <h6 class="admin-name">مدير النظام</h6>
+          <small class="admin-email">admin@khedmetak.gov.eg</small>
+        </div>
+      </div>
+    
+    </div>
+  </aside>
+  

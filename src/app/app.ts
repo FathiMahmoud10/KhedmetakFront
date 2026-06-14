@@ -1,16 +1,39 @@
-import { Component, signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd, RouterModule } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { FooterCom } from "./Components/SharedComponents/footer-com/footer-com";
 import { NavbarCom } from "./Components/SharedComponents/navbar-com/navbar-com";
-import { HomePage } from './Pages/home-page/home-page';
-
 
 @Component({
   selector: 'app-root',
-  imports: [RouterModule, FooterCom, NavbarCom,HomePage],
+  imports: [CommonModule, RouterModule, FooterCom, NavbarCom],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
-export class App {
-  // protected readonly title = signal('KhedmetakFront');
+export class App implements OnInit {
+  // استخدام متغير showFooter الموحد للتحكم في ظهور الفوتر السفلي
+  showFooter: boolean = true;
+
+  constructor(private router: Router) {}
+
+  ngOnInit(): void {
+    // مراقبة التنقل بين الروابط لإخفاء الفوتر السفلي فقط في صفحات الأدمن
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const currentUrl = event.url;
+      
+      // إذا كان الرابط يخص صفحات الأدمن، نقوم بإخفاء الفوتر
+      if (
+        currentUrl.includes('admin-profile') || 
+        currentUrl.includes('admin-dashboard') || 
+        currentUrl.includes('manage-services')
+      ) {
+        this.showFooter = false;
+      } else {
+        this.showFooter = true;
+      }
+    });
+  }
 }

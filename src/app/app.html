@@ -1,7 +1,10 @@
+<!-- الناف بار العلوي الموحد يظهر دائماً في كل الصفحات تفاعلياً -->
 <app-navbar-com></app-navbar-com>
 
+<!-- محتوى الصفحات المتنقلة ديناميكياً -->
 <router-outlet></router-outlet>
-<!-- <app-home-page></app-home-page> -->
 
-<app-footer-com></app-footer-com>
+<!-- عرض الفوتر السفلي فقط بناءً على قيمة المتغير الموحد showFooter -->
+<app-footer-com *ngIf="showFooter"></app-footer-com>
+
 

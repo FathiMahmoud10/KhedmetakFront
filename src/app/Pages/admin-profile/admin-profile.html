@@ -1,0 +1,86 @@
+<app-sidebar></app-sidebar>
+<div style="margin-right: 260px;">
+  <!-- ... كود الـ HTML الحالي لصفحة إدارة الخدمات بالكامل يوضع هنا ... -->
+</div>
+<div class="admin-profile-container">
+  
+    <!-- الجانب الأيمن: بطاقة التعريف السريعة والصورة -->
+    <div class="profile-card sidebar-profile">
+      <div class="avatar-box">
+        <img [src]="selectedAvatar" alt="Admin Avatar" onerror="this.src='https://ui-avatars.com'" >
+        <button class="upload-btn">
+          <i class="fas fa-camera"></i>
+        </button>
+      </div>
+      <h2>{{ profileForm.get('fullName')?.value }}</h2>
+      <p>الأدمن المسؤول عن إدارة الخدمات الحكومية الذكية</p>
+    </div>
+  
+    <!-- الجانب الأيسر: استمارات تعديل البيانات الشخصية والأمان -->
+    <div class="profile-card details-profile">
+      <h3>معلومات الحساب الشخصي</h3>
+      
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- السطر الأول: الاسم الكامل والبريد الإلكتروني -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>الاسم الكامل</label>
+            <input type="text" formControlName="fullName" [class.is-invalid]="profileForm.get('fullName')?.invalid && (profileForm.get('fullName')?.dirty || profileForm.get('fullName')?.touched)">
+            <div *ngIf="profileForm.get('fullName')?.invalid && (profileForm.get('fullName')?.dirty || profileForm.get('fullName')?.touched)" class="error-container">
+              <small *ngIf="profileForm.get('fullName')?.errors?.['required']">حقل الاسم مطلوب ولا يمكن تركه فارغاً.</small>
+              <small *ngIf="profileForm.get('fullName')?.errors?.['minlength']">يجب أن يتكون الاسم من 3 أحرف على الأقل.</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" formControlName="email" [class.is-invalid]="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)">
+            <div *ngIf="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)" class="error-container">
+              <small *ngIf="profileForm.get('email')?.errors?.['required']">البريد الإلكتروني مطلوب للاتصال.</small>
+              <small *ngIf="profileForm.get('email')?.errors?.['email']">صيغة البريد غير صحيحة (مثال: name@example.com).</small>
+            </div>
+          </div>
+        </div>
+  
+        <!-- السطر الثاني: رقم الهاتف والوظيفة -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="text" formControlName="phone" [class.is-invalid]="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)">
+            <div *ngIf="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)" class="error-container">
+              <small *ngIf="profileForm.get('phone')?.errors?.['required']">رقم الهاتف مطلوب للتواصل الطارئ.</small>
+              <small *ngIf="profileForm.get('phone')?.errors?.['pattern']">يجب إدخال رقم هاتف مصري صحيح مكون من 11 رقماً.</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>الدور / الصلاحية</label>
+            <input type="text" formControlName="role">
+          </div>
+        </div>
+  
+        <h3>تغيير كلمة المرور</h3>
+        <!-- السطر الثالث: تعديل كلمة المرور -->
+        <div class="form-row">
+          <div class="form-group">
+            <label>كلمة المرور الحالية</label>
+            <input type="password" formControlName="currentPassword" placeholder="********" [class.is-invalid]="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)">
+            <div *ngIf="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)" class="error-container">
+              <small *ngIf="profileForm.get('currentPassword')?.errors?.['minlength']">كلمة المرور يجب ألا تقل عن 6 أحرف.</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>كلمة المرور الجديدة</label>
+            <input type="password" formControlName="newPassword" placeholder="********" [class.is-invalid]="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)">
+            <div *ngIf="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)" class="error-container">
+              <small *ngIf="profileForm.get('newPassword')?.errors?.['minlength']">كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف.</small>
+            </div>
+          </div>
+        </div>
+  
+        <!-- زر الحفظ الأخضر متناسق مع الواجهة ويتم تعطيله برمجياً -->
+        <div class="form-actions">
+          <button type="submit" class="save-btn" [disabled]="profileForm.invalid">حفظ التغييرات</button>
+        </div>
+      </form>
+    </div>
+  
+  </div>

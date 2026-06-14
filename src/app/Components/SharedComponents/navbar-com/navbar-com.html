@@ -1,50 +1,112 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light " style="position: fixed; width: 100%; z-index: 999;">
-  <div class="container-fluid bg-light">
-     <a class="navbar-brand" href="#">
-      <img src="\Images\Logo3.png" alt="" width="40" height="50">
-    </a>
-
-    <div class="d-flex flex-column">  
-      <a class="navbar-brand mb-0" href="#">
-        <h3 class="mb-0 mx-auto">Khedmetak AI</h3>
-      </a>
-
-      <span >
-        مساعد ذكي للخدمات الحكومية 
-      </span>
-    </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm" style="position: fixed; width: 100%; z-index: 1050; top: 0; direction: rtl;">
+  <div class="container-fluid d-flex justify-content-between align-items-center py-1">
     
-    <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button> -->
+    <!-- جهة اليمين: زر الـ 3 شرط للأدمن وشعار الموقع الثابت -->
+    <div class="d-flex align-items-center gap-2">
+      <!-- زر الـ 3 شرط يظهر فقط داخل صفحات الأدمن ويختفي في الهوم -->
+         <!-- زر الـ 3 شرط باللون الكحلي الصريح المخصص لفتح السايد بار -->
+         <button *ngIf="isAdminPage" class="btn btn-link text-dark fs-3 py-0 px-2 me-3 border-0" (click)="toggleSidebar()" type="button" style="color: #023264 !important; outline: none; box-shadow: none;">
+          &#9776; القائمة
 
-    <div class="collapse navbar-collapse" id="navbarSupportedContent  mx-auto d-flex justify-content-center">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item mx-2">
-          <a class="nav-link active" aria-current="page" routerLink="/home">الرئيسية</a>
-        </li>
-        <li class="nav-item mx-2">
-          <a class="nav-link" routerLink="/chat">المساعد الذكي</a>
-        </li>
-        <li class="nav-item dropdown mx-2" >
-          <a class="nav-link"  routerLink="services"  role="button"  aria-expanded="false">
-            الخدمات
-          </a>
-        
-        </li>
-      </ul>
+        </button>
+  
 
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
-        
-        <li class="nav-item">
-          <a class="nav-link " aria-current="page" routerLink="/SignUp">حساب جديد</a>
-        </li>
-        
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/login">تسجيل الدخول</a>
-        </li>
-       
+      <a class="navbar-brand d-flex align-items-center m-0" routerLink="/home" style="cursor: pointer;">
+        <img src="\Images\Logo3.png" alt="Logo" width="40" height="50" class="me-2">
+        <div class="d-flex flex-column text-end mx-2">  
+          <h3 class="mb-0 fs-5 fw-bold" style="color: #023264; font-family: 'Cairo', sans-serif;">Khedmetak AI</h3>
+          <small class="text-muted" style="font-size: 11px; font-family: 'Cairo', sans-serif;" *ngIf="!isAdminPage">مساعد ذكي للخدمات الحكومية</small>
+          <small class="fw-bold" style="font-size: 11px; color: #298b64; font-family: 'Cairo', sans-serif;" *ngIf="isAdminPage">لوحة تحكم النظام</small>
+        </div>
+      </a>
+    </div>
+
+    <!-- المنتصف: الروابط الرئيسية الموحدة (تظل ثابتة للمواطنين وتختفي فقط عند الأدمن لمنع التشتيت) -->
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNav" *ngIf="!isAdminPage">
+      <ul class="navbar-nav mb-2 mb-lg-0" style="font-family: 'Cairo', sans-serif;">
+        <li class="nav-item mx-1"><a class="nav-link active" routerLink="/home">الرئيسية</a></li>
+        <li class="nav-item mx-1"><a class="nav-link" routerLink="/chat">المساعد الذكي</a></li>
+        <li class="nav-item mx-1"><a class="nav-link" routerLink="/services">الخدمات</a></li>
       </ul>
     </div>
+
+    <!-- جهة اليسار: زر الوضع الليلي وتخصيص الأزرار حسب الصفحة -->
+    <div class="d-flex align-items-center gap-2">
+      
+      <!-- زر تبديل الوضع الليلي (ثابت ومتاح في الداشبورد والهوم بنفس المكان) -->
+      <button class="btn rounded-circle py-2 px-3 border-0 bg-transparent fs-5" (click)="toggleDarkMode()" type="button" style="color: #023264;">
+        <i class="fas" [ngClass]="isDarkMode ? 'fa-sun text-warning' : 'fa-moon'"></i>
+      </button>
+
+      <!-- الأزرار المخصصة لصفحات الأدمن فقط -->
+      <ng-container *ngIf="isAdminPage">
+        <a class="btn btn-sm btn-outline-primary fw-bold px-3 py-2" routerLink="/home" style="border-radius: 8px; border-color: #487fb9; color: #487fb9; font-family: 'Cairo', sans-serif;">
+          <i class="fas fa-arrow-right me-1"></i> العودة للموقع الرئيسي
+        </a>
+      </ng-container>
+
+      <!-- أزرار الحساب المخصصة لشاشة الهوم والمواطنين -->
+      <ul class="navbar-nav flex-row gap-2 mb-0 border-0 align-items-center" *ngIf="!isAdminPage" style="font-family: 'Cairo', sans-serif;">
+        <li class="nav-item">
+          <a class="nav-link fw-bold px-2" routerLink="/admin-profile" style="color: #023264 !important;">
+            <i class="fas fa-user-shield me-1"></i> ملف الأدمن
+          </a>
+        </li>
+        <li class="nav-item"><a class="nav-link px-2" routerLink="/SignUp">حساب جديد</a></li>
+        <li class="nav-item"><a class="nav-link px-2" routerLink="/login">تسجيل الدخول</a></li>
+      </ul>
+    </div>
+
   </div>
 </nav>
+
+<!-- ========================================================== -->
+<!-- السايد بار المنبثق المطوّر (Drawer) الممتد بطول الشاشة بالكامل -->
+<!-- ========================================================== -->
+<div class="custom-admin-drawer" [ngClass]="{'open-sidebar': isSidebarOpen}" style="direction: rtl; font-family: 'Cairo', sans-serif;">
+  <div class="sidebar-inner-content d-flex flex-column justify-content-between p-3 h-100">
+    
+    <div>
+      <!-- هيدر القائمة الجانبية -->
+      <div class="text-center py-4 border-bottom border-secondary-subtle mb-4">
+        <h5 class="fw-bold mb-1 text-white">بوابة التحكم السريعة</h5>
+        <small class="text-white-50" style="font-size: 11px;">التحكم بـ Khedmetak AI</small>
+      </div>
+
+      <!-- قائمة الروابط والتنقل للأدمن -->
+      <ul class="nav nav-pills flex-column mb-auto p-0" style="list-style: none;">
+        <li class="nav-item mb-2">
+          <a routerLink="/admin-dashboard" class="nav-link-sidebar text-white d-flex align-items-center gap-2 py-3 px-3" (click)="toggleSidebar()">
+            <i class="fas fa-chart-pie"></i> <span>الرئيسية (الاحصائيات)</span>
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a routerLink="/manage-services" class="nav-link-sidebar text-white d-flex align-items-center gap-2 py-3 px-3" (click)="toggleSidebar()">
+            <i class="fas fa-cogs"></i> <span>إدارة الخدمات الحكومية</span>
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a routerLink="/admin-profile" class="nav-link-sidebar text-white d-flex align-items-center gap-2 py-3 px-3" (click)="toggleSidebar()">
+            <i class="fas fa-user-shield"></i> <span>ملف الأدمن الشخصي</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- بطاقة الأدمن التعريفية أسفل السايد بار -->
+    <div class="drawer-admin-footer p-2 rounded-3 d-flex align-items-center gap-2" style="background-color: rgba(255,255,255,0.06);">
+      <img src="assets/images/images.jpg" alt="Admin" class="rounded-circle" width="40" height="40" onerror="this.src='https://ui-avatars.com'">
+      <div class="text-end">
+        <h6 class="text-white small fw-bold mb-0">مدير النظام</h6>
+        <small class="text-white-50" style="font-size: 10px;">admin@khedmetak.gov.eg</small>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- شاشة شفافة معتمة تظهر في الخلفية لإغلاق القائمة عند الضغط خارجها -->
+<div class="sidebar-overlay" *ngIf="isSidebarOpen" (click)="toggleSidebar()"></div>
+
+<!-- مساحة تعويضية ثابتة تحت الناف بار لكي لا يختفي محتوى الصفحات والـ Dashboard تحته -->
+<div style="margin-top: 85px;"></div>

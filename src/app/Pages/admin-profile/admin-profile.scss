@@ -1,0 +1,205 @@
+// 1. تعريف الألوان المطلوبة
+$navyBlue: #023264;
+$hoverColor: #487fb9;
+$greenColor: #298b64;
+
+// 2. تنسيق الهيكل العام للصفحة
+.admin-profile-container {
+  display: flex;
+  gap: 30px;
+  padding: 40px;
+  background-color: #f8f9fa;
+  font-family: 'Cairo', sans-serif; // متناسق مع التصميم العربي
+  direction: rtl; // لضبط الاتجاه من اليمين لليسان
+}
+
+// بطاقات التصميم المشتركة
+.profile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+
+// الجانب الأيمن (الصورة والتعريف السريع)
+.sidebar-profile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  .avatar-box {
+    position: relative;
+    margin-bottom: 20px;
+
+    img {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .upload-btn {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: $greenColor;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s;
+
+      &:hover {
+        background: darken($greenColor, 10%);
+      }
+    }
+  }
+
+  h2 {
+    color: $navyBlue;
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+
+  p {
+    color: #6c757d;
+    font-size: 14px;
+  }
+}
+
+// الجانب الأيسر (البيانات التفصيلية)
+.details-profile {
+    flex: 2;
+  
+    h3 {
+      color: $navyBlue;
+      font-size: 18px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #f1f1f1;
+      padding-bottom: 10px;
+      text-align: center; // ليطابق العناوين المتمركزة بالصورة
+    }
+  
+    .form-group {
+      margin-bottom: 20px;
+      text-align: right; // لضمان محاذاة النصوص والـ labels لليمين
+  
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #495057;
+        font-weight: 600;
+      }
+  
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        font-size: 14px;
+        box-sizing: border-box;
+        text-align: center; // جعل المدخلات بالمنتصف مثل الصورة
+  
+        &:focus {
+          border-color: $hoverColor;
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(72, 127, 185, 0.2);
+        }
+        
+        &:disabled {
+          background-color: #f8f9fa;
+          color: #6c757d;
+        }
+      }
+    }
+  
+    .form-row {
+      display: flex;
+      gap: 20px;
+  
+      .form-group {
+        flex: 1;
+      }
+    }
+  
+    // تنسيق حاوية الأزرار لتوزيعهم بشكل متناسق في المنتصف مع وجود مسافة بينهم
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px; // مسافة أمان واضحة بين زر الحفظ وزر التراجع
+      margin-top: 30px;
+      width: 100%;
+    }
+  
+    // زر الحفظ الرئيسي (الأخضر)
+    .save-btn {
+      background-color: $greenColor;
+      color: white;
+      border: none;
+      padding: 12px 40px; 
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s, transform 0.2s;
+  
+      &:hover:not(:disabled) {
+        background-color: darken($greenColor, 5%);
+      }
+    }
+
+    // زر التراجع الجديد (الرمادي)
+    .cancel-btn {
+      background-color: #e4e6eb;
+      color: #4b4f56;
+      border: none;
+      padding: 12px 40px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s, color 0.3s;
+
+      &:hover {
+        background-color: #d8dadf;
+        color: #1c1e21;
+      }
+    }
+  
+    // نصوص التنبيه باللون الأحمر
+    .error-container {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 6px;
+      display: block;
+    }
+    
+    // تحويل لون حدود أي خانة بها خطأ إلى الأحمر فوراً مع خلفية خفيفة جداً
+    input.is-invalid {
+      border-color: #dc3545 !important;
+      background-color: #fff8f8 !important;
+      
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+      }
+    }
+    
+    // تعديل شكل زر الحفظ ليكون مطفأً ويدل على التعطيل عند وجود بيانات خاطئة
+    .save-btn:disabled {
+      background-color: #6c757d !important;
+      cursor: not-allowed !important;
+      opacity: 0.65;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+}

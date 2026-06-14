@@ -1,0 +1,79 @@
+// 1. استيراد متغيرات الألوان الرئيسية
+$navyBlue: #023264;
+$hoverColor: #487fb9;
+$greenColor: #298b64;
+
+// 2. تنسيقات كروت الإحصائيات (Cards)
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+  
+  &:hover {
+    transform: translateY(-5px); // حركة صعود خفيفة عند تمرير الماوس
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
+  }
+}
+
+// 3. تنسيقات الجدول الخاص بآخر الطلبات
+.table-responsive {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table {
+  thead {
+    tr {
+      background-color: #f8f9fa;
+      th {
+        color: #495057;
+        font-weight: 700;
+        font-size: 14px;
+        border-bottom: 2px solid #ebeef5;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: rgba(72, 127, 185, 0.03) !important; // إضاءة زرقاء خفيفة عند التمرير على السطر
+      }
+      
+      td {
+        padding: 16px 12px;
+        font-size: 14px;
+        color: #212529;
+        border-bottom: 1px solid #f1f1f1;
+      }
+    }
+  }
+}
+
+// 4. تنسيقات شارات الحالة (Badges) المتوافقة مع Bootstrap 5
+.bg-success-subtle {
+  background-color: rgba(41, 139, 100, 0.15) !important;
+}
+
+.bg-warning-subtle {
+  background-color: rgba(255, 193, 7, 0.15) !important;
+}
+
+.bg-danger-subtle {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+}
+
+// 5. تنسيقات أزرار الإجراءات داخل الجدول
+.btn-outline-primary {
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: $hoverColor;
+    border-color: $hoverColor;
+    color: #ffffff;
+  }
+}

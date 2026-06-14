@@ -1,0 +1,63 @@
+// 1. استيراد متغيرات الألوان الرئيسية لمشروعكِ
+$navyBlue: #023264;
+$hoverColor: #487fb9;
+$greenColor: #298b64;
+
+// 2. تنسيقات إضافية لحقول الاستمارة والمدخلات
+.form-control, .form-select {
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: $hoverColor;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(72, 127, 185, 0.2);
+  }
+}
+
+// 3. تنسيق كروت إدارة الخدمات الحالية (الجانب الأيسر)
+.service-management-card {
+  background-color: #ffffff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid #eef2f5 !important;
+
+  &:hover {
+    transform: translateY(-4px); // حركة صعود خفيفة عند تمرير الماوس
+    border-color: rgba(72, 127, 185, 0.3) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  }
+
+  // تحديد عدد أسطر الوصف بسطرين لضمان ثبات أحجام الكروت وتناسقها
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.6;
+    height: 45px; // ارتفاع ثابت للوصف لكي لا تختلف أحجام الكروت
+  }
+}
+
+// 4. تنسيق تأثير زر الحذف الفوري للأدمن
+.btn-outline-danger {
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+  }
+}
+
+// 5. زر الحفظ الرئيسي الأخضر
+.btn[style*="background-color: #298b64"] {
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: darken($greenColor, 6%) !important;
+  }
+}

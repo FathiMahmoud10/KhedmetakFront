@@ -1,27 +1,156 @@
 $navyBlue: #023264;
-$hoverColor:#487fb9;
+$hoverColor: #487fb9;
+$greenColor: #298b64;
 
-nav, h3,a{
+// توحيد نمط التنسيق الأساسي للـ Navbar في الهوم والداشبورد
+nav, h3, a {
     color: $navyBlue;
     border-radius: 5px;
+    transition: all 0.3s ease; 
 }
 
-// .nave-link{
-//     padding-right: 20px;
-//     padding-left: 10px;
-// }
-.nav-link:hover{
-    background-color: $hoverColor;
+.nav-link {
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+    color: $navyBlue !important;
     border-radius: 5px;
-    padding-right: 10px;
-    padding-left: 10px;
-    // color: white;
+    font-weight: 600;
+    text-decoration: none;
+    
+    &:hover {
+        background-color: $hoverColor;
+        color: white !important;
+    }
+
+    &.active {
+        background-color: $navyBlue;
+        color: white !important;
+    }
 }
 
-.nav-link.active{
-    background-color: $navyBlue;
-    border-radius: 5px;
-    color: white;
-    padding-right: 20px;
-    padding-left: 20px;
+// ==========================================================
+// تنسيق السايد بار المنبثق الاحترافي الموحد (Drawer)
+// ==========================================================
+.custom-admin-drawer {
+  width: 280px;
+  height: 100vh; // يمتد على كامل طول الشاشة لأسفلها
+  position: fixed; // تثبيت حر لكي ينزلق فوق الكروت والمحتوى بدون دفعهم
+  top: 0; // يبدأ من أعلى نقطة بالشاشة ليغطي الناف بار بالكامل عند الفتح
+  right: -280px !important; // 👈 إجبار السايد بار على الاختفاء تماماً خارج أبعاد الشاشة يميناً كوضع افتراضي
+  background-color: $navyBlue !important;
+  z-index: 1060; // يظهر فوق شريط الناف بار والمحتوى بنعومة وسلاسة
+  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); // أنيميشن انزلاق فخم وانسيابي
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+
+  // كلاس تفعيل انزلاق وظهور القائمة عند الضغط على الـ 3 شرط
+  &.open-sidebar {
+    right: 0 !important;
+  }
+
+  .sidebar-inner-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
+
+  .nav-link-sidebar {
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      padding-right: 20px; 
+    }
+  }
+}
+
+.drawer-admin-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// غطاء الخلفية المعتمة الشفافة عند فتح القائمة لغلقها
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1055;
+  backdrop-filter: blur(2px); // تأثير ضبابي جمالي فخم للمحتوى بالخلف
+}
+
+
+// ==========================================================
+// 2. التنسيق المنقح للـ Sidebar المنبثق المطابق لآخر سطور HTML لديكِ
+// ==========================================================
+.custom-admin-drawer {
+  width: 280px;
+  height: 100vh; // يمتد على كامل طول الشاشة لأسفلها
+  position: fixed;
+  top: 0;
+  right: -280px; // 👈 يبدأ مختفياً تماماً بالكامل خارج أبعاد الشاشة اليمنى كوضع افتراضي
+  background-color: $navyBlue;
+  z-index: 1060; // يظهر فوق شريط الناف بار والمحتوى بنعومة وسلاسة
+  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); // أنيميشن انزلاق انسيابي فخم
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+
+  // 👈 كلاس تفعيل انزلاق وظهور القائمة المطابق لـ open-sidebar في كود الـ HTML الخاص بكِ
+  &.open-sidebar {
+    right: 0 !important;
+  }
+
+  // تنسيق الروابط الداخلية للسايد بار لتظهر بيضاء وبخط Cairo
+  .nav-link-sidebar {
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    color: #ffffff !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.25s ease;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.08);
+      padding-right: 20px; // تأثير حركة ذكية وجميلة عند التمرير بالماوس
+    }
+  }
+}
+
+// تنسيقات الهيكل الداخلي والفوتر للسايد بار الخاص بكِ
+.sidebar-inner-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.admin-footer-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// 3. غطاء الخلفية المعتمة الشفافة عند فتح القائمة
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1055;
+  backdrop-filter: blur(2px); // تأثير ضبابي جمالي فخم للمحتوى بالخلف
 }

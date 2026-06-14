@@ -1,0 +1,225 @@
+<app-sidebar></app-sidebar>
+
+<!-- تعويض مساحة السايد بار (260px) جهة اليمين لكي لا يغطي على الكروت والإحصائيات -->
+
+  
+    <div class="container-fluid py-4" style="direction: rtl; font-family: 'Cairo', sans-serif;">
+      
+      <!-- العناوين الرئيسية -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold" style="color: #023264;">لوحة التحكم الرئيسية</h2>
+          <p class="text-muted mb-0">مرحباً بك مجدداً في نظام Khedmetak AI</p>
+        </div>
+       
+  
+      <!-- ... بقية كود الـ HTML الخاص بالـ Dashboard (الكروت، الرسم البياني، والجدول) المكتوب سابقاً دون أي تغيير ... -->
+  
+    </div>
+  
+  </div>
+  
+    <!-- السطر الأول: كروت الإحصائيات الأربعة السريعة -->
+    <div class="row g-3 mb-4">
+      <!-- كارت إجمالي الخدمات -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
+          <div>
+            <h6 class="text-muted mb-1">إجمالي الخدمات</h6>
+            <h3 class="fw-bold mb-0" style="color: #023264;">24</h3>
+          </div>
+          <div class="p-3 rounded-circle" style="background-color: rgba(2, 50, 100, 0.1); color: #023264;">
+            <i class="fas fa-concierge-bell fa-lg"></i>
+          </div>
+        </div>
+      </div>
+  
+      <!-- كارت إجمالي الطلبات -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
+          <div>
+            <h6 class="text-muted mb-1">إجمالي الطلبات الحكومية</h6>
+            <h3 class="fw-bold mb-0" style="color: #298b64;">1,248</h3>
+          </div>
+          <div class="p-3 rounded-circle" style="background-color: rgba(41, 139, 100, 0.1); color: #298b64;">
+            <i class="fas fa-file-invoice fa-lg"></i>
+          </div>
+        </div>
+      </div>
+  
+      <!-- كارت المستخدمين النشطين -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
+          <div>
+            <h6 class="text-muted mb-1">المستخدمين النشطين</h6>
+            <h3 class="fw-bold mb-0" style="color: #487fb9;">842</h3>
+          </div>
+          <div class="p-3 rounded-circle" style="background-color: rgba(72, 127, 185, 0.1); color: #487fb9;">
+            <i class="fas fa-users fa-lg"></i>
+          </div>
+        </div>
+      </div>
+  
+      <!-- كارت الطلبات المعلقة -->
+      <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
+          <div>
+            <h6 class="text-muted mb-1">طلبات قيد المراجعة</h6>
+            <h3 class="fw-bold mb-0" style="color: #ffc107;">15</h3>
+          </div>
+          <div class="p-3 rounded-circle" style="background-color: rgba(255, 193, 7, 0.1); color: #ffc107;">
+            <i class="fas fa-clock fa-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- السطر الثاني: الرسم البياني التفاعلي -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
+          <h5 class="fw-bold mb-3" style="color: #023264; text-align: right;">معدل الطلبات الأسبوعي المضافة للموقع</h5>
+          <div style="position: relative; height: 320px; width: 100%;">
+            <canvas #ordersChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- السطر الثالث: جدول آخر الطلبات المستلمة (اصبح ديناميكياً) -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
+          <h5 class="fw-bold mb-3" style="color: #023264; text-align: right;">آخر الطلبات المقدمة</h5>
+          
+          <div class="table-responsive">
+            <table class="table table-hover align-middle text-right mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="py-3">اسم المواطن</th>
+                  <th class="py-3">الخدمة المطلوبة</th>
+                  <th class="py-3">تاريخ الطلب</th>
+                  <th class="py-3">حالة الطلب</th>
+                  <th class="py-3 text-center">إجراءات</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- استخدام الـ ngFor لعرض الطلبات من المصفوفة -->
+                <tr *ngFor="let req of requestsList">
+                  <td class="fw-bold">{{ req.name }}</td>
+                  <td>{{ req.service }}</td>
+                  <td>{{ req.date }}</td>
+                  <td>
+                    <!-- تلوين الـ Badge ديناميكياً بناءً على الحالة -->
+                    <span class="badge px-3 py-2 rounded-pill" 
+                          [ngClass]="{
+                            'bg-success-subtle text-success': req.status === 'مقبول',
+                            'bg-warning-subtle text-warning': req.status === 'قيد المراجعة',
+                            'bg-danger-subtle text-danger': req.status === 'مرفوض'
+                          }">
+                      {{ req.status }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <!-- زر تفاعلي يفتح الـ Modal المكتوب في الأسفل ويمرر بيانات هذا السطر بالتحديد -->
+                    <button class="btn btn-sm btn-outline-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#detailsModal" 
+                            (click)="viewDetails(req)">
+                      عرض التفاصيل
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  
+    <!-- الـ Modal المنبثق: نافذة عرض تفاصيل المستندات والملفات المرفوعة -->
+    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true" style="text-align: right;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
+          
+          <!-- هيدر المودال -->
+          <div class="modal-header d-flex justify-content-between align-items-center" style="background-color: #023264; color: white; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+            <h5 class="modal-title fw-bold m-0" id="detailsModalLabel">تفاصيل طلب الخدمة الحكومية</h5>
+            <button type="button" class="btn-close btn-close-white m-0" data-bs-with dismiss="modal" aria-label="Close"></button>
+          </div>
+          
+          <!-- محتوى بيانات المواطن (يظهر فقط إذا كان هناك طلب محدد) -->
+          <div class="modal-body p-4" *ngIf="selectedRequest">
+            <div class="mb-3">
+              <span class="text-muted d-block" style="font-size: 13px;">اسم مقدم الطلب:</span>
+              <strong class="fs-5" style="color: #023264;">{{ selectedRequest.name }}</strong>
+            </div>
+            
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <span class="text-muted d-block" style="font-size: 13px;">الخدمة المستهدفة:</span>
+                <span class="fw-bold">{{ selectedRequest.service }}</span>
+              </div>
+              <div class="col-6">
+                <span class="text-muted d-block" style="font-size: 13px;">تاريخ التقديم:</span>
+                <span class="fw-bold text-ltr">{{ selectedRequest.date }}</span>
+              </div>
+            </div>
+  
+            <div class="row g-3 mb-4">
+              <div class="col-6">
+                <span class="text-muted d-block" style="font-size: 13px;">الرقم القومي:</span>
+                <span class="fw-bold">{{ selectedRequest.nationalId }}</span>
+              </div>
+              <div class="col-6">
+                <span class="text-muted d-block" style="font-size: 13px;">رقم الهاتف:</span>
+                <span class="fw-bold">{{ selectedRequest.phone }}</span>
+              </div>
+            </div>
+  
+            <!-- صندوق المرفقات والمستندات المرفوعة -->
+            <div class="p-3 bg-light rounded-3 mb-4 d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-file-pdf fa-2x text-danger me-2"></i>
+                <div class="mx-2">
+                  <span class="d-block fw-bold" style="font-size: 14px;">المستند الرسمي المرفق</span>
+                  <small class="text-muted">{{ selectedRequest.userFile }}</small>
+                </div>
+              </div>
+              <button class="btn btn-sm btn-dark px-3 rounded-pill">
+                <i class="fas fa-download me-1"></i> تحميل
+              </button>
+            </div>
+  
+            <!-- عرض الحالة الحالية داخل المودال -->
+            <div class="text-center mb-2">
+              <span class="text-muted" style="font-size: 13px;">حالة المعالجة الحالية: </span>
+              <span class="badge px-3 py-2 rounded-pill fw-bold" 
+                    [ngClass]="{
+                      'bg-success text-white': selectedRequest.status === 'مقبول',
+                      'bg-warning text-dark': selectedRequest.status === 'قيد المراجعة',
+                      'bg-danger text-white': selectedRequest.status === 'مرفوض'
+                    }">
+                {{ selectedRequest.status }}
+              </span>
+            </div>
+          </div>
+  
+          <!-- أزرار اتخاذ القرار (قبول / رفض) لـ الأدمن -->
+          <div class="modal-footer d-flex justify-content-center gap-2 border-0 pb-4">
+            <button type="button" class="btn px-4 fw-bold text-white" style="background-color: #298b64; border-radius: 8px;" (click)="updateStatus('مقبول')">
+              <i class="fas fa-check me-1"></i> قبول الطلب
+            </button>
+            <button type="button" class="btn px-4 fw-bold text-white" style="background-color: #dc3545; border-radius: 8px;" (click)="updateStatus('مرفوض')">
+              <i class="fas fa-times me-1"></i> رفض الطلب
+            </button>
+          </div>
+  
+        </div>
+      </div>
+    </div>
+  
+ 
+  
+  
