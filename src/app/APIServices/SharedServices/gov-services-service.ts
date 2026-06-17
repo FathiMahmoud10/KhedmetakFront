@@ -6,9 +6,9 @@ import { SharedService } from './shared-service';
 
 const CATEGORY_ID_MAP: Partial<Record<ServiceCategory, number>> = {
   'civil-status': 1,
-  traffic: 2,
-  passports: 3,
-  supply: 4,
+  'traffic': 2,
+  'passports': 3,
+  'supply': 4,
 };
 
 @Injectable({
@@ -44,7 +44,7 @@ export class GovServicesService {
         const q = query.trim().toLowerCase();
         if (!q) return services;
         return services.filter(
-          (s) => s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
+          (s) => s.srvName.toLowerCase().includes(q) || s.srvDesc.toLowerCase().includes(q)
         );
       })
     );
@@ -56,7 +56,7 @@ export class GovServicesService {
         const q = query.trim().toLowerCase();
         if (!q) return pool;
         return pool.filter(
-          (s) => s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
+          (s) => s.srvName.toLowerCase().includes(q) || s.srvDesc.toLowerCase().includes(q)
         );
       })
     );

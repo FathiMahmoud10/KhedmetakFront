@@ -33,34 +33,50 @@ export class LoginComponent {
     console.log('Google sign in');
   }
 
-  onSubmit() {
+ onSubmit() {
     this.validateEmail();
     this.validatePassword();
-    this.serverError = null;
 
     if (this.emailError || this.passwordError) return;
 
     this.isLoading = true;
+    this.serverError = null;
 
-    this.http.post<any>(`${environment.apiUrl}/Auth/login`, {
-      email: this.email,
-      password: this.password
-    }).subscribe({
+    this.http.post<any>(
+      `${environment.apiUrl}/Auth/login`,
+      {
+        email: this.email,
+        password: this.password
+      }
+    ).subscribe({
       next: (res) => {
-        this.isLoading = false;
-        if (res?.token) {
-          localStorage.setItem('token', res.token);
-        }
-        this.router.navigate(['/home']);
-      },
+  this.isLoading = false;
+
+  if (res?.data?.token) {
+
+    const expireDate = new Date(res.data.expiresAt);
+
+    document.cookie =
+      `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
+  }
+
+  this.router.navigate(['/home']);
+},
+
       error: (err) => {
         this.isLoading = false;
+
         if (err.status === 401) {
-          this.serverError = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+          this.serverError =
+            'البريد الإلكتروني أو كلمة المرور غير صحيحة';
         } else {
-          this.serverError = 'حدث خطأ، يرجى المحاولة مرة أخرى';
+          this.serverError =
+            'حدث خطأ، يرجى المحاولة مرة أخرى';
         }
       }
     });
   }
 }
+
+
+

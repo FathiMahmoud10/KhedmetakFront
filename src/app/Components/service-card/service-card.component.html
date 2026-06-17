@@ -6,19 +6,19 @@
 
   <!-- Content -->
   <div class="card-body">
-    <h3 class="card-title">{{ service.title }}</h3>
-    <p class="card-desc">{{ service.description }}</p>
+    <h3 class="card-title">{{ service.srvName }}</h3>
+    <p class="card-desc">{{ service.srvDesc }}</p>
   </div>
 
   <!-- Meta -->
   <div class="card-meta">
     <span class="meta-item">
       <i class="bi bi-clock"></i>
-      {{ service.processingTime }}
+      {{ service.srvTime }}
     </span>
     <span class="meta-item">
       <i class="bi bi-cash"></i>
-      {{ service.fees }} ج.م
+      {{ service.estimatedFees }} ج.م
     </span>
   </div>
 

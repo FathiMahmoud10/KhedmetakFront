@@ -17,7 +17,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'chat', component: ChatPageComponent },
-    { path: 'services', loadChildren: () => import('./services.routes').then(m => m.SERVICES_ROUTES) },
+    // { path: 'services', loadChildren: () => import('./services.routes').then(m => m.SERVICES_ROUTES) },
     { path: 'admin-dashboard', component: AdminDashboard },
     { path: 'admin-profile', component: AdminProfileComponent },
     { path: 'manage-services', component: ManageServices },
