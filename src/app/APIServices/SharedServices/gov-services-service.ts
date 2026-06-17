@@ -1,41 +1,64 @@
 import { Injectable } from '@angular/core';
-import { GovernmentService, ServiceCategory } from '../../Utilities/Interfaces/IService';
-import { GOVERNMENT_SERVICES, SERVICE_CATEGORIES } from '../../DB/data';
+import { Observable, map } from 'rxjs';
+import { IService, ServiceCategory } from '../../Utilities/Interfaces/IService';
+import { SERVICE_CATEGORIES } from '../../DB/data';
+import { SharedService } from './shared-service';
+
+const CATEGORY_ID_MAP: Partial<Record<ServiceCategory, number>> = {
+  'civil-status': 1,
+  traffic: 2,
+  passports: 3,
+  supply: 4,
+};
 
 @Injectable({
   providedIn: 'root',
 })
 export class GovServicesService {
-  
-  getAll(): GovernmentService[] {
-    return GOVERNMENT_SERVICES;
+  constructor(private sharedService: SharedService) {}
+
+  getAll(): Observable<IService[]> {
+    return this.sharedService.getAllServices();
   }
 
-  getByCategory(category: ServiceCategory): GovernmentService[] {
-    if (category === 'all') return GOVERNMENT_SERVICES;
-    return GOVERNMENT_SERVICES.filter(s => s.category === category);
-  }
-
-  getById(id: string): GovernmentService | undefined {
-    return GOVERNMENT_SERVICES.find(s => s.id === id);
-  }
-
-  search(query: string): GovernmentService[] {
-    const q = query.trim().toLowerCase();
-    if (!q) return GOVERNMENT_SERVICES;
-    return GOVERNMENT_SERVICES.filter(s =>
-      s.title.toLowerCase().includes(q) ||
-      s.description.toLowerCase().includes(q)
+  getByCategory(category: ServiceCategory): Observable<IService[]> {
+    return this.sharedService.getAllServices().pipe(
+      map((services: IService[]): IService[] => {
+        if (category === 'all') return services;
+        const categoryId = CATEGORY_ID_MAP[category];
+        if (categoryId === undefined) return services;
+        return services.filter((s: IService) => s.categoryId === categoryId);
+      })
     );
   }
 
-  searchInCategory(query: string, category: ServiceCategory): GovernmentService[] {
-    const pool = this.getByCategory(category);
-    const q = query.trim().toLowerCase();
-    if (!q) return pool;
-    return pool.filter(s =>
-      s.title.toLowerCase().includes(q) ||
-      s.description.toLowerCase().includes(q)
+  getById(id: number): Observable<IService | undefined> {
+    return this.sharedService.getAllServices().pipe(
+      map((services: IService[]): IService | undefined => services.find((s) => s.id === id))
+    );
+  }
+
+  search(query: string): Observable<IService[]> {
+    return this.sharedService.getAllServices().pipe(
+      map((services: IService[]): IService[] => {
+        const q = query.trim().toLowerCase();
+        if (!q) return services;
+        return services.filter(
+          (s) => s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
+        );
+      })
+    );
+  }
+
+  searchInCategory(query: string, category: ServiceCategory): Observable<IService[]> {
+    return this.getByCategory(category).pipe(
+      map((pool: IService[]): IService[] => {
+        const q = query.trim().toLowerCase();
+        if (!q) return pool;
+        return pool.filter(
+          (s) => s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
+        );
+      })
     );
   }
 

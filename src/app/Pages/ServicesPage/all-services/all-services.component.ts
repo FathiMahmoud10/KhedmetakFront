@@ -3,13 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ServiceCardComponent } from '../../../Components/service-card/service-card.component';
 import { CategoryTabsComponent } from '../../../Components/ClientComponents/HomeComponents/ServicesComponents/category-tabs/category-tabs.component';
 import { SearchBarComponent } from '../../../Components/search-bar/search-bar.component';
-import { GovernmentService, ServiceCategory } from '../../../Utilities/Interfaces/IService';
+import { IService, ServiceCategory } from '../../../Utilities/Interfaces/IService';
 import { GovServicesService } from '../../../APIServices/SharedServices/gov-services-service';
-// import { GovernmentService, ServiceCategory } from '../../models/service.model';
-// import { GovernmentServicesService } from '../../services/government-services.service';
-// import { ServiceCardComponent } from '../../components/service-card/service-card.component';
-// import { CategoryTabsComponent } from '../../components/category-tabs/category-tabs.component';
-// import { SearchBarComponent } from '../../components/search-bar/search-bar.component';
 
 @Component({
   selector: 'app-all-services',
@@ -19,18 +14,29 @@ import { GovServicesService } from '../../../APIServices/SharedServices/gov-serv
   styleUrls: ['./all-services.component.scss'],
 })
 export class AllServicesComponent implements OnInit {
-  services: GovernmentService[] = [];
+  services: IService[] = [];
   category: ServiceCategory = 'all';
   pageTitle = 'جميع الخدمات';
   pageSubtitle = 'تصفّح الخدمات الحكومية المتاحة لك بسهولة';
+  isLoading = true;
 
   constructor(private govService: GovServicesService) {}
 
   ngOnInit(): void {
-    this.services = this.govService.getByCategory(this.category);
+    this.loadServices();
+  }
+
+  private loadServices(): void {
+    this.isLoading = true;
+    this.govService.getByCategory(this.category).subscribe((services) => {
+      this.services = services;
+      this.isLoading = false;
+    });
   }
 
   onSearch(query: string): void {
-    this.services = this.govService.searchInCategory(query, this.category);
+    this.govService.searchInCategory(query, this.category).subscribe((services) => {
+      this.services = services;
+    });
   }
 }

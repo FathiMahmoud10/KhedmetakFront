@@ -1,8 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { GovernmentService } from '../../Utilities/Interfaces/IService';
-// import { GovernmentService } from '../../models/service.model';
+import { IService } from '../../Utilities/Interfaces/IService';
 
 @Component({
   selector: 'app-service-card',
@@ -12,7 +11,7 @@ import { GovernmentService } from '../../Utilities/Interfaces/IService';
   styleUrls: ['./service-card.component.scss'],
 })
 export class ServiceCardComponent {
-  @Input() service!: GovernmentService;
+  @Input() service!: IService;
 
   constructor(private router: Router) {}
 
@@ -21,26 +20,12 @@ export class ServiceCardComponent {
   }
 
   getCategoryColor(): string {
-    const colorMap: Record<string, string> = {
-      traffic: '#f59e0b',
-      'civil-status': '#298b64',
-      passports: '#6366f1',
-      supply: '#ef4444',
-      education: '#487fb9',
-      health: '#ec4899',
+    const colorMap: Record<number, string> = {
+      1: '#298b64', // الأحوال المدنية
+      2: '#f59e0b', // المرور
+      3: '#6366f1', // الجوازات
+      4: '#ef4444', // التموين
     };
-    return colorMap[this.service.category] || '#023264';
-  }
-
-  getCategoryLabel(): string {
-    const labelMap: Record<string, string> = {
-      traffic: 'المرور',
-      'civil-status': 'الأحوال المدنية',
-      passports: 'الجوازات',
-      supply: 'التموين',
-      education: 'التعليم',
-      health: 'الصحة',
-    };
-    return labelMap[this.service.category] || '';
+    return colorMap[this.service.categoryId] || '#023264';
   }
 }

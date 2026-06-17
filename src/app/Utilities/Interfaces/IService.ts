@@ -1,4 +1,4 @@
-export interface IService{id:number; title:string; img:string; description:string;  categoryId:number; categoryName:string;}
+export interface IService{id:number; title:string; img:string; description:string;  categoryId:number; categoryName:string; fees?:number; estimatedFees?:number; processingTime?:string;}
 //----------------------------------------------------
 
 
@@ -40,4 +40,25 @@ export interface ServiceCategoryTab {
   label: string;
   route: string;
   icon: string;
+}
+
+//----------------------------------------------------
+// إضافات خاصة بالتعامل مع GovServices API
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+// شكل البيانات الراجعة فعليًا من الباك إند (GovServices)
+export interface GovServiceDto {
+  id: number;
+  srvName: string;
+  srvDesc: string;
+  srvFees: number;
+  srvTime: string;
+  estimatedFees: number;
+  categoryName: string;
+  categoryId: number;
 }

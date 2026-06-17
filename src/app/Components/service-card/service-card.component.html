@@ -1,12 +1,7 @@
 <div class="service-card" dir="rtl" (click)="viewDetails()">
   <!-- Category Badge -->
   <div class="card-badge" [style.background]="getCategoryColor() + '18'" [style.color]="getCategoryColor()">
-    {{ getCategoryLabel() }}
-  </div>
-
-  <!-- Icon -->
-  <div class="card-icon-wrap" [style.background]="getCategoryColor() + '15'">
-    <i [class]="'bi ' + service.icon" [style.color]="getCategoryColor()"></i>
+    {{ service.categoryName }}
   </div>
 
   <!-- Content -->
@@ -19,11 +14,11 @@
   <div class="card-meta">
     <span class="meta-item">
       <i class="bi bi-clock"></i>
-      {{ service.processingMinutes }} دقيقة
+      {{ service.processingTime }}
     </span>
     <span class="meta-item">
-      <i class="bi bi-file-earmark-text"></i>
-      {{ service.documentsCount }} مستندات
+      <i class="bi bi-cash"></i>
+      {{ service.fees }} ج.م
     </span>
   </div>
 
