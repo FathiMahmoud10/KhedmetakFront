@@ -3,18 +3,19 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
 
+    <div class="sidebar-stripe" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+
     <!-- Brand -->
     <div class="sidebar-header">
       <div class="brand" *ngIf="!sidebarCollapsed">
         <div class="brand-logo">
-          <svg width="22" height="22" viewBox="0 0 40 40" fill="none">
-            <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
-            <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.7"/>
-          </svg>
+          <img src="\Images\Logo3.png" alt="Khedmetak" class="brand-logo-img" />
         </div>
         <div class="brand-text">
-          <span class="brand-name">خدمتك</span>
-          <span class="brand-tag">AI</span>
+          <span class="brand-name">Khedmetak AI</span>
+          <span class="brand-tag">بوابة الخدمات الحكومية</span>
         </div>
       </div>
       <button class="icon-btn toggle-btn" (click)="toggleSidebar()" title="Toggle sidebar">
@@ -161,6 +162,11 @@
 
       <!-- Empty / Welcome -->
       <div class="welcome-screen" *ngIf="messages.length === 0">
+        <div class="welcome-gov-badge">
+          <i class="bi bi-shield-check"></i>
+          <span>جمهورية مصر العربية — المساعد الذكي للخدمات الحكومية</span>
+        </div>
+
         <div class="welcome-emblem">
           <div class="emblem-ring outer"></div>
           <div class="emblem-ring middle"></div>
@@ -174,13 +180,13 @@
         </div>
 
         <h1 class="welcome-title">كيف يمكنني مساعدتك؟</h1>
-        <p class="welcome-sub">اسألني عن أي خدمة حكومية وسأرشدك خطوة بخطوة حتى إتمام إجراءاتك</p>
+        <p class="welcome-sub">اسألني عن أي خدمة حكومية مصرية — المرور، الأحوال، الجوازات، التموين — وسأرشدك خطوة بخطوة</p>
 
         <div class="chips-row">
-          <span class="chip">🚀 سريع</span>
-          <span class="chip">🔒 آمن</span>
-          <span class="chip">📋 دقيق</span>
-          <span class="chip">🕐 24/7</span>
+          <span class="chip"><i class="bi bi-lightning-charge-fill"></i> سريع</span>
+          <span class="chip"><i class="bi bi-shield-lock-fill"></i> آمن</span>
+          <span class="chip"><i class="bi bi-check-circle-fill"></i> دقيق</span>
+          <span class="chip"><i class="bi bi-clock-fill"></i> 24/7</span>
         </div>
 
         <div class="suggestion-grid">
@@ -213,7 +219,7 @@
               </div>
             </div>
             <div class="ai-bubble-wrap">
-              <span class="sender-label">خدمتك AI</span>
+              <span class="sender-label">Khedmetak AI</span>
               <div class="bubble ai-bubble" [innerHTML]="msg.content"></div>
               <div class="msg-actions">
                 <button class="act-btn" (click)="copyMessage(msg.content)" title="نسخ">
@@ -264,7 +270,7 @@
             </div>
           </div>
           <div class="ai-bubble-wrap">
-            <span class="sender-label">خدمتك AI</span>
+            <span class="sender-label">Khedmetak AI</span>
             <div class="bubble ai-bubble typing-bubble">
               <span></span><span></span><span></span>
             </div>
@@ -330,7 +336,7 @@
             <line x1="12" y1="8" x2="12" y2="12"/>
             <line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          خدمتك AI قد تُخطئ — تحقق دائماً من المعلومات الرسمية
+          خدمتك AI قد تُخطئ — تحقق دائماً من المعلومات على المصادر الرسمية للجهات الحكومية
         </p>
       </div>
     </div>

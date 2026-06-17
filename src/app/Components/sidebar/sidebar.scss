@@ -1,251 +1,276 @@
-$navyBlue: #023264;
-$hoverColor: #487fb9;
-$greenColor: #298b64;
+$navy:   #023264;
+$navy2:  #012050;
+$blue:   #487fb9;
+$green:  #298b64;
+$white:  #ffffff;
 
-// تصفير وتهيئة الأبعاد لضمان دقة الحسابات ومنع الـ Scroll الأفقية
-*, *::before, *::after {
-  box-sizing: border-box;
+// ============================================================
+// Overlay
+// ============================================================
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba($navy2, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 1055;
+  animation: overlay-in 0.3s ease;
 }
 
-// 💡 1. الحاوية الأب الرئيسية المحيطة بالسايد بار والمحتوى (تُضاف في الـ Layout الأساسي للـ Dashboard)
-.admin-layout-wrapper {
-  display: flex !important;
-  direction: rtl !important;
-  width: 100%;
-  min-height: 100vh;
-  padding-top: 70px; // إزاحة لأسفل لتفادي الاختفاء خلف الناف بار العلوي الثابت
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-// 💡 2. حاوية محتوى الصفحة الرئيسي (التي تظهر يسار السايد بار)
-.admin-main-content {
-  flex-grow: 1; // تأخذ المساحة المتبقية من الشاشة تلقائياً دون تداخل
-  background-color: #f8fafc;
-  padding: 24px;
-  overflow-y: auto;
-}
-
-// 3. تنسيق هيدر الناف بار الثابت
-.custom-app-navbar {
+// ============================================================
+// Drawer
+// ============================================================
+.admin-drawer {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
-  height: 70px;
-  background-color: #ffffff;
-  z-index: 1040; 
+  right: -300px;
+  width: 290px;
+  height: 100vh;
+  z-index: 1060;
+  transition: right 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
   direction: rtl;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid #ebeef5;
+  font-family: 'Cairo', sans-serif;
 
-  .navbar-wrapper {
-    width: 100%;
-    padding: 0 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-}
-
-// الروابط والأقسام الداخلية للناف بار
-.right-nav-section {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-
-  .menu-toggle-btn {
-    background: transparent;
-    border: none;
-    font-size: 22px;
-    color: $navyBlue;
-    cursor: pointer;
-    padding: 4px 12px;
-    border-radius: 6px;
-    display: block !important;
-    transition: background 0.2s;
-
-    &:hover {
-      background-color: rgba(2, 50, 100, 0.05);
-    }
+  &--open {
+    right: 0;
   }
 
-  .nav-brand-box {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    gap: 10px;
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      text-align: right;
-
-      .brand-title {
-        margin: 0;
-        font-size: 18px;
-        font-weight: 700;
-        color: $navyBlue;
-      }
-      .brand-admin-subtitle { color: $greenColor; font-size: 11px; font-weight: 600; }
-    }
-  }
-}
-
-.left-nav-section {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-
-  .btn-return-home {
-    background-color: transparent;
-    border: 1px solid $hoverColor;
-    color: $hoverColor;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: $hoverColor;
-      color: #ffffff;
-    }
-  }
-}
-
-// ==========================================
-// 4. تنسيق السايد بار الثابت المقتطع من المساحة
-// ==========================================
-.custom-admin-drawer {
-  width: 290px; // العرض الثابت المخصص للسايد بار
-  min-width: 290px; // يمنع انكماش السايد بار عند صغر حجم المتصفح
-  height: 100vh; // يأخذ كامل الطول المتاح أسفل الناف بار العلوي
-  position: fixed; // يثبت في مكانه بشكل طبيعي مع التمرير جانباً دون تغطية المحتوى
-  top: 0;
-  right: -290px !important; // 👈 إزاحة القائمة بالكامل خارج أبعاد الشاشة اليمنى
-  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); // 👈 أنيميشن انزلاق انسيابي ناعم وفخم
-  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15); // 👈 ظل فخم يظهر عند فتح القائمة فوق المحتوى
-  // كلاس الانزلاق للداخل المطابق لـ open-sidebar في كود الـ HTML الخاص بكِ
-  &.open-sidebar {
-    right: 0 !important;
-  }
-
-
-  background-color: $navyBlue !important;
-  z-index: 10;
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
-
-  .drawer-content-box {
+  &__inner {
+    height: 100%;
     display: flex;
     flex-direction: column;
+    background: linear-gradient(180deg, $navy2 0%, $navy 55%, #021a42 100%);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      left: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: rgba($white, 0.04);
+      pointer-events: none;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 80px;
+      right: -50px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: rgba($blue, 0.08);
+      pointer-events: none;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
     justify-content: space-between;
-    height: 100%;
-    padding: 30px 20px 24px 20px;
-    background-color: $navyBlue !important;
-  }
-}
-
-// هيدر وعنوان السايد بار الداخلي
-.drawer-header-section {
-  text-align: center;
-  padding-bottom: 20px;
-  margin-bottom: 25px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-
-  .drawer-main-title {
-    margin-bottom: 4px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #ffffff;
+    gap: 12px;
+    padding: 28px 22px 22px;
+    border-bottom: 1px solid rgba($white, 0.08);
+    position: relative;
+    z-index: 1;
   }
 
-  .drawer-sub-title {
-    color: rgba(255, 255, 255, 0.5);
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.1);
+    color: rgba($white, 0.85);
     font-size: 11px;
-    font-weight: 500;
-  }
-}
-
-// روابط القائمة والتنقل
-.drawer-nav-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex-grow: 1;
-
-  .drawer-item {
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
     margin-bottom: 10px;
+  }
 
-    .drawer-link {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      color: rgba(255, 255, 255, 0.85);
-      text-decoration: none;
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-weight: 500;
-      font-size: 14px;
-      transition: all 0.2s ease;
+  &__title {
+    font-size: 20px;
+    font-weight: 800;
+    color: $white;
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+  }
 
-      i {
-        font-size: 16px;
-        opacity: 0.8;
-      }
+  &__sub {
+    font-size: 12px;
+    color: rgba($white, 0.55);
+    margin: 0;
+  }
 
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.06);
-        color: #ffffff;
-      }
+  &__close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba($white, 0.15);
+    border-radius: 10px;
+    background: rgba($white, 0.08);
+    color: rgba($white, 0.85);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, color 0.2s;
 
-      &.active-link {
-        background-color: $greenColor !important;
-        color: #ffffff !important;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(41, 139, 100, 0.25);
-        
-        i { opacity: 1; }
+    &:hover {
+      background: rgba($white, 0.15);
+      color: $white;
+    }
+  }
+
+  &__nav {
+    flex: 1;
+    padding: 20px 16px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  &__nav-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba($white, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0 10px;
+    margin-bottom: 12px;
+  }
+
+  &__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: rgba($white, 0.82);
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    border: 1px solid transparent;
+
+    &:hover {
+      background: rgba($white, 0.07);
+      color: $white;
+      transform: translateX(-3px);
+    }
+
+    &.is-active {
+      background: linear-gradient(135deg, rgba($green, 0.25), rgba($green, 0.12));
+      border-color: rgba($green, 0.35);
+      color: $white;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba($green, 0.2);
+
+      .admin-drawer__link-icon {
+        background: $green;
+        color: $white;
       }
     }
   }
-}
 
-// الكارت السفلي الخاص ببيانات مدير النظام
-.drawer-admin-footer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  margin-top: auto;
-
-  .admin-avatar {
-    border: 2px solid rgba(255, 255, 255, 0.2);
+  &__link-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba($white, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: background 0.2s;
   }
 
-  .admin-info-text {
+  &__link-text {
+    line-height: 1.3;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 16px 20px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba($white, 0.06);
+    border: 1px solid rgba($white, 0.1);
+    position: relative;
+    z-index: 1;
+  }
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba($green, 0.5);
+    flex-shrink: 0;
+  }
+
+  &__user {
+    flex: 1;
     display: flex;
     flex-direction: column;
     text-align: right;
+    min-width: 0;
+  }
 
-    .admin-name {
-      color: #ffffff;
-      font-size: 13px;
-      font-weight: 600;
-      margin: 0;
-    }
+  &__user-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: $white;
+  }
 
-    .admin-email {
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 11px;
-    }
+  &__user-email {
+    font-size: 11px;
+    color: rgba($white, 0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__status {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.25);
+    flex-shrink: 0;
   }
 }
 
-// 💡 إلغاء الـ backdrop لعدم الحاجة إليه في التصميم الثابت المقتطع
-.drawer-backdrop {
-  display: none !important;
+@media (max-width: 480px) {
+  .admin-drawer {
+    width: 100%;
+    max-width: 300px;
+    right: -100%;
+
+    &--open {
+      right: 0;
+    }
+  }
 }

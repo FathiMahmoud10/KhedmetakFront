@@ -1,45 +1,46 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common'; // استيراد CommonModule لتفعيل NgClass و NgIf
-import { Router, NavigationEnd, RouterLink } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
+import { SidebarService } from '../../../Services/sidebar.service';
 
 @Component({
   selector: 'app-navbar-com',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar-com.html',
   styleUrl: './navbar-com.scss',
 })
-export class NavbarCom implements OnInit {
-  isAdminPage: boolean = false;
-  isSidebarOpen: boolean = false; // التحكم في فتح وغلق السايد بار
-  isDarkMode: boolean = false; // التحكم في الوضع الليلي
+export class NavbarCom implements OnInit, OnDestroy {
+  isAdminPage = false;
+  isDarkMode = false;
+  private routeSub?: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private sidebarService: SidebarService
+  ) {}
 
   ngOnInit(): void {
-    // مراقبة مسار الصفحة لتحديد إذا كان أدمن أم مواطن عادي
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.isAdminPage = event.url.includes('admin') || event.url.includes('manage');
-
-
-    });
+    this.routeSub = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.isAdminPage =
+          event.url.includes('admin') || event.url.includes('manage');
+        this.sidebarService.close();
+      });
   }
 
-  // دالة فتح وغلق السايد بار
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
+  }
+
   toggleSidebar(): void {
-    this.isSidebarOpen = !this.isSidebarOpen;
+    this.sidebarService.toggle();
   }
 
-  // دالة تبديل الوضع الليلي والنهاري للموقع بالكامل
   toggleDarkMode(): void {
     this.isDarkMode = !this.isDarkMode;
-    if (this.isDarkMode) {
-      document.body.classList.add('dark-theme');
-    } else {
-      document.body.classList.remove('dark-theme');
-    }
+    document.body.classList.toggle('dark-theme', this.isDarkMode);
   }
 }

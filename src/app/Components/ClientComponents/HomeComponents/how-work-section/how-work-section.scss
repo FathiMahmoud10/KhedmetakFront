@@ -1,77 +1,186 @@
-$navyBlue: #023264;
-$hoverColor:#487fb9;
-$greenColor: #298b64;
+$navy:   #023264;
+$blue:   #487fb9;
+$green:  #298b64;
+$gold:   #c9a227;
+$red:    #ce1126;
+$border: #e4e9f0;
+$muted:  #6b7a8d;
 
-.container{
-    background-color: rgb(255, 255, 255);
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}   
-h4{
-    color: $navyBlue;
-    padding: 20px;
+.gov-how {
+  padding: 56px 0 72px;
+  background: #fff;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  border-top: 1px solid $border;
 }
-.card{
+
+.gov-section-head {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+
+  &--center {
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    border: none;
-    background-color: rgb(255, 255, 255);
 
+    .gov-section-head__line {
+      width: 60px;
+      min-height: 4px;
+      background: linear-gradient(90deg, $red, $gold, $navy);
+    }
+  }
+
+  &__line {
+    width: 4px;
+    min-height: 72px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, $red, $gold, $navy);
+    flex-shrink: 0;
+  }
+
+  &__tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    color: $green;
+    background: rgba($green, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $navy;
+    margin: 0 0 6px;
+  }
+
+  &__sub {
+    font-size: 14px;
+    color: $muted;
+    margin: 0;
+  }
 }
 
-.card i{
-    font-size: 40px;
-    // color: #0d6efd;
-    width: 80px;
-    height: 80px;
+.gov-steps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gov-step {
+  flex: 1;
+  min-width: 180px;
+  max-width: 220px;
+  text-align: center;
+  padding: 24px 16px;
+  background: #f8fafc;
+  border: 1px solid $border;
+  border-radius: 16px;
+  position: relative;
+  transition: transform 0.25s, box-shadow 0.25s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba($navy, 0.08);
+  }
+
+  &__num {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    // background-color: rgb(145, 204, 221);
-      display: flex;
-  justify-content: center;
-  align-items: center;
-    // background-color: rgb(145, 204, 221);
-    
-}
-.card h5{
-    
-    font-size: 18px;
-    // color: #0d6efd;
-    font-weight: bolder;
-}
-.card p{
+    background: $navy;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 8px auto 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+
+    &--ask {
+      background: rgba($navy, 0.1);
+      color: $navy;
+    }
+
+    &--guide {
+      background: rgba($blue, 0.12);
+      color: $blue;
+    }
+
+    &--docs {
+      background: rgba($gold, 0.15);
+      color: #9a7b0a;
+    }
+
+    &--done {
+      background: rgba($green, 0.12);
+      color: $green;
+    }
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 800;
+    color: $navy;
+    margin: 0 0 8px;
+  }
+
+  &__desc {
     font-size: 13px;
-    color: #737476;
-    font-weight: bold;
-}
-#ques{
-    color:white;
-    background-color: rgb(206, 214, 216);
+    color: $muted;
+    line-height: 1.6;
+    margin: 0;
+  }
 
+  &__arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+    font-size: 22px;
+    padding-top: 48px;
+    flex-shrink: 0;
+  }
+}
 
+@media (max-width: 992px) {
+  .gov-steps {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gov-step {
+    max-width: 360px;
+    width: 100%;
+  }
+
+  .gov-step__arrow {
+    padding: 0;
+    transform: rotate(-90deg);
+  }
 }
-#file{
-    color:rgb(93, 142, 177);
-    background-color: rgb(198, 228, 250);
+
+@media (max-width: 768px) {
+  .gov-how { padding: 40px 0 56px; }
+
+  .gov-section-head__title { font-size: 22px; }
 }
-#upload{
-    color:gold;
-    background-color: rgb(255, 246, 204);
-}
-#complete{
-    color:rgb(0, 128, 0);
-    background-color: rgb(233, 245, 233);
-}
-.card .arrow{
-    font-size: 30px;
-    color: #a7abb2;
-    // background-color: white;
-      display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0px;
-  margin: 0px;
-  
-//   background-color: white;
-}
-// .card{
-//     background-color: #0d6efd;
-// }

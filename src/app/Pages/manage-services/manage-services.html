@@ -1,93 +1,152 @@
-<app-sidebar></app-sidebar>
-<div style="margin-right: 260px;">
-  <!-- ... كود الـ HTML الحالي لصفحة إدارة الخدمات بالكامل يوضع هنا ... -->
-</div>
-<div class="container-fluid py-4" style="direction: rtl; font-family: 'Cairo', sans-serif;">
-  
-    <!-- العنوان الرئيسي للقسم -->
-    <div class="mb-4">
-      <h2 class="fw-bold" style="color: #023264;">إدارة الخدمات الحكومية</h2>
-      <p class="text-muted">يمكنك إضافة خدمات جديدة للنظام أو التحكم في الخدمات الحالية وحذفها.</p>
+<div class="ms-page container-fluid py-4">
+
+  <!-- Hero Header -->
+  <header class="ms-hero">
+    <div class="ms-hero__bg"></div>
+    <div class="ms-hero__inner">
+      <div class="ms-hero__text">
+        <span class="ms-hero__tag">
+          <i class="fas fa-cogs"></i>
+          لوحة الإدارة
+        </span>
+        <h1 class="ms-hero__title">إدارة الخدمات</h1>
+        <p class="ms-hero__sub">أضف خدمات حكومية جديدة أو احذف الموجودة من النظام</p>
+      </div>
+      <div class="ms-hero__stat">
+        <div class="ms-hero__stat-icon">
+          <i class="fas fa-concierge-bell"></i>
+        </div>
+        <div class="ms-hero__stat-info">
+          <span class="ms-hero__stat-num">{{ servicesList.length }}</span>
+          <span class="ms-hero__stat-lbl">خدمة مسجّلة</span>
+        </div>
+      </div>
     </div>
-  
-    <div class="row g-4">
-      <!-- 1. استمارة إضافة خدمة جديدة (الجانب الأيمن) -->
-      <div class="col-12 col-lg-4">
-        <div class="card border-0 shadow-sm p-4 text-end" style="border-radius: 12px; background-color: #ffffff;">
-          <h5 class="fw-bold mb-4" style="color: #023264;"><i class="fas fa-plus-circle me-1"></i> إضافة خدمة جديدة</h5>
-          
-          <form (ngSubmit)="addService()">
-            <!-- حقل اسم الخدمة -->
-            <div class="mb-3">
-              <label class="form-label fw-semibold text-secondary">اسم الخدمة الحكومية</label>
-              <input type="text" class="form-control text-center py-2" [(ngModel)]="newService.title" name="title" placeholder="مثال: استخراج جواز سفر" required>
-            </div>
-  
-            <!-- حقل فئة الخدمة -->
-            <div class="mb-3">
-              <label class="form-label fw-semibold text-secondary">الفئة / القطاع</label>
-              <select class="form-select text-center py-2" [(ngModel)]="newService.category" name="category">
+  </header>
+
+  <div class="ms-layout">
+
+    <!-- Add Form -->
+    <aside class="ms-form-panel">
+      <div class="ms-form-panel__accent"></div>
+      <div class="ms-form-panel__body">
+        <div class="ms-form-panel__head">
+          <div class="ms-form-panel__icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div>
+            <h2 class="ms-form-panel__title">خدمة جديدة</h2>
+            <p class="ms-form-panel__hint">املأ البيانات ثم اضغط حفظ</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="addService()" class="ms-form">
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-tag"></i>
+              اسم الخدمة
+            </label>
+            <input
+              class="ms-field__input"
+              type="text"
+              [(ngModel)]="newService.title"
+              name="title"
+              placeholder="مثال: استخراج جواز سفر"
+              required
+            />
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-layer-group"></i>
+              الفئة
+            </label>
+            <div class="ms-select-wrap">
+              <select class="ms-field__input ms-field__input--select" [(ngModel)]="newService.category" name="category">
                 <option value="المرور">المرور</option>
                 <option value="الأحوال المدنية">الأحوال المدنية</option>
                 <option value="الشهر العقاري">الشهر العقاري</option>
-                <option value="الجوازات">الجوازات والهجرة</option>
+                <option value="الجوازات والهجرة">الجوازات والهجرة</option>
               </select>
+              <i class="fas fa-chevron-down ms-select-wrap__arrow"></i>
             </div>
-  
-            <!-- حقل وصف الخدمة -->
-            <div class="mb-4">
-              <label class="form-label fw-semibold text-secondary">وصف تفصيلي للخدمة</label>
-              <textarea class="form-control text-end py-2" [(ngModel)]="newService.description" name="description" rows="4" placeholder="اكتب هنا شروط وأوراق الخدمة..." required></textarea>
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-align-right"></i>
+              الوصف
+            </label>
+            <textarea
+              class="ms-field__input ms-field__input--textarea"
+              [(ngModel)]="newService.description"
+              name="description"
+              rows="4"
+              placeholder="اكتب شروط وأوراق الخدمة…"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit" class="ms-btn-submit">
+            <i class="fas fa-save"></i>
+            حفظ الخدمة
+          </button>
+
+        </form>
+      </div>
+    </aside>
+
+    <!-- Services Grid -->
+    <main class="ms-grid-panel">
+
+      <div class="ms-grid-panel__head">
+        <div class="ms-grid-panel__head-text">
+          <h2 class="ms-grid-panel__title">الخدمات المسجّلة</h2>
+          <p class="ms-grid-panel__sub">جميع الخدمات الحكومية المتاحة في النظام</p>
+        </div>
+        <span class="ms-grid-panel__count">{{ servicesList.length }} خدمة</span>
+      </div>
+
+      <!-- Empty state -->
+      <div class="ms-empty" *ngIf="servicesList.length === 0">
+        <div class="ms-empty__circle">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <p class="ms-empty__text">لا توجد خدمات بعد</p>
+        <p class="ms-empty__hint">استخدم النموذج على اليمين لإضافة أول خدمة</p>
+      </div>
+
+      <!-- Grid -->
+      <div class="ms-grid" *ngIf="servicesList.length > 0">
+        <article
+          class="ms-card"
+          *ngFor="let svc of servicesList; let i = index"
+          [ngClass]="getCategoryClass(svc.category)"
+          [style.animation-delay]="(i * 0.06) + 's'"
+        >
+          <div class="ms-card__accent"></div>
+
+          <div class="ms-card__header">
+            <div class="ms-card__ico">
+              <i class="fas" [ngClass]="svc.icon || 'fa-concierge-bell'"></i>
             </div>
-  
-            <!-- زر الإرسال باللون الأخضر التابع لهوية مشروعكِ -->
-            <button type="submit" class="btn w-100 py-2 fw-bold text-white" style="background-color: #298b64; border-radius: 8px;">
-              <i class="fas fa-save me-1"></i> حفظ وإضافة الخدمة
+            <span class="ms-card__cat">{{ svc.category }}</span>
+          </div>
+
+          <h3 class="ms-card__title">{{ svc.title }}</h3>
+          <p class="ms-card__desc">{{ svc.description }}</p>
+
+          <div class="ms-card__footer">
+            <button class="ms-btn-delete" (click)="deleteService(svc.id)" type="button">
+              <i class="fas fa-trash-alt"></i>
+              حذف الخدمة
             </button>
-          </form>
-        </div>
-      </div>
-  
-      <!-- 2. كروت الخدمات الحالية المتاحة بالنظام (الجانب الأيسر) -->
-      <div class="col-12 col-lg-8">
-        <div class="card border-0 shadow-sm p-4" style="border-radius: 12px; background-color: #ffffff;">
-          <h5 class="fw-bold mb-4 text-end" style="color: #023264;"><i class="fas fa-list-ul me-1"></i> الخدمات المتاحة حالياً بالنظام ({{ servicesList.length }})</h5>
-          
-          <!-- في حال كانت القائمة فارغة -->
-          <div *ngIf="servicesList.length === 0" class="text-center py-5 text-muted">
-            <i class="fas fa-folder-open fa-3x mb-3" style="color: #ced4da;"></i>
-            <p class="mb-0">لا توجد خدمات مضافة حالياً. استخدم النموذج لإضافة خدمة جديدة.</p>
           </div>
-  
-          <!-- شبكة عرض كروت الخدمات المعالجة بالـ ngFor -->
-          <div class="row g-3" *ngIf="servicesList.length > 0">
-            <div class="col-12 col-md-6" *ngFor="let svc of servicesList">
-              <div class="service-management-card p-3 border rounded-3 text-end h-100 d-flex flex-column justify-content-between">
-                <div>
-                  <div class="d-flex align-items-center justify-content-between mb-2">
-                    <!-- شارة الفئة تلوّن تلقائياً حسب لون الهوية -->
-                    <span class="badge px-3 py-1 rounded-pill" style="background-color: rgba(2, 50, 100, 0.1); color: #023264;">{{ svc.category }}</span>
-                    <div class="rounded-circle p-2 bg-light text-primary">
-                      <i class="fas" [ngClass]="svc.icon || 'fa-concierge-bell'"></i>
-                    </div>
-                  </div>
-                  <h6 class="fw-bold mb-1" style="color: #023264;">{{ svc.title }}</h6>
-                  <p class="text-muted small mb-3 text-truncate-2">{{ svc.description }}</p>
-                </div>
-                
-                <!-- زر الحذف المخصص للـ الأدمن في أسفل الكارت -->
-                <div class="border-top pt-2 mt-2 text-start">
-                  <button class="btn btn-sm btn-outline-danger px-3" style="border-radius: 6px;" (click)="deleteService(svc.id)">
-                    <i class="fas fa-trash-alt me-1"></i> حذف الخدمة
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-  
-        </div>
+        </article>
       </div>
-    </div>
-  
+
+    </main>
+
   </div>
-  
+</div>

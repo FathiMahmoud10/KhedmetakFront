@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Sidebar } from '../../Components/sidebar/sidebar';
 
 @Component({
   selector: 'app-manage-services',
   standalone: true,
-  imports: [CommonModule, FormsModule,Sidebar], // استيراد FormsModule لتفعيل ربط الحقول بـ [(ngModel)]
+  imports: [CommonModule, FormsModule],
   templateUrl: './manage-services.html',
   styleUrls: ['./manage-services.scss']
 })
@@ -56,6 +55,16 @@ export class ManageServices  implements OnInit {
     if (confirm('هل أنتِ متأكدة من حذف هذه الخدمة نهائياً من النظام؟')) {
       this.servicesList = this.servicesList.filter(service => service.id !== id);
     }
+  }
+
+  getCategoryClass(category: string): string {
+    const map: Record<string, string> = {
+      'المرور': 'ms-card--traffic',
+      'الأحوال المدنية': 'ms-card--civil',
+      'الشهر العقاري': 'ms-card--realestate',
+      'الجوازات والهجرة': 'ms-card--passport',
+    };
+    return map[category] ?? 'ms-card--default';
   }
 }
 

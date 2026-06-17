@@ -24,6 +24,8 @@ export class LoginComponent {
   emailError = false;
   passwordError = false;
 
+  year = new Date().getFullYear();
+
   constructor(private router: Router, private http: HttpClient) {}
 
   validateEmail() { this.emailError = !this.email.trim(); }

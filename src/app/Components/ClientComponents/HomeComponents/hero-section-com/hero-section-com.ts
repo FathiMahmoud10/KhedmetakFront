@@ -1,10 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SharedService } from '../../../../APIServices/SharedServices/shared-service';
 import { IService } from '../../../../Utilities/Interfaces/IService';
 
 @Component({
   selector: 'app-hero-section-com',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './hero-section-com.html',
   styleUrl: './hero-section-com.scss',
 })

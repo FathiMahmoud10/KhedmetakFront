@@ -1,5 +1,3 @@
-import {Sidebar  } from '../../Components/sidebar/sidebar';
-
 import {
   Component,
   OnInit,
@@ -16,7 +14,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule,Sidebar],
+  imports: [CommonModule],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.scss']
 })
@@ -37,6 +35,13 @@ export class AdminDashboard implements OnInit, AfterViewInit {
   // 2. متغير لحمل وتمرير بيانات الطلب الذي يختاره الأدمن حالياً لعرضه في الـ Modal
   selectedRequest: any = null;
 
+  todayLabel = new Intl.DateTimeFormat('ar-EG', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date());
+
   constructor() {}
 
   ngOnInit(): void {}
@@ -56,10 +61,19 @@ export class AdminDashboard implements OnInit, AfterViewInit {
       const requestIndex = this.requestsList.findIndex(r => r.id === this.selectedRequest.id);
       if (requestIndex !== -1) {
         this.requestsList[requestIndex].status = newStatus;
-        this.selectedRequest.status = newStatus; // تحديث الحالة المعروضة داخل الـ Modal أيضاً
+        this.selectedRequest.status = newStatus;
       }
       alert(`تم تعديل حالة الطلب إلى [${newStatus}] بنجاح! 📁`);
     }
+  }
+
+  getStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      'مقبول': 'dash-badge--success',
+      'قيد المراجعة': 'dash-badge--warning',
+      'مرفوض': 'dash-badge--danger',
+    };
+    return map[status] ?? 'dash-badge--default';
   }
 
   createOrdersChart(): void {
@@ -83,11 +97,13 @@ export class AdminDashboard implements OnInit, AfterViewInit {
           {
             label: 'معدل الطلبات الحكومية المستلمة',
             data: [120, 150, 180, 220, 190, 250, 300],
-            backgroundColor: 'rgba(2, 50, 100, 0.1)',
-            borderColor: '#023264',
-            borderWidth: 3,
+            backgroundColor: 'rgba(72, 127, 185, 0.12)',
+            borderColor: '#487fb9',
+            borderWidth: 2.5,
             pointBackgroundColor: '#298b64',
             pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
             pointHoverRadius: 7,
             tension: 0.4,
             fill: true
@@ -112,17 +128,17 @@ export class AdminDashboard implements OnInit, AfterViewInit {
           y: {
             beginAtZero: true,
             position: 'right',
+            grid: { color: 'rgba(228, 233, 240, 0.8)' },
             ticks: {
-              font: {
-                family: 'Cairo'
-              }
+              font: { family: 'Cairo', size: 12 },
+              color: '#6b7a8d'
             }
           },
           x: {
+            grid: { display: false },
             ticks: {
-              font: {
-                family: 'Cairo'
-              }
+              font: { family: 'Cairo', size: 12 },
+              color: '#6b7a8d'
             }
           }
         }

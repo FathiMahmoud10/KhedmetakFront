@@ -1,156 +1,287 @@
-$navyBlue: #023264;
-$hoverColor: #487fb9;
-$greenColor: #298b64;
+$navy:   #023264;
+$navy2:  #012050;
+$blue:   #487fb9;
+$green:  #298b64;
+$white:  #ffffff;
+$border: #e8edf3;
+$muted:  #6b7a8d;
 
-// توحيد نمط التنسيق الأساسي للـ Navbar في الهوم والداشبورد
-nav, h3, a {
-    color: $navyBlue;
-    border-radius: 5px;
-    transition: all 0.3s ease; 
-}
+// ============================================================
+// Navbar
+// ============================================================
+.app-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  height: 70px;
+  background: rgba($white, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid $border;
+  box-shadow: 0 2px 16px rgba($navy, 0.06);
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
 
-.nav-link {
-    padding-right: 15px !important;
-    padding-left: 15px !important;
-    color: $navyBlue !important;
-    border-radius: 5px;
-    font-weight: 600;
-    text-decoration: none;
-    
-    &:hover {
-        background-color: $hoverColor;
-        color: white !important;
-    }
-
-    &.active {
-        background-color: $navyBlue;
-        color: white !important;
-    }
-}
-
-// ==========================================================
-// تنسيق السايد بار المنبثق الاحترافي الموحد (Drawer)
-// ==========================================================
-.custom-admin-drawer {
-  width: 280px;
-  height: 100vh; // يمتد على كامل طول الشاشة لأسفلها
-  position: fixed; // تثبيت حر لكي ينزلق فوق الكروت والمحتوى بدون دفعهم
-  top: 0; // يبدأ من أعلى نقطة بالشاشة ليغطي الناف بار بالكامل عند الفتح
-  right: -280px !important; // 👈 إجبار السايد بار على الاختفاء تماماً خارج أبعاد الشاشة يميناً كوضع افتراضي
-  background-color: $navyBlue !important;
-  z-index: 1060; // يظهر فوق شريط الناف بار والمحتوى بنعومة وسلاسة
-  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); // أنيميشن انزلاق فخم وانسيابي
-  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
-
-  // كلاس تفعيل انزلاق وظهور القائمة عند الضغط على الـ 3 شرط
-  &.open-sidebar {
-    right: 0 !important;
+  &:not(.app-navbar--admin)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ce1126 33.33%, #ffffff 33.33%, #ffffff 66.66%, #1a1a1a 66.66%);
   }
 
-  .sidebar-inner-content {
+  &--admin {
+    background: linear-gradient(180deg, $white 0%, #f8fafc 100%);
+  }
+
+  &__inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__start,
+  &__end {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__end {
+    flex-shrink: 0;
+  }
+
+  &__menu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1.5px solid rgba($navy, 0.12);
+    border-radius: 10px;
+    background: rgba($navy, 0.04);
+    color: $navy;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    font-family: inherit;
+
+    &:hover {
+      background: rgba($navy, 0.08);
+      border-color: rgba($navy, 0.2);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  &__menu-icon {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
+    gap: 4px;
+    width: 18px;
+
+    span {
+      display: block;
+      height: 2px;
+      background: $navy;
+      border-radius: 2px;
+      transition: width 0.2s;
+
+      &:nth-child(2) { width: 75%; }
+    }
   }
 
-  .nav-link-sidebar {
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    text-decoration: none;
-    color: #ffffff !important;
+  &__menu-label {
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  &__brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    transition: all 0.25s ease;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  &__logo {
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba($navy, 0.12));
+  }
+
+  &__brand-text {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    line-height: 1.2;
+  }
+
+  &__brand-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: $navy;
+    letter-spacing: -0.2px;
+  }
+
+  &__brand-tag {
+    font-size: 11px;
+    color: $muted;
+    font-weight: 500;
+
+    &--admin {
+      color: $green;
+      font-weight: 700;
+    }
+  }
+
+  &__center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__link {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $navy;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.08);
-      padding-right: 20px; 
+      background: rgba($blue, 0.1);
+      color: $blue;
+    }
+
+    &.is-active {
+      background: $navy;
+      color: $white;
+    }
+  }
+
+  &__icon-btn {
+    width: 40px;
+    height: 40px;
+    border: 1.5px solid $border;
+    border-radius: 50%;
+    background: $white;
+    color: $navy;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+
+    &:hover {
+      background: rgba($blue, 0.08);
+      border-color: rgba($blue, 0.3);
+    }
+
+    .fa-sun { color: #f0a500; }
+  }
+
+  &__return-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: 1.5px solid rgba($blue, 0.35);
+    background: rgba($blue, 0.06);
+    color: $blue;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+    &:hover {
+      background: $blue;
+      border-color: $blue;
+      color: $white;
+    }
+  }
+
+  &__auth {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__auth-link {
+    padding: 8px 12px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $navy;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+      background: rgba($navy, 0.06);
+    }
+
+    &--bold {
+      font-weight: 700;
+    }
+
+    &--primary {
+      background: linear-gradient(135deg, $navy, $blue);
+      color: $white !important;
+      padding: 8px 16px;
+
+      &:hover {
+        opacity: 0.92;
+        background: linear-gradient(135deg, $navy, $blue);
+      }
     }
   }
 }
 
-.drawer-admin-footer {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-// غطاء الخلفية المعتمة الشفافة عند فتح القائمة لغلقها
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 1055;
-  backdrop-filter: blur(2px); // تأثير ضبابي جمالي فخم للمحتوى بالخلف
-}
-
-
-// ==========================================================
-// 2. التنسيق المنقح للـ Sidebar المنبثق المطابق لآخر سطور HTML لديكِ
-// ==========================================================
-.custom-admin-drawer {
-  width: 280px;
-  height: 100vh; // يمتد على كامل طول الشاشة لأسفلها
-  position: fixed;
-  top: 0;
-  right: -280px; // 👈 يبدأ مختفياً تماماً بالكامل خارج أبعاد الشاشة اليمنى كوضع افتراضي
-  background-color: $navyBlue;
-  z-index: 1060; // يظهر فوق شريط الناف بار والمحتوى بنعومة وسلاسة
-  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); // أنيميشن انزلاق انسيابي فخم
-  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
-
-  // 👈 كلاس تفعيل انزلاق وظهور القائمة المطابق لـ open-sidebar في كود الـ HTML الخاص بكِ
-  &.open-sidebar {
-    right: 0 !important;
+// ============================================================
+// Responsive
+// ============================================================
+@media (max-width: 992px) {
+  .app-navbar__center {
+    display: none;
   }
 
-  // تنسيق الروابط الداخلية للسايد بار لتظهر بيضاء وبخط Cairo
-  .nav-link-sidebar {
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    text-decoration: none;
-    color: #ffffff !important;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    transition: all 0.25s ease;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.08);
-      padding-right: 20px; // تأثير حركة ذكية وجميلة عند التمرير بالماوس
-    }
+  .app-navbar__menu-label {
+    display: none;
   }
 }
 
-// تنسيقات الهيكل الداخلي والفوتر للسايد بار الخاص بكِ
-.sidebar-inner-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-}
+@media (max-width: 576px) {
+  .app-navbar__brand-tag {
+    display: none;
+  }
 
-.admin-footer-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+  .app-navbar__auth-link:not(.app-navbar__auth-link--primary) {
+    display: none;
+  }
 
-// 3. غطاء الخلفية المعتمة الشفافة عند فتح القائمة
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
-  z-index: 1055;
-  backdrop-filter: blur(2px); // تأثير ضبابي جمالي فخم للمحتوى بالخلف
+  .app-navbar__return-btn span,
+  .app-navbar__return-btn {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
 }

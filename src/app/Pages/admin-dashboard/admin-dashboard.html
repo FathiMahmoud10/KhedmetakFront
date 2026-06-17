@@ -1,225 +1,226 @@
-<app-sidebar></app-sidebar>
+<div class="dash-page container-fluid py-4">
 
-<!-- تعويض مساحة السايد بار (260px) جهة اليمين لكي لا يغطي على الكروت والإحصائيات -->
+  <!-- Hero -->
+  <header class="dash-hero">
+    <div class="dash-hero__bg"></div>
+    <div class="dash-hero__inner">
+      <div class="dash-hero__text">
+        <span class="dash-hero__tag">
+          <i class="fas fa-chart-pie"></i>
+          لوحة التحكم
+        </span>
+        <h1 class="dash-hero__title">لوحة التحكم الرئيسية</h1>
+        <p class="dash-hero__sub">مرحباً بك مجدداً في نظام Khedmetak AI — نظرة عامة على أداء المنصة</p>
+      </div>
+      <div class="dash-hero__meta">
+        <div class="dash-hero__date">
+          <i class="fas fa-calendar-alt"></i>
+          <span>{{ todayLabel }}</span>
+        </div>
+        <div class="dash-hero__pending">
+          <span class="dash-hero__pending-num">15</span>
+          <span class="dash-hero__pending-lbl">طلب قيد المراجعة</span>
+        </div>
+      </div>
+    </div>
+  </header>
 
-  
-    <div class="container-fluid py-4" style="direction: rtl; font-family: 'Cairo', sans-serif;">
-      
-      <!-- العناوين الرئيسية -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="fw-bold" style="color: #023264;">لوحة التحكم الرئيسية</h2>
-          <p class="text-muted mb-0">مرحباً بك مجدداً في نظام Khedmetak AI</p>
+  <!-- Stats -->
+  <section class="dash-stats">
+    <article class="dash-stat dash-stat--navy">
+      <div class="dash-stat__accent"></div>
+      <div class="dash-stat__body">
+        <div class="dash-stat__info">
+          <span class="dash-stat__label">إجمالي الخدمات</span>
+          <span class="dash-stat__value">24</span>
+          <span class="dash-stat__hint">خدمة حكومية متاحة</span>
         </div>
-       
-  
-      <!-- ... بقية كود الـ HTML الخاص بالـ Dashboard (الكروت، الرسم البياني، والجدول) المكتوب سابقاً دون أي تغيير ... -->
-  
+        <div class="dash-stat__icon"><i class="fas fa-concierge-bell"></i></div>
+      </div>
+    </article>
+
+    <article class="dash-stat dash-stat--green">
+      <div class="dash-stat__accent"></div>
+      <div class="dash-stat__body">
+        <div class="dash-stat__info">
+          <span class="dash-stat__label">إجمالي الطلبات</span>
+          <span class="dash-stat__value">1,248</span>
+          <span class="dash-stat__hint">طلب حكومي مسجّل</span>
+        </div>
+        <div class="dash-stat__icon"><i class="fas fa-file-invoice"></i></div>
+      </div>
+    </article>
+
+    <article class="dash-stat dash-stat--blue">
+      <div class="dash-stat__accent"></div>
+      <div class="dash-stat__body">
+        <div class="dash-stat__info">
+          <span class="dash-stat__label">المستخدمين النشطين</span>
+          <span class="dash-stat__value">842</span>
+          <span class="dash-stat__hint">مستخدم هذا الشهر</span>
+        </div>
+        <div class="dash-stat__icon"><i class="fas fa-users"></i></div>
+      </div>
+    </article>
+
+    <article class="dash-stat dash-stat--amber">
+      <div class="dash-stat__accent"></div>
+      <div class="dash-stat__body">
+        <div class="dash-stat__info">
+          <span class="dash-stat__label">قيد المراجعة</span>
+          <span class="dash-stat__value">15</span>
+          <span class="dash-stat__hint">تحتاج إجراء منك</span>
+        </div>
+        <div class="dash-stat__icon"><i class="fas fa-clock"></i></div>
+      </div>
+    </article>
+  </section>
+
+  <!-- Chart -->
+  <section class="dash-panel dash-panel--chart">
+    <div class="dash-panel__head">
+      <div>
+        <h2 class="dash-panel__title">معدل الطلبات الأسبوعي</h2>
+        <p class="dash-panel__sub">عدد الطلبات الحكومية المستلمة خلال آخر 7 أيام</p>
+      </div>
+      <span class="dash-panel__badge dash-panel__badge--up">
+        <i class="fas fa-arrow-up"></i>
+        +18%
+      </span>
     </div>
-  
-  </div>
-  
-    <!-- السطر الأول: كروت الإحصائيات الأربعة السريعة -->
-    <div class="row g-3 mb-4">
-      <!-- كارت إجمالي الخدمات -->
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
-          <div>
-            <h6 class="text-muted mb-1">إجمالي الخدمات</h6>
-            <h3 class="fw-bold mb-0" style="color: #023264;">24</h3>
-          </div>
-          <div class="p-3 rounded-circle" style="background-color: rgba(2, 50, 100, 0.1); color: #023264;">
-            <i class="fas fa-concierge-bell fa-lg"></i>
-          </div>
-        </div>
-      </div>
-  
-      <!-- كارت إجمالي الطلبات -->
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
-          <div>
-            <h6 class="text-muted mb-1">إجمالي الطلبات الحكومية</h6>
-            <h3 class="fw-bold mb-0" style="color: #298b64;">1,248</h3>
-          </div>
-          <div class="p-3 rounded-circle" style="background-color: rgba(41, 139, 100, 0.1); color: #298b64;">
-            <i class="fas fa-file-invoice fa-lg"></i>
-          </div>
-        </div>
-      </div>
-  
-      <!-- كارت المستخدمين النشطين -->
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
-          <div>
-            <h6 class="text-muted mb-1">المستخدمين النشطين</h6>
-            <h3 class="fw-bold mb-0" style="color: #487fb9;">842</h3>
-          </div>
-          <div class="p-3 rounded-circle" style="background-color: rgba(72, 127, 185, 0.1); color: #487fb9;">
-            <i class="fas fa-users fa-lg"></i>
-          </div>
-        </div>
-      </div>
-  
-      <!-- كارت الطلبات المعلقة -->
-      <div class="col-12 col-sm-6 col-xl-3">
-        <div class="card p-3 border-0 shadow-sm d-flex flex-row align-items-center justify-content-between" style="border-radius: 12px;">
-          <div>
-            <h6 class="text-muted mb-1">طلبات قيد المراجعة</h6>
-            <h3 class="fw-bold mb-0" style="color: #ffc107;">15</h3>
-          </div>
-          <div class="p-3 rounded-circle" style="background-color: rgba(255, 193, 7, 0.1); color: #ffc107;">
-            <i class="fas fa-clock fa-lg"></i>
-          </div>
-        </div>
-      </div>
+    <div class="dash-chart-wrap">
+      <canvas #ordersChart></canvas>
     </div>
-  
-    <!-- السطر الثاني: الرسم البياني التفاعلي -->
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
-          <h5 class="fw-bold mb-3" style="color: #023264; text-align: right;">معدل الطلبات الأسبوعي المضافة للموقع</h5>
-          <div style="position: relative; height: 320px; width: 100%;">
-            <canvas #ordersChart></canvas>
-          </div>
-        </div>
+  </section>
+
+  <!-- Table -->
+  <section class="dash-panel">
+    <div class="dash-panel__head">
+      <div>
+        <h2 class="dash-panel__title">آخر الطلبات المقدمة</h2>
+        <p class="dash-panel__sub">مراجعة واتخاذ إجراء على أحدث طلبات المواطنين</p>
       </div>
+      <span class="dash-panel__count">{{ requestsList.length }} طلب</span>
     </div>
-  
-    <!-- السطر الثالث: جدول آخر الطلبات المستلمة (اصبح ديناميكياً) -->
-    <div class="row">
-      <div class="col-12">
-        <div class="card border-0 shadow-sm p-4" style="border-radius: 12px;">
-          <h5 class="fw-bold mb-3" style="color: #023264; text-align: right;">آخر الطلبات المقدمة</h5>
-          
-          <div class="table-responsive">
-            <table class="table table-hover align-middle text-right mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th class="py-3">اسم المواطن</th>
-                  <th class="py-3">الخدمة المطلوبة</th>
-                  <th class="py-3">تاريخ الطلب</th>
-                  <th class="py-3">حالة الطلب</th>
-                  <th class="py-3 text-center">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- استخدام الـ ngFor لعرض الطلبات من المصفوفة -->
-                <tr *ngFor="let req of requestsList">
-                  <td class="fw-bold">{{ req.name }}</td>
-                  <td>{{ req.service }}</td>
-                  <td>{{ req.date }}</td>
-                  <td>
-                    <!-- تلوين الـ Badge ديناميكياً بناءً على الحالة -->
-                    <span class="badge px-3 py-2 rounded-pill" 
-                          [ngClass]="{
-                            'bg-success-subtle text-success': req.status === 'مقبول',
-                            'bg-warning-subtle text-warning': req.status === 'قيد المراجعة',
-                            'bg-danger-subtle text-danger': req.status === 'مرفوض'
-                          }">
-                      {{ req.status }}
-                    </span>
-                  </td>
-                  <td class="text-center">
-                    <!-- زر تفاعلي يفتح الـ Modal المكتوب في الأسفل ويمرر بيانات هذا السطر بالتحديد -->
-                    <button class="btn btn-sm btn-outline-primary" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#detailsModal" 
-                            (click)="viewDetails(req)">
-                      عرض التفاصيل
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-  
-        </div>
-      </div>
-    </div>
-  
-    <!-- الـ Modal المنبثق: نافذة عرض تفاصيل المستندات والملفات المرفوعة -->
-    <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true" style="text-align: right;">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow" style="border-radius: 16px;">
-          
-          <!-- هيدر المودال -->
-          <div class="modal-header d-flex justify-content-between align-items-center" style="background-color: #023264; color: white; border-top-left-radius: 16px; border-top-right-radius: 16px;">
-            <h5 class="modal-title fw-bold m-0" id="detailsModalLabel">تفاصيل طلب الخدمة الحكومية</h5>
-            <button type="button" class="btn-close btn-close-white m-0" data-bs-with dismiss="modal" aria-label="Close"></button>
-          </div>
-          
-          <!-- محتوى بيانات المواطن (يظهر فقط إذا كان هناك طلب محدد) -->
-          <div class="modal-body p-4" *ngIf="selectedRequest">
-            <div class="mb-3">
-              <span class="text-muted d-block" style="font-size: 13px;">اسم مقدم الطلب:</span>
-              <strong class="fs-5" style="color: #023264;">{{ selectedRequest.name }}</strong>
-            </div>
-            
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <span class="text-muted d-block" style="font-size: 13px;">الخدمة المستهدفة:</span>
-                <span class="fw-bold">{{ selectedRequest.service }}</span>
+
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>اسم المواطن</th>
+            <th>الخدمة المطلوبة</th>
+            <th>تاريخ الطلب</th>
+            <th>حالة الطلب</th>
+            <th class="dash-table__actions-col">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of requestsList">
+            <td>
+              <div class="dash-table__user">
+                <span class="dash-table__avatar">{{ req.name.charAt(0) }}</span>
+                <span class="dash-table__name">{{ req.name }}</span>
               </div>
-              <div class="col-6">
-                <span class="text-muted d-block" style="font-size: 13px;">تاريخ التقديم:</span>
-                <span class="fw-bold text-ltr">{{ selectedRequest.date }}</span>
-              </div>
-            </div>
-  
-            <div class="row g-3 mb-4">
-              <div class="col-6">
-                <span class="text-muted d-block" style="font-size: 13px;">الرقم القومي:</span>
-                <span class="fw-bold">{{ selectedRequest.nationalId }}</span>
-              </div>
-              <div class="col-6">
-                <span class="text-muted d-block" style="font-size: 13px;">رقم الهاتف:</span>
-                <span class="fw-bold">{{ selectedRequest.phone }}</span>
-              </div>
-            </div>
-  
-            <!-- صندوق المرفقات والمستندات المرفوعة -->
-            <div class="p-3 bg-light rounded-3 mb-4 d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-file-pdf fa-2x text-danger me-2"></i>
-                <div class="mx-2">
-                  <span class="d-block fw-bold" style="font-size: 14px;">المستند الرسمي المرفق</span>
-                  <small class="text-muted">{{ selectedRequest.userFile }}</small>
-                </div>
-              </div>
-              <button class="btn btn-sm btn-dark px-3 rounded-pill">
-                <i class="fas fa-download me-1"></i> تحميل
-              </button>
-            </div>
-  
-            <!-- عرض الحالة الحالية داخل المودال -->
-            <div class="text-center mb-2">
-              <span class="text-muted" style="font-size: 13px;">حالة المعالجة الحالية: </span>
-              <span class="badge px-3 py-2 rounded-pill fw-bold" 
-                    [ngClass]="{
-                      'bg-success text-white': selectedRequest.status === 'مقبول',
-                      'bg-warning text-dark': selectedRequest.status === 'قيد المراجعة',
-                      'bg-danger text-white': selectedRequest.status === 'مرفوض'
-                    }">
-                {{ selectedRequest.status }}
+            </td>
+            <td>{{ req.service }}</td>
+            <td class="dash-table__date">{{ req.date }}</td>
+            <td>
+              <span class="dash-badge" [ngClass]="getStatusClass(req.status)">
+                {{ req.status }}
               </span>
+            </td>
+            <td class="dash-table__actions-col">
+              <button
+                class="dash-btn-view"
+                data-bs-toggle="modal"
+                data-bs-target="#detailsModal"
+                (click)="viewDetails(req)"
+              >
+                <i class="fas fa-eye"></i>
+                عرض التفاصيل
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content dash-modal">
+
+      <div class="dash-modal__header">
+        <div>
+          <h5 class="dash-modal__title" id="detailsModalLabel">تفاصيل طلب الخدمة</h5>
+          <p class="dash-modal__sub" *ngIf="selectedRequest">طلب رقم #{{ selectedRequest.id }}</p>
+        </div>
+        <button type="button" class="dash-modal__close" data-bs-dismiss="modal" aria-label="إغلاق">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="dash-modal__body" *ngIf="selectedRequest">
+        <div class="dash-modal__field dash-modal__field--full">
+          <span class="dash-modal__label">اسم مقدم الطلب</span>
+          <strong class="dash-modal__value">{{ selectedRequest.name }}</strong>
+        </div>
+
+        <div class="dash-modal__grid">
+          <div class="dash-modal__field">
+            <span class="dash-modal__label">الخدمة المستهدفة</span>
+            <span class="dash-modal__value">{{ selectedRequest.service }}</span>
+          </div>
+          <div class="dash-modal__field">
+            <span class="dash-modal__label">تاريخ التقديم</span>
+            <span class="dash-modal__value">{{ selectedRequest.date }}</span>
+          </div>
+          <div class="dash-modal__field">
+            <span class="dash-modal__label">الرقم القومي</span>
+            <span class="dash-modal__value">{{ selectedRequest.nationalId }}</span>
+          </div>
+          <div class="dash-modal__field">
+            <span class="dash-modal__label">رقم الهاتف</span>
+            <span class="dash-modal__value">{{ selectedRequest.phone }}</span>
+          </div>
+        </div>
+
+        <div class="dash-modal__file">
+          <div class="dash-modal__file-info">
+            <span class="dash-modal__file-icon"><i class="fas fa-file-pdf"></i></span>
+            <div>
+              <span class="dash-modal__file-title">المستند الرسمي المرفق</span>
+              <small class="dash-modal__file-name">{{ selectedRequest.userFile }}</small>
             </div>
           </div>
-  
-          <!-- أزرار اتخاذ القرار (قبول / رفض) لـ الأدمن -->
-          <div class="modal-footer d-flex justify-content-center gap-2 border-0 pb-4">
-            <button type="button" class="btn px-4 fw-bold text-white" style="background-color: #298b64; border-radius: 8px;" (click)="updateStatus('مقبول')">
-              <i class="fas fa-check me-1"></i> قبول الطلب
-            </button>
-            <button type="button" class="btn px-4 fw-bold text-white" style="background-color: #dc3545; border-radius: 8px;" (click)="updateStatus('مرفوض')">
-              <i class="fas fa-times me-1"></i> رفض الطلب
-            </button>
-          </div>
-  
+          <button type="button" class="dash-modal__download">
+            <i class="fas fa-download"></i>
+            تحميل
+          </button>
+        </div>
+
+        <div class="dash-modal__status-row">
+          <span class="dash-modal__label">حالة المعالجة</span>
+          <span class="dash-badge" [ngClass]="getStatusClass(selectedRequest.status)">
+            {{ selectedRequest.status }}
+          </span>
         </div>
       </div>
+
+      <div class="dash-modal__footer">
+        <button type="button" class="dash-modal__btn dash-modal__btn--accept" (click)="updateStatus('مقبول')">
+          <i class="fas fa-check"></i>
+          قبول الطلب
+        </button>
+        <button type="button" class="dash-modal__btn dash-modal__btn--reject" (click)="updateStatus('مرفوض')">
+          <i class="fas fa-times"></i>
+          رفض الطلب
+        </button>
+      </div>
+
     </div>
-  
- 
-  
-  
+  </div>
+</div>

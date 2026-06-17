@@ -1,205 +1,504 @@
-// 1. تعريف الألوان المطلوبة
-$navyBlue: #023264;
-$hoverColor: #487fb9;
-$greenColor: #298b64;
+$navy:   #023264;
+$navy2:  #012050;
+$blue:   #487fb9;
+$green:  #298b64;
+$green2: #237a52;
+$red:    #dc3545;
+$bg:     #f0f4f8;
+$white:  #ffffff;
+$border: #e4e9f0;
+$muted:  #6b7a8d;
+$text:   #1a2535;
 
-// 2. تنسيق الهيكل العام للصفحة
-.admin-profile-container {
-  display: flex;
-  gap: 30px;
-  padding: 40px;
-  background-color: #f8f9fa;
-  font-family: 'Cairo', sans-serif; // متناسق مع التصميم العربي
-  direction: rtl; // لضبط الاتجاه من اليمين لليسان
+// ============================================================
+// Page shell
+// ============================================================
+.prof-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  box-sizing: border-box;
 }
 
-// بطاقات التصميم المشتركة
-.profile-card {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 24px;
-}
+// ============================================================
+// Hero
+// ============================================================
+.prof-hero {
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba($navy2, 0.18);
 
-// الجانب الأيمن (الصورة والتعريف السريع)
-.sidebar-profile {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, $navy2 0%, $navy 45%, $blue 100%);
 
-  .avatar-box {
-    position: relative;
-    margin-bottom: 20px;
-
-    img {
-      width: 130px;
-      height: 130px;
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
       border-radius: 50%;
-      object-fit: cover;
-      border: 4px solid #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background: rgba($white, 0.05);
     }
 
-    .upload-btn {
-      position: absolute;
-      bottom: 5px;
-      left: 5px;
-      background: $greenColor;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      cursor: pointer;
+    &::before {
+      width: 240px;
+      height: 240px;
+      top: -70px;
+      left: -40px;
+    }
+
+    &::after {
+      width: 160px;
+      height: 160px;
+      bottom: -50px;
+      right: 12%;
+    }
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 26px 30px;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.12);
+    color: rgba($white, 0.9);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $white;
+    margin: 0 0 6px;
+  }
+
+  &__sub {
+    font-size: 14px;
+    color: rgba($white, 0.78);
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  &__role {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba($green, 0.2);
+    border: 1px solid rgba($green, 0.35);
+    color: $white;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================
+// Layout
+// ============================================================
+.prof-layout {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+// ============================================================
+// Cards
+// ============================================================
+.prof-card {
+  position: relative;
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+  overflow: hidden;
+
+  &__accent {
+    height: 4px;
+    background: linear-gradient(90deg, $green, $blue);
+  }
+
+  &__body {
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  &__head {
+    padding: 22px 24px 0;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 3px;
+  }
+
+  &__sub {
+    font-size: 12.5px;
+    color: $muted;
+    margin: 0;
+  }
+
+  &--forms {
+    padding-bottom: 24px;
+  }
+}
+
+// ============================================================
+// Profile sidebar
+// ============================================================
+.prof-avatar {
+  position: relative;
+  margin-bottom: 18px;
+
+  &__ring {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, $green, $blue);
+    box-shadow: 0 8px 24px rgba($navy, 0.15);
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid $white;
+    display: block;
+  }
+
+  &__btn {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 2px solid $white;
+    background: linear-gradient(135deg, $green, $green2);
+    color: $white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba($green, 0.35);
+
+    &:hover {
+      transform: scale(1.06);
+    }
+  }
+}
+
+.prof-profile {
+  &__name {
+    font-size: 20px;
+    font-weight: 800;
+    color: $navy;
+    margin: 0 0 6px;
+  }
+
+  &__bio {
+    font-size: 13px;
+    color: $muted;
+    line-height: 1.6;
+    margin: 0 0 20px;
+    max-width: 260px;
+  }
+}
+
+.prof-meta {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid $border;
+    border-radius: 10px;
+    text-align: right;
+  }
+
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba($blue, 0.1);
+    color: $blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    font-size: 12.5px;
+    color: $text;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.prof-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: $green;
+  background: rgba($green, 0.1);
+  padding: 6px 14px;
+  border-radius: 20px;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $green;
+    box-shadow: 0 0 0 3px rgba($green, 0.25);
+  }
+}
+
+// ============================================================
+// Form
+// ============================================================
+.prof-form {
+  padding: 0 24px;
+}
+
+.prof-section {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px dashed $border;
+
+  &:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 18px;
+
+    i {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: rgba($navy, 0.08);
+      color: $navy;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.3s;
-
-      &:hover {
-        background: darken($greenColor, 10%);
-      }
+      font-size: 13px;
     }
-  }
-
-  h2 {
-    color: $navyBlue;
-    font-size: 20px;
-    margin-bottom: 5px;
-  }
-
-  p {
-    color: #6c757d;
-    font-size: 14px;
   }
 }
 
-// الجانب الأيسر (البيانات التفصيلية)
-.details-profile {
-    flex: 2;
-  
-    h3 {
-      color: $navyBlue;
-      font-size: 18px;
-      margin-top: 20px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #f1f1f1;
-      padding-bottom: 10px;
-      text-align: center; // ليطابق العناوين المتمركزة بالصورة
-    }
-  
-    .form-group {
-      margin-bottom: 20px;
-      text-align: right; // لضمان محاذاة النصوص والـ labels لليمين
-  
-      label {
-        display: block;
-        margin-bottom: 8px;
-        color: #495057;
-        font-weight: 600;
-      }
-  
-      input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ced4da;
-        border-radius: 8px;
-        font-size: 14px;
-        box-sizing: border-box;
-        text-align: center; // جعل المدخلات بالمنتصف مثل الصورة
-  
-        &:focus {
-          border-color: $hoverColor;
-          outline: none;
-          box-shadow: 0 0 0 3px rgba(72, 127, 185, 0.2);
-        }
-        
-        &:disabled {
-          background-color: #f8f9fa;
-          color: #6c757d;
-        }
-      }
-    }
-  
-    .form-row {
-      display: flex;
-      gap: 20px;
-  
-      .form-group {
-        flex: 1;
-      }
-    }
-  
-    // تنسيق حاوية الأزرار لتوزيعهم بشكل متناسق في المنتصف مع وجود مسافة بينهم
-    .form-actions {
-      display: flex;
-      justify-content: center;
-      gap: 15px; // مسافة أمان واضحة بين زر الحفظ وزر التراجع
-      margin-top: 30px;
-      width: 100%;
-    }
-  
-    // زر الحفظ الرئيسي (الأخضر)
-    .save-btn {
-      background-color: $greenColor;
-      color: white;
-      border: none;
-      padding: 12px 40px; 
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.3s, transform 0.2s;
-  
-      &:hover:not(:disabled) {
-        background-color: darken($greenColor, 5%);
-      }
+.prof-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.prof-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  &__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text;
+  }
+
+  &__input {
+    width: 100%;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+    color: $text;
+    background: #fafbfc;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    box-sizing: border-box;
+    text-align: right;
+
+    &::placeholder {
+      color: #b0bac6;
     }
 
-    // زر التراجع الجديد (الرمادي)
-    .cancel-btn {
-      background-color: #e4e6eb;
-      color: #4b4f56;
-      border: none;
-      padding: 12px 40px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: background 0.3s, color 0.3s;
+    &:hover:not(:disabled) {
+      border-color: #d5dbe3;
+      background: $white;
+    }
 
-      &:hover {
-        background-color: #d8dadf;
-        color: #1c1e21;
+    &:focus {
+      border-color: $blue;
+      box-shadow: 0 0 0 3px rgba($blue, 0.12);
+      background: $white;
+      outline: none;
+    }
+
+    &--disabled,
+    &:disabled {
+      background: #f1f4f8;
+      color: $muted;
+      cursor: not-allowed;
+    }
+
+    &--invalid {
+      border-color: $red !important;
+      background: #fff8f8 !important;
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba($red, 0.12) !important;
       }
     }
-  
-    // نصوص التنبيه باللون الأحمر
-    .error-container {
-      color: #dc3545;
-      font-size: 12px;
-      margin-top: 6px;
+  }
+
+  &__error {
+    color: $red;
+    font-size: 12px;
+    line-height: 1.4;
+
+    small {
       display: block;
     }
-    
-    // تحويل لون حدود أي خانة بها خطأ إلى الأحمر فوراً مع خلفية خفيفة جداً
-    input.is-invalid {
-      border-color: #dc3545 !important;
-      background-color: #fff8f8 !important;
-      
-      &:focus {
-        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
-      }
-    }
-    
-    // تعديل شكل زر الحفظ ليكون مطفأً ويدل على التعطيل عند وجود بيانات خاطئة
-    .save-btn:disabled {
-      background-color: #6c757d !important;
-      cursor: not-allowed !important;
-      opacity: 0.65;
-      transform: none !important;
-      box-shadow: none !important;
-    }
+  }
+}
+
+.prof-form__actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $border;
+}
+
+.prof-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 11px;
+  background: linear-gradient(135deg, $green, $green2);
+  color: $white;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 14px rgba($green, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba($green, 0.38);
+  }
+
+  &:disabled {
+    background: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+  }
+}
+
+// ============================================================
+// Responsive
+// ============================================================
+@media (max-width: 992px) {
+  .prof-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .prof-card--profile {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .prof-page {
+    padding-top: calc(70px + 1rem) !important;
+  }
+
+  .prof-hero__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px;
+  }
+
+  .prof-hero__title {
+    font-size: 22px;
+  }
+
+  .prof-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .prof-form__actions {
+    justify-content: stretch;
+  }
+
+  .prof-btn-save {
+    width: 100%;
+    justify-content: center;
+  }
 }

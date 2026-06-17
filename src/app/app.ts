@@ -4,10 +4,11 @@ import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { FooterCom } from "./Components/SharedComponents/footer-com/footer-com";
 import { NavbarCom } from "./Components/SharedComponents/navbar-com/navbar-com";
+import { Sidebar } from "./Components/sidebar/sidebar";
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, RouterModule, FooterCom, NavbarCom],
+  imports: [CommonModule, RouterModule, FooterCom, NavbarCom, Sidebar],
   templateUrl: './app.html',
   styleUrls: ['./app.scss']
 })
@@ -24,16 +25,18 @@ export class App implements OnInit {
     ).subscribe((event: any) => {
       const currentUrl = event.url;
       
-      // إذا كان الرابط يخص صفحات الأدمن، نقوم بإخفاء الفوتر
-      if (
-        currentUrl.includes('admin-profile') || 
-        currentUrl.includes('admin-dashboard') || 
-        currentUrl.includes('manage-services')
-      ) {
-        this.showFooter = false;
-      } else {
-        this.showFooter = true;
-      }
+      const adminPages =
+        currentUrl.includes('admin-profile') ||
+        currentUrl.includes('admin-dashboard') ||
+        currentUrl.includes('manage-services');
+
+      const noFooterPages =
+        adminPages ||
+        currentUrl.includes('/chat') ||
+        currentUrl.includes('/login') ||
+        currentUrl.includes('/signup');
+
+      this.showFooter = !noFooterPages;
     });
   }
 }

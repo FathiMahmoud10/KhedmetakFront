@@ -1,86 +1,185 @@
-<app-sidebar></app-sidebar>
-<div style="margin-right: 260px;">
-  <!-- ... كود الـ HTML الحالي لصفحة إدارة الخدمات بالكامل يوضع هنا ... -->
-</div>
-<div class="admin-profile-container">
-  
-    <!-- الجانب الأيمن: بطاقة التعريف السريعة والصورة -->
-    <div class="profile-card sidebar-profile">
-      <div class="avatar-box">
-        <img [src]="selectedAvatar" alt="Admin Avatar" onerror="this.src='https://ui-avatars.com'" >
-        <button class="upload-btn">
-          <i class="fas fa-camera"></i>
-        </button>
+<div class="prof-page container-fluid py-4">
+
+  <!-- Hero -->
+  <header class="prof-hero">
+    <div class="prof-hero__bg"></div>
+    <div class="prof-hero__inner">
+      <div class="prof-hero__text">
+        <span class="prof-hero__tag">
+          <i class="fas fa-user-shield"></i>
+          الحساب الشخصي
+        </span>
+        <h1 class="prof-hero__title">ملف الأدمن</h1>
+        <p class="prof-hero__sub">إدارة بياناتك الشخصية وكلمة المرور وصورة الحساب</p>
       </div>
-      <h2>{{ profileForm.get('fullName')?.value }}</h2>
-      <p>الأدمن المسؤول عن إدارة الخدمات الحكومية الذكية</p>
+      <div class="prof-hero__role">
+        <i class="fas fa-id-badge"></i>
+        <span>{{ profileForm.get('role')?.value }}</span>
+      </div>
     </div>
-  
-    <!-- الجانب الأيسر: استمارات تعديل البيانات الشخصية والأمان -->
-    <div class="profile-card details-profile">
-      <h3>معلومات الحساب الشخصي</h3>
-      
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-        <!-- السطر الأول: الاسم الكامل والبريد الإلكتروني -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>الاسم الكامل</label>
-            <input type="text" formControlName="fullName" [class.is-invalid]="profileForm.get('fullName')?.invalid && (profileForm.get('fullName')?.dirty || profileForm.get('fullName')?.touched)">
-            <div *ngIf="profileForm.get('fullName')?.invalid && (profileForm.get('fullName')?.dirty || profileForm.get('fullName')?.touched)" class="error-container">
-              <small *ngIf="profileForm.get('fullName')?.errors?.['required']">حقل الاسم مطلوب ولا يمكن تركه فارغاً.</small>
-              <small *ngIf="profileForm.get('fullName')?.errors?.['minlength']">يجب أن يتكون الاسم من 3 أحرف على الأقل.</small>
-            </div>
+  </header>
+
+  <div class="prof-layout">
+
+    <!-- Profile card -->
+    <aside class="prof-card prof-card--profile">
+      <div class="prof-card__accent"></div>
+      <div class="prof-card__body">
+
+        <div class="prof-avatar">
+          <div class="prof-avatar__ring">
+            <img
+              [src]="selectedAvatar"
+              alt="Admin Avatar"
+              class="prof-avatar__img"
+              onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=298b64&color=fff'"
+            />
           </div>
-          <div class="form-group">
-            <label>البريد الإلكتروني</label>
-            <input type="email" formControlName="email" [class.is-invalid]="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)">
-            <div *ngIf="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)" class="error-container">
-              <small *ngIf="profileForm.get('email')?.errors?.['required']">البريد الإلكتروني مطلوب للاتصال.</small>
-              <small *ngIf="profileForm.get('email')?.errors?.['email']">صيغة البريد غير صحيحة (مثال: name@example.com).</small>
-            </div>
-          </div>
+          <button class="prof-avatar__btn" type="button" (click)="avatarInput.click()" aria-label="تغيير الصورة">
+            <i class="fas fa-camera"></i>
+          </button>
+          <input #avatarInput type="file" accept="image/*" hidden (change)="onFileSelected($event)" />
         </div>
-  
-        <!-- السطر الثاني: رقم الهاتف والوظيفة -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>رقم الهاتف</label>
-            <input type="text" formControlName="phone" [class.is-invalid]="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)">
-            <div *ngIf="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)" class="error-container">
-              <small *ngIf="profileForm.get('phone')?.errors?.['required']">رقم الهاتف مطلوب للتواصل الطارئ.</small>
-              <small *ngIf="profileForm.get('phone')?.errors?.['pattern']">يجب إدخال رقم هاتف مصري صحيح مكون من 11 رقماً.</small>
+
+        <h2 class="prof-profile__name">{{ profileForm.get('fullName')?.value }}</h2>
+        <p class="prof-profile__bio">الأدمن المسؤول عن إدارة الخدمات الحكومية الذكية</p>
+
+        <ul class="prof-meta">
+          <li class="prof-meta__item">
+            <span class="prof-meta__icon"><i class="fas fa-envelope"></i></span>
+            <span class="prof-meta__text">{{ profileForm.get('email')?.value }}</span>
+          </li>
+          <li class="prof-meta__item">
+            <span class="prof-meta__icon"><i class="fas fa-phone"></i></span>
+            <span class="prof-meta__text">{{ profileForm.get('phone')?.value }}</span>
+          </li>
+        </ul>
+
+        <div class="prof-status">
+          <span class="prof-status__dot"></span>
+          <span>نشط الآن</span>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Forms -->
+    <main class="prof-card prof-card--forms">
+      <div class="prof-card__head">
+        <div>
+          <h2 class="prof-card__title">إعدادات الحساب</h2>
+          <p class="prof-card__sub">عدّل بياناتك واحفظ التغييرات</p>
+        </div>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="prof-form">
+
+        <!-- Personal info -->
+        <section class="prof-section">
+          <h3 class="prof-section__title">
+            <i class="fas fa-user"></i>
+            المعلومات الشخصية
+          </h3>
+
+          <div class="prof-form__row">
+            <div class="prof-field">
+              <label class="prof-field__label">الاسم الكامل</label>
+              <input
+                type="text"
+                class="prof-field__input"
+                formControlName="fullName"
+                [class.prof-field__input--invalid]="profileForm.get('fullName')?.invalid && (profileForm.get('fullName')?.dirty || profileForm.get('fullName')?.touched)"
+              />
+              <div *ngIf="profileForm.get('fullName')?.invalid && (profileForm.get('fullName')?.dirty || profileForm.get('fullName')?.touched)" class="prof-field__error">
+                <small *ngIf="profileForm.get('fullName')?.errors?.['required']">حقل الاسم مطلوب ولا يمكن تركه فارغاً.</small>
+                <small *ngIf="profileForm.get('fullName')?.errors?.['minlength']">يجب أن يتكون الاسم من 3 أحرف على الأقل.</small>
+              </div>
+            </div>
+
+            <div class="prof-field">
+              <label class="prof-field__label">البريد الإلكتروني</label>
+              <input
+                type="email"
+                class="prof-field__input"
+                formControlName="email"
+                [class.prof-field__input--invalid]="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)"
+              />
+              <div *ngIf="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)" class="prof-field__error">
+                <small *ngIf="profileForm.get('email')?.errors?.['required']">البريد الإلكتروني مطلوب للاتصال.</small>
+                <small *ngIf="profileForm.get('email')?.errors?.['email']">صيغة البريد غير صحيحة (مثال: name@example.com).</small>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>الدور / الصلاحية</label>
-            <input type="text" formControlName="role">
-          </div>
-        </div>
-  
-        <h3>تغيير كلمة المرور</h3>
-        <!-- السطر الثالث: تعديل كلمة المرور -->
-        <div class="form-row">
-          <div class="form-group">
-            <label>كلمة المرور الحالية</label>
-            <input type="password" formControlName="currentPassword" placeholder="********" [class.is-invalid]="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)">
-            <div *ngIf="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)" class="error-container">
-              <small *ngIf="profileForm.get('currentPassword')?.errors?.['minlength']">كلمة المرور يجب ألا تقل عن 6 أحرف.</small>
+
+          <div class="prof-form__row">
+            <div class="prof-field">
+              <label class="prof-field__label">رقم الهاتف</label>
+              <input
+                type="text"
+                class="prof-field__input"
+                formControlName="phone"
+                [class.prof-field__input--invalid]="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)"
+              />
+              <div *ngIf="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)" class="prof-field__error">
+                <small *ngIf="profileForm.get('phone')?.errors?.['required']">رقم الهاتف مطلوب للتواصل الطارئ.</small>
+                <small *ngIf="profileForm.get('phone')?.errors?.['pattern']">يجب إدخال رقم هاتف مصري صحيح مكون من 11 رقماً.</small>
+              </div>
+            </div>
+
+            <div class="prof-field">
+              <label class="prof-field__label">الدور / الصلاحية</label>
+              <input type="text" class="prof-field__input prof-field__input--disabled" formControlName="role" />
             </div>
           </div>
-          <div class="form-group">
-            <label>كلمة المرور الجديدة</label>
-            <input type="password" formControlName="newPassword" placeholder="********" [class.is-invalid]="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)">
-            <div *ngIf="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)" class="error-container">
-              <small *ngIf="profileForm.get('newPassword')?.errors?.['minlength']">كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف.</small>
+        </section>
+
+        <!-- Password -->
+        <section class="prof-section">
+          <h3 class="prof-section__title">
+            <i class="fas fa-lock"></i>
+            تغيير كلمة المرور
+          </h3>
+
+          <div class="prof-form__row">
+            <div class="prof-field">
+              <label class="prof-field__label">كلمة المرور الحالية</label>
+              <input
+                type="password"
+                class="prof-field__input"
+                formControlName="currentPassword"
+                placeholder="••••••••"
+                [class.prof-field__input--invalid]="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)"
+              />
+              <div *ngIf="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)" class="prof-field__error">
+                <small *ngIf="profileForm.get('currentPassword')?.errors?.['minlength']">كلمة المرور يجب ألا تقل عن 6 أحرف.</small>
+              </div>
+            </div>
+
+            <div class="prof-field">
+              <label class="prof-field__label">كلمة المرور الجديدة</label>
+              <input
+                type="password"
+                class="prof-field__input"
+                formControlName="newPassword"
+                placeholder="••••••••"
+                [class.prof-field__input--invalid]="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)"
+              />
+              <div *ngIf="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)" class="prof-field__error">
+                <small *ngIf="profileForm.get('newPassword')?.errors?.['minlength']">كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف.</small>
+              </div>
             </div>
           </div>
+        </section>
+
+        <div class="prof-form__actions">
+          <button type="submit" class="prof-btn-save" [disabled]="profileForm.invalid">
+            <i class="fas fa-save"></i>
+            حفظ التغييرات
+          </button>
         </div>
-  
-        <!-- زر الحفظ الأخضر متناسق مع الواجهة ويتم تعطيله برمجياً -->
-        <div class="form-actions">
-          <button type="submit" class="save-btn" [disabled]="profileForm.invalid">حفظ التغييرات</button>
-        </div>
+
       </form>
-    </div>
-  
+    </main>
+
   </div>
+</div>

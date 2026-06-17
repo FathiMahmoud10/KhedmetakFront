@@ -1,79 +1,702 @@
-// 1. استيراد متغيرات الألوان الرئيسية
-$navyBlue: #023264;
-$hoverColor: #487fb9;
-$greenColor: #298b64;
+$navy:   #023264;
+$navy2:  #012050;
+$blue:   #487fb9;
+$green:  #298b64;
+$amber:  #e6a817;
+$red:    #dc3545;
+$bg:     #f0f4f8;
+$white:  #ffffff;
+$border: #e4e9f0;
+$muted:  #6b7a8d;
+$text:   #1a2535;
 
-// 2. تنسيقات كروت الإحصائيات (Cards)
-.card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  background-color: #ffffff;
-  
-  &:hover {
-    transform: translateY(-5px); // حركة صعود خفيفة عند تمرير الماوس
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
-  }
+// ============================================================
+// Page shell
+// ============================================================
+.dash-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  box-sizing: border-box;
 }
 
-// 3. تنسيقات الجدول الخاص بآخر الطلبات
-.table-responsive {
-  border-radius: 8px;
+// ============================================================
+// Hero
+// ============================================================
+.dash-hero {
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
   overflow: hidden;
-}
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba($navy2, 0.18);
 
-.table {
-  thead {
-    tr {
-      background-color: #f8f9fa;
-      th {
-        color: #495057;
-        font-weight: 700;
-        font-size: 14px;
-        border-bottom: 2px solid #ebeef5;
-      }
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, $navy2 0%, $navy 45%, $blue 100%);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba($white, 0.05);
+    }
+
+    &::before {
+      width: 260px;
+      height: 260px;
+      top: -80px;
+      left: -50px;
+    }
+
+    &::after {
+      width: 180px;
+      height: 180px;
+      bottom: -60px;
+      right: 10%;
     }
   }
 
-  tbody {
-    tr {
-      transition: background-color 0.2s ease;
-      
-      &:hover {
-        background-color: rgba(72, 127, 185, 0.03) !important; // إضاءة زرقاء خفيفة عند التمرير على السطر
-      }
-      
-      td {
-        padding: 16px 12px;
-        font-size: 14px;
-        color: #212529;
-        border-bottom: 1px solid #f1f1f1;
-      }
-    }
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 32px;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.12);
+    color: rgba($white, 0.9);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $white;
+    margin: 0 0 6px;
+  }
+
+  &__sub {
+    font-size: 14px;
+    color: rgba($white, 0.78);
+    margin: 0;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  &__date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba($white, 0.1);
+    border: 1px solid rgba($white, 0.15);
+    border-radius: 12px;
+    padding: 10px 16px;
+    color: rgba($white, 0.85);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  &__pending {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba($amber, 0.15);
+    border: 1px solid rgba($amber, 0.3);
+    border-radius: 14px;
+    padding: 14px 18px;
+  }
+
+  &__pending-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: $white;
+    line-height: 1;
+  }
+
+  &__pending-lbl {
+    font-size: 12px;
+    color: rgba($white, 0.8);
+    line-height: 1.4;
   }
 }
 
-// 4. تنسيقات شارات الحالة (Badges) المتوافقة مع Bootstrap 5
-.bg-success-subtle {
-  background-color: rgba(41, 139, 100, 0.15) !important;
+// ============================================================
+// Stats grid
+// ============================================================
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
-.bg-warning-subtle {
-  background-color: rgba(255, 193, 7, 0.15) !important;
-}
-
-.bg-danger-subtle {
-  background-color: rgba(220, 53, 69, 0.15) !important;
-}
-
-// 5. تنسيقات أزرار الإجراءات داخل الجدول
-.btn-outline-primary {
-  font-weight: 600;
-  font-size: 13px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+.dash-stat {
+  position: relative;
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba($navy, 0.05);
+  transition: transform 0.25s, box-shadow 0.25s;
 
   &:hover {
-    background-color: $hoverColor;
-    border-color: $hoverColor;
-    color: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba($navy, 0.1);
+  }
+
+  &__accent {
+    height: 3px;
+  }
+
+  &__body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px;
+  }
+
+  &__label {
+    display: block;
+    font-size: 12.5px;
+    color: $muted;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  &__value {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  &__hint {
+    display: block;
+    font-size: 11px;
+    color: #b0bac6;
+  }
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &--navy {
+    .dash-stat__accent { background: linear-gradient(90deg, $navy, $blue); }
+    .dash-stat__value { color: $navy; }
+    .dash-stat__icon { background: rgba($navy, 0.1); color: $navy; }
+  }
+
+  &--green {
+    .dash-stat__accent { background: linear-gradient(90deg, $green, #3aad7a); }
+    .dash-stat__value { color: $green; }
+    .dash-stat__icon { background: rgba($green, 0.1); color: $green; }
+  }
+
+  &--blue {
+    .dash-stat__accent { background: linear-gradient(90deg, $blue, #6a9fd4); }
+    .dash-stat__value { color: $blue; }
+    .dash-stat__icon { background: rgba($blue, 0.1); color: $blue; }
+  }
+
+  &--amber {
+    .dash-stat__accent { background: linear-gradient(90deg, $amber, #f0c040); }
+    .dash-stat__value { color: $amber; }
+    .dash-stat__icon { background: rgba($amber, 0.12); color: $amber; }
+  }
+}
+
+// ============================================================
+// Panels
+// ============================================================
+.dash-panel {
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+  padding: 24px;
+  margin-bottom: 24px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid $border;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 3px;
+  }
+
+  &__sub {
+    font-size: 12.5px;
+    color: $muted;
+    margin: 0;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 20px;
+
+    &--up {
+      background: rgba($green, 0.12);
+      color: $green;
+    }
+  }
+
+  &__count {
+    background: rgba($navy, 0.07);
+    color: $navy;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  &--chart {
+    margin-bottom: 24px;
+  }
+}
+
+.dash-chart-wrap {
+  position: relative;
+  height: 320px;
+  width: 100%;
+}
+
+// ============================================================
+// Table
+// ============================================================
+.dash-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid $border;
+}
+
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+
+  thead tr {
+    background: #f8fafc;
+  }
+
+  th {
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: $muted;
+    border-bottom: 2px solid $border;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 14px 16px;
+    font-size: 14px;
+    color: $text;
+    border-bottom: 1px solid #f1f4f8;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba($blue, 0.03);
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  &__user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba($navy, 0.12), rgba($blue, 0.1));
+    color: $navy;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-weight: 700;
+    color: $navy;
+  }
+
+  &__date {
+    color: $muted;
+    font-size: 13px;
+  }
+
+  &__actions-col {
+    text-align: center;
+    white-space: nowrap;
+  }
+}
+
+.dash-btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid rgba($blue, 0.35);
+  border-radius: 9px;
+  background: rgba($blue, 0.06);
+  color: $blue;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+
+  &:hover {
+    background: $blue;
+    border-color: $blue;
+    color: $white;
+  }
+}
+
+// ============================================================
+// Badges
+// ============================================================
+.dash-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+
+  &--success {
+    background: rgba($green, 0.12);
+    color: $green;
+  }
+
+  &--warning {
+    background: rgba($amber, 0.15);
+    color: #b8860b;
+  }
+
+  &--danger {
+    background: rgba($red, 0.12);
+    color: $red;
+  }
+
+  &--default {
+    background: rgba($muted, 0.12);
+    color: $muted;
+  }
+}
+
+// ============================================================
+// Modal
+// ============================================================
+.dash-modal {
+  border: none;
+  border-radius: 18px;
+  overflow: hidden;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    background: linear-gradient(135deg, $navy2, $navy);
+    color: $white;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 4px;
+    color: $white;
+  }
+
+  &__sub {
+    font-size: 12px;
+    color: rgba($white, 0.65);
+    margin: 0;
+  }
+
+  &__close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba($white, 0.2);
+    border-radius: 10px;
+    background: rgba($white, 0.1);
+    color: $white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba($white, 0.2);
+    }
+  }
+
+  &__body {
+    padding: 24px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &--full {
+      margin-bottom: 16px;
+    }
+  }
+
+  &__label {
+    font-size: 12px;
+    color: $muted;
+    font-weight: 600;
+  }
+
+  &__value {
+    font-size: 14px;
+    font-weight: 700;
+    color: $text;
+  }
+
+  &__field--full .dash-modal__value {
+    font-size: 18px;
+    color: $navy;
+  }
+
+  &__file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid $border;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+
+  &__file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__file-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba($red, 0.1);
+    color: $red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  &__file-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: $text;
+  }
+
+  &__file-name {
+    display: block;
+    font-size: 11px;
+    color: $muted;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__download {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 9px;
+    background: $navy;
+    color: $white;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &__status-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 4px;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 24px 24px;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    color: $white;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+
+    &--accept {
+      background: linear-gradient(135deg, $green, #237a52);
+      box-shadow: 0 4px 14px rgba($green, 0.3);
+    }
+
+    &--reject {
+      background: linear-gradient(135deg, $red, #b02a37);
+      box-shadow: 0 4px 14px rgba($red, 0.25);
+    }
+  }
+}
+
+// ============================================================
+// Responsive
+// ============================================================
+@media (max-width: 1200px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-page {
+    padding-top: calc(70px + 1rem) !important;
+  }
+
+  .dash-hero__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px;
+  }
+
+  .dash-hero__title {
+    font-size: 22px;
+  }
+
+  .dash-hero__meta {
+    width: 100%;
+  }
+
+  .dash-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-panel__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-modal__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dash-modal__footer {
+    flex-direction: column;
+  }
+
+  .dash-modal__btn {
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AdminService } from '../../Core/Services/admin';
-import { Sidebar } from '../../Components/sidebar/sidebar';
  // استيراد الخدمة التي تم إنشاؤها لربط الـ Backend
 
 @Component({
   selector: 'app-admin-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,Sidebar],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './admin-profile.html',
   styleUrls: ['./admin-profile.scss']
 })

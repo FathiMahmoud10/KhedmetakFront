@@ -5,38 +5,35 @@
 
 // ── Design Tokens ───────────────────────────
 :host {
-  // Primary - Egyptian Government Blue
-  --gov-blue-950:  #071428;
-  --gov-blue-900:  #0A1F3D;
-  --gov-blue-800:  #0D2E5C;
-  --gov-blue-700:  #164785;
-  --gov-blue-600:  #1E5FA8;
-  --gov-blue-500:  #2E86C1;
-  --gov-blue-400:  #5BA3D4;
-  --gov-blue-300:  #8EC1E4;
-  --gov-blue-200:  #C0DDF2;
-  --gov-blue-100:  #E8F1F8;
-  --gov-blue-50:   #F0F6FC;
+  // Primary — Egyptian Government (aligned with project)
+  --gov-blue-950:  #011a3a;
+  --gov-blue-900:  #012050;
+  --gov-blue-800:  #023264;
+  --gov-blue-700:  #04498f;
+  --gov-blue-600:  #487fb9;
+  --gov-blue-500:  #5a8fc5;
+  --gov-blue-400:  #7aa8d4;
+  --gov-blue-300:  #a8c8e8;
+  --gov-blue-200:  #d0e2f2;
+  --gov-blue-100:  #e8f1f8;
+  --gov-blue-50:   #f0f4f8;
 
-  // Secondary - Growth & Trust Green
-  --gov-green-900:  #0F3D22;
-  --gov-green-800:  #156B38;
-  --gov-green-700:  #1A7A40;
-  --gov-green-600:  #1E8449;
-  --gov-green-500:  #27A35A;
-  --gov-green-400:  #4DBF7A;
-  --gov-green-300:  #7DD4A0;
-  --gov-green-200:  #B0E8C8;
-  --gov-green-100:  #E0F5E9;
-  --gov-green-50:   #F0FAF4;
+  // Secondary — Trust Green
+  --gov-green-900:  #1a5c38;
+  --gov-green-800:  #1f6e4e;
+  --gov-green-700:  #237a52;
+  --gov-green-600:  #298b64;
+  --gov-green-500:  #2e9a6e;
+  --gov-green-400:  #4db88a;
+  --gov-green-300:  #7dd4a8;
+  --gov-green-200:  #b0e8c8;
+  --gov-green-100:  #e0f5e9;
+  --gov-green-50:   #f0faf4;
 
-  // Accent - Egyptian Gold (prestige & heritage)
-  --gov-gold-900:   #5C4A1F;
-  --gov-gold-800:   #8A7030;
-  --gov-gold-700:   #B8953E;
-  --gov-gold-600:   #C9A84C;
-  --gov-gold-500:   #D4B85E;
-  --gov-gold-400:   #E0CC7A;
+  // Accent — Egyptian Gold
+  --gov-gold-600:   #c9a227;
+  --gov-gold-500:   #d4b85e;
+  --gov-gold-400:   #e0cc7a;
   --gov-gold-300:   #EBDE9E;
   --gov-gold-200:   #F5EFC8;
   --gov-gold-100:   #FAF6E3;
@@ -102,10 +99,11 @@
 // ── Typography ──────────────────────────────
 .chat-layout {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 70px);
+  margin-top: 70px;
   width: 100%;
   background: var(--page-bg);
-  font-family: 'Segoe UI', 'Cairo', 'Tajawal', 'Noto Sans Arabic', Arial, sans-serif;
+  font-family: 'Cairo', 'Segoe UI', sans-serif;
   direction: rtl;
   overflow: hidden;
   color: var(--slate-900);
@@ -114,8 +112,52 @@
 }
 
 // ============================================
-// SIDEBAR - Egyptian Government Authority
+// SIDEBAR
 // ============================================
+.sidebar-stripe {
+  display: flex;
+  height: 4px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+
+  span:nth-child(1) { flex: 1; background: #ce1126; }
+  span:nth-child(2) { flex: 1; background: #fff; }
+  span:nth-child(3) { flex: 1; background: #1a1a1a; }
+}
+
+.brand-logo-img {
+  width: 28px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.welcome-gov-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(2, 50, 100, 0.06);
+  border: 1px solid rgba(2, 50, 100, 0.12);
+  border-right: 3px solid var(--gov-gold-600);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--gov-blue-800);
+  margin-bottom: 24px;
+
+  i {
+    color: var(--gov-gold-600);
+    font-size: 15px;
+  }
+}
+
+.chip i {
+  font-size: 12px;
+  margin-left: 4px;
+  color: var(--gov-blue-600);
+}
+
 .sidebar {
   width: var(--sidebar-w);
   min-width: var(--sidebar-w);
@@ -129,7 +171,7 @@
   position: relative;
   border-left: 1px solid rgba(201, 168, 76, 0.15);
 
-  // Government emblem stripe
+  // Gold-green accent stripe on edge
   &::before {
     content: '';
     position: absolute;
