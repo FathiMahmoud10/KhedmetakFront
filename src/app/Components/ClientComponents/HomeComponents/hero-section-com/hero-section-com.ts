@@ -9,14 +9,18 @@ import { IService } from '../../../../Utilities/Interfaces/IService';
   styleUrl: './hero-section-com.scss',
 })
 export class HeroSectionCom implements OnInit {
-ServicesList: IService[] = [];
+  ServicesList: IService[] = [];
 
-ALLservices = inject(SharedService).getAllServices();
+  private sharedService = inject(SharedService);
 
-ngOnInit(): void {
-  this.ServicesList.push(this.ALLservices[0]);
-  this.ServicesList.push(this.ALLservices[1]);
-  this.ServicesList.push(this.ALLservices[2]);
-
-}
+  ngOnInit(): void {
+    this.sharedService.getAllServices().subscribe({
+      next: (data) => {
+        this.ServicesList = data.slice(0, 3);
+      },
+      error: (err) => {
+        console.error('Error fetching services:', err);
+      }
+    });
+  }
 }

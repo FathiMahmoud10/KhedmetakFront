@@ -5,12 +5,12 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class SharedService {
+export class AuthService {
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
-  getAllServices() {
-    return this.http.get<any[]>(`${this.apiUrl}/Services`);
+  login(email: string, password: string) {
+    return this.http.post<any>(`${this.apiUrl}/Auth/login`, { email, password });
   }
 }

@@ -12,25 +12,14 @@ import { ManageServices} from './Pages/manage-services/manage-services';
 export const routes: Routes = [
     // redirectTo + 'patname'
     // when use redirectTo --> should use pathMatch with it
-    {path:'',redirectTo:'home',pathMatch:"full"},
-    {path:'home',component:HomePage},
-    {path:'chat',component:ChatPageComponent},
-
+    { path: '', redirectTo: 'home', pathMatch: "full" },
+    { path: 'home', component: HomePage },
+    { path: 'login', component: LoginComponent },
+    { path: 'signup', component: SignupComponent },
+    { path: 'chat', component: ChatPageComponent },
+    { path: 'services', loadChildren: () => import('./services.routes').then(m => m.SERVICES_ROUTES) },
+    { path: 'admin-dashboard', component: AdminDashboard },
     { path: 'admin-profile', component: AdminProfileComponent },
-    { path: 'admin-dashboard', component: AdminDashboard  },
-    { path: 'manage-services', component: ManageServices  } ,
-    // {path:'services'},
-    {path:'login',component:LoginComponent},
-    {path:'SignUp',component:SignupComponent },
-      {
-    path: 'services',
-    loadChildren: () =>
-      import('./services.routes').then(m => m.SERVICES_ROUTES),
-  },
-    // {path:'signup'},
-
-
-    ////////// ---------this path must be at the end of paths----------
-    // {path:'**',component:NotFound} //---- for any incorrect path
-    { path: 'admin-profile', component: AdminProfileComponent }
+    { path: 'manage-services', component: ManageServices },
+    // { path: '**', component: NotFound } // for any incorrect path
 ];

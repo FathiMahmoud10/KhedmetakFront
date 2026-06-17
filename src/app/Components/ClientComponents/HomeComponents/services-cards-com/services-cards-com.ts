@@ -9,21 +9,31 @@ import { SharedService } from '../../../../APIServices/SharedServices/shared-ser
 })
 export class ServicesCardsCom implements OnInit {
 
-  AllServices = inject(SharedService).getAllServices();
+  AllServices: any[] = [];
   groupedServices: any[][] = [];
 
-ngOnInit() {
-  this.groupServices();
-}
+  private sharedService = inject(SharedService);
 
-groupServices() {
-  const chunkSize = 4;
-
-  for (let i = 0; i < this.AllServices.length; i += chunkSize) {
-    this.groupedServices.push(
-      this.AllServices.slice(i, i + chunkSize)
-    );
+  ngOnInit() {
+    this.sharedService.getAllServices().subscribe({
+      next: (data) => {
+        this.AllServices = data;
+        this.groupServices();
+      },
+      error: (err) => {
+        console.error('Error fetching services:', err);
+      }
+    });
   }
-}
-  
+
+  groupServices() {
+    const chunkSize = 4;
+    this.groupedServices = [];
+
+    for (let i = 0; i < this.AllServices.length; i += chunkSize) {
+      this.groupedServices.push(
+        this.AllServices.slice(i, i + chunkSize)
+      );
+    }
+  }
 }

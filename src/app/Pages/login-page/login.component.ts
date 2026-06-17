@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -22,13 +24,12 @@ export class LoginComponent {
   emailError = false;
   passwordError = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   validateEmail() { this.emailError = !this.email.trim(); }
   validatePassword() { this.passwordError = this.password.length < 6; }
 
   signInWithGoogle() {
-    // TODO: Google OAuth
     console.log('Google sign in');
   }
 
@@ -41,15 +42,25 @@ export class LoginComponent {
 
     this.isLoading = true;
 
-    // TODO: استبدلي بـ API call حقيقي
-    // this.authService.login(this.email, this.password).subscribe({
-    //   next: () => this.router.navigate(['/home']),
-    //   error: () => { this.isLoading = false; this.serverError = 'Invalid credentials.'; }
-    // });
-
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/home']);
-    }, 1500);
+    this.http.post<any>(`${environment.apiUrl}/Auth/login`, {
+      email: this.email,
+      password: this.password
+    }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res?.token) {
+          localStorage.setItem('token', res.token);
+        }
+        this.router.navigate(['/home']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (err.status === 401) {
+          this.serverError = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+        } else {
+          this.serverError = 'حدث خطأ، يرجى المحاولة مرة أخرى';
+        }
+      }
+    });
   }
 }
