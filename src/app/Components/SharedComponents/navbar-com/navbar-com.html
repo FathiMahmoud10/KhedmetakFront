@@ -28,7 +28,6 @@
       </a>
     </div>
 
-    <!-- Center: public nav links -->
     <div class="app-navbar__center" *ngIf="!isAdminPage">
       <ul class="app-navbar__links">
         <li><a class="app-navbar__link" routerLink="/home" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">الرئيسية</a></li>
@@ -37,7 +36,6 @@
       </ul>
     </div>
 
-    <!-- Left: actions -->
     <div class="app-navbar__end">
       <button
         class="app-navbar__icon-btn"
@@ -60,7 +58,7 @@
             ملف الأدمن
           </a>
         </li>
-        <li><a class="app-navbar__auth-link" routerLink="/SignUp">حساب جديد</a></li>
+        <li><a class="app-navbar__auth-link" routerLink="/signup">حساب جديد</a></li>
         <li><a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">تسجيل الدخول</a></li>
       </ul>
     </div>

@@ -137,17 +137,28 @@ export class ServiceSteps implements OnInit {
     this.isLoading = true;
     this.errorMsg = '';
 
-    this.http.get<any>(this.serviceUrl).subscribe({
+    this.http.get<ApiResponse<ServiceStep[]>>(this.stepsUrl).subscribe({
       next: (res) => {
-        const serviceData: GovService = res?.data ?? res;
-        this.stepsList = this.mapServiceSteps(serviceData);
+        this.stepsList = (res?.data ?? []).slice().sort((a, b) => a.stepOrder - b.stepOrder);
         this.newStep.stepOrder = this.stepsList.length + 1;
         this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
-        this.errorMsg = 'حدث خطأ أثناء تحميل خطوات الخدمة';
-        this.isLoading = false;
+        console.error('GET steps failed:', err);
+        // fallback: if endpoint doesn't exist, try loading service details and mapping steps
+        this.http.get<any>(this.serviceUrl).subscribe({
+          next: (res2) => {
+            const serviceData: GovService = res2?.data ?? res2;
+            this.stepsList = this.mapServiceSteps(serviceData);
+            this.newStep.stepOrder = this.stepsList.length + 1;
+            this.isLoading = false;
+          },
+          error: (err2) => {
+            console.error('Fallback GET service failed:', err2);
+            this.errorMsg = 'حدث خطأ أثناء تحميل خطوات الخدمة';
+            this.isLoading = false;
+          }
+        });
       }
     });
   }

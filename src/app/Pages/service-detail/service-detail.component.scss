@@ -1,0 +1,516 @@
+// ============================================================
+// Design tokens (same as manage-services)
+// ============================================================
+$navy:   #023264;
+$navy2:  #012050;
+$navy3:  #04498f;
+$green:  #298b64;
+$blue:   #487fb9;
+$red:    #dc3545;
+$amber:  #d97706;
+$bg:     #f0f4f8;
+$white:  #ffffff;
+$border: #e4e9f0;
+$muted:  #6b7a8d;
+$text:   #1a2535;
+
+// ============================================================
+// Page shell
+// ============================================================
+.sd-page {
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  box-sizing: border-box;
+}
+
+// ============================================================
+// Loading state
+// ============================================================
+.sd-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+
+  &__spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid rgba($blue, 0.15);
+    border-top-color: $blue;
+    border-radius: 50%;
+    animation: sd-spin 0.8s linear infinite;
+  }
+
+  &__text {
+    font-size: 14px;
+    font-weight: 600;
+    color: $muted;
+  }
+}
+
+@keyframes sd-spin {
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// Error state
+// ============================================================
+.sd-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 10px;
+  text-align: center;
+
+  &__icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba($red, 0.08);
+    color: $red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $text;
+  }
+
+  &__hint {
+    font-size: 13px;
+    color: $muted;
+  }
+}
+
+// ============================================================
+// Hero header
+// ============================================================
+.sd-hero {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba($navy2, 0.18);
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, $navy2 0%, $navy 50%, $blue 100%);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba($white, 0.05);
+    }
+
+    &::before { width: 300px; height: 300px; top: -100px; left: -60px; }
+    &::after  { width: 200px; height: 200px; bottom: -80px; right: 5%; }
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.12);
+    color: rgba($white, 0.9);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+
+  &__title {
+    font-size: 24px;
+    font-weight: 900;
+    color: $white;
+    margin: 0 0 10px;
+    letter-spacing: -0.3px;
+  }
+
+  &__cat {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.15);
+    color: rgba($white, 0.88);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba($white, 0.2);
+  }
+
+  &__stats {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba($white, 0.12);
+    border: 1px solid rgba($white, 0.18);
+    border-radius: 14px;
+    padding: 12px 18px;
+    backdrop-filter: blur(8px);
+  }
+
+  &__stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: rgba($white, 0.15);
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+  }
+
+  &__stat-num {
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    color: $white;
+    line-height: 1;
+  }
+
+  &__stat-lbl {
+    display: block;
+    font-size: 11px;
+    color: rgba($white, 0.72);
+    margin-top: 3px;
+  }
+}
+
+// ============================================================
+// Two-column row
+// ============================================================
+.sd-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+// ============================================================
+// Card base
+// ============================================================
+.sd-card {
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba($navy, 0.05);
+  margin-bottom: 8px;
+
+  &__accent {
+    height: 3px;
+
+    &--navy  { background: linear-gradient(90deg, $navy,  $navy3); }
+    &--blue  { background: linear-gradient(90deg, $blue,  lighten($blue, 12%)); }
+    &--green { background: linear-gradient(90deg, $green, lighten($green, 12%)); }
+    &--amber { background: linear-gradient(90deg, $amber, lighten($amber, 12%)); }
+  }
+
+  &__body {
+    padding: 22px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid $border;
+  }
+
+  &__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+
+    &--navy  { background: rgba($navy,  0.08); color: $navy; }
+    &--blue  { background: rgba($blue,  0.1);  color: $blue; }
+    &--green { background: rgba($green, 0.1);  color: $green; }
+    &--amber { background: rgba($amber, 0.1);  color: $amber; }
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 2px;
+  }
+
+  &__sub {
+    font-size: 12px;
+    color: $muted;
+    margin: 0;
+  }
+}
+
+// ============================================================
+// Description
+// ============================================================
+.sd-desc {
+  font-size: 14px;
+  color: $muted;
+  line-height: 1.75;
+}
+
+// ============================================================
+// Info rows
+// ============================================================
+.sd-info {
+  display: flex;
+  flex-direction: column;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 0;
+    border-bottom: 1px dashed $border;
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: $muted;
+    font-weight: 600;
+
+    i {
+      font-size: 11px;
+      color: $blue;
+    }
+  }
+
+  &__val {
+    font-size: 14px;
+    font-weight: 700;
+    color: $navy;
+  }
+}
+
+// ── Badges ──
+.sd-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 13px;
+  border-radius: 20px;
+
+  &--green { background: rgba($green, 0.1); color: $green; }
+  &--amber { background: rgba($amber, 0.12); color: $amber; }
+}
+
+// ============================================================
+// Steps
+// ============================================================
+@keyframes sd-step-in {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.sd-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sd-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: #fafbfc;
+  border-radius: 11px;
+  border: 1px solid $border;
+  animation: sd-step-in 0.35s ease both;
+
+  &__num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $blue, $navy3);
+    color: $white;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  &__text {
+    font-size: 14px;
+    font-weight: 600;
+    color: $navy;
+  }
+}
+
+// ============================================================
+// Documents
+// ============================================================
+.sd-docs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sd-doc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: #fafbfc;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    border-color: rgba($blue, 0.3);
+    box-shadow: 0 3px 12px rgba($navy, 0.06);
+  }
+
+  &--mandatory {
+    border-right: 3px solid rgba($red, 0.4);
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba($blue, 0.1);
+    color: $blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: $text;
+    flex: 1;
+  }
+
+  &__badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 11px;
+    border-radius: 20px;
+    white-space: nowrap;
+
+    &--required {
+      background: rgba($red, 0.08);
+      color: $red;
+      border: 1px solid rgba($red, 0.2);
+    }
+
+    &--optional {
+      background: rgba($muted, 0.08);
+      color: $muted;
+      border: 1px solid rgba($muted, 0.2);
+    }
+  }
+}
+
+// ============================================================
+// Empty state (shared)
+// ============================================================
+.sd-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 16px;
+  justify-content: center;
+  color: rgba($muted, 0.7);
+  font-size: 14px;
+  font-weight: 600;
+
+  i {
+    font-size: 20px;
+    opacity: 0.5;
+  }
+}
+
+// ============================================================
+// Responsive
+// ============================================================
+@media (max-width: 700px) {
+  .sd-page {
+    padding-top: calc(70px + 1rem) !important;
+  }
+
+  .sd-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .sd-hero__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .sd-hero__title {
+    font-size: 20px;
+  }
+
+  .sd-hero__stats {
+    width: 100%;
+  }
+
+  .sd-hero__stat {
+    flex: 1;
+  }
+}

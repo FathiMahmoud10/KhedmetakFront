@@ -1,0 +1,197 @@
+<div class="sd-page container-fluid py-4">
+
+  <!-- ══ Main Content ══ -->
+  <div class="sd-content">
+
+  <!-- ══ Loading ══ -->
+  <div class="sd-loading" *ngIf="isLoading">
+    <div class="sd-loading__spinner"></div>
+    <p class="sd-loading__text">جارٍ تحميل بيانات الخدمة…</p>
+  </div>
+
+  <!-- ══ Error ══ -->
+  <div class="sd-error" *ngIf="hasError && !isLoading">
+    <div class="sd-error__icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <p class="sd-error__title">تعذّر تحميل الخدمة</p>
+    <p class="sd-error__hint">تحقق من الاتصال بالإنترنت أو حاول مرة أخرى لاحقاً</p>
+  </div>
+
+  <!-- ══ Content ══ -->
+  <ng-container *ngIf="service && !isLoading">
+
+    <!-- Hero -->
+    <header class="sd-hero">
+      <div class="sd-hero__bg"></div>
+      <div class="sd-hero__inner">
+        <div class="sd-hero__text">
+          <span class="sd-hero__tag">
+            <i class="fas fa-id-card"></i>
+            تفاصيل الخدمة
+          </span>
+          <h1 class="sd-hero__title">{{ service.srvName }}</h1>
+          <span class="sd-hero__cat">
+            <i class="fas fa-layer-group"></i>
+            {{ service.categoryName }}
+          </span>
+        </div>
+        <div class="sd-hero__stats">
+          <div class="sd-hero__stat">
+            <div class="sd-hero__stat-icon"><i class="fas fa-coins"></i></div>
+            <div>
+              <span class="sd-hero__stat-num">{{ service.srvFees | number }}</span>
+              <span class="sd-hero__stat-lbl">رسوم الخدمة (جنيه)</span>
+            </div>
+          </div>
+          <div class="sd-hero__stat">
+            <div class="sd-hero__stat-icon"><i class="fas fa-clock"></i></div>
+            <div>
+              <span class="sd-hero__stat-num">{{ service.srvTime }}</span>
+              <span class="sd-hero__stat-lbl">وقت الإنجاز</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Row 1: Description + Quick Info -->
+    <div class="sd-row-2">
+
+      <!-- Description -->
+      <div class="sd-card">
+        <div class="sd-card__accent sd-card__accent--navy"></div>
+        <div class="sd-card__body">
+          <div class="sd-card__head">
+            <div class="sd-card__icon sd-card__icon--navy">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div>
+              <h2 class="sd-card__title">وصف الخدمة</h2>
+              <p class="sd-card__sub">نبذة عن الخدمة ومتطلباتها</p>
+            </div>
+          </div>
+          <p class="sd-desc">{{ service.srvDesc }}</p>
+        </div>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="sd-card">
+        <div class="sd-card__accent sd-card__accent--blue"></div>
+        <div class="sd-card__body">
+          <div class="sd-card__head">
+            <div class="sd-card__icon sd-card__icon--blue">
+              <i class="fas fa-list-alt"></i>
+            </div>
+            <div>
+              <h2 class="sd-card__title">بيانات الخدمة</h2>
+              <p class="sd-card__sub">ملخص المعلومات الأساسية</p>
+            </div>
+          </div>
+
+          <div class="sd-info">
+            <div class="sd-info__row">
+              <span class="sd-info__label"><i class="fas fa-hashtag"></i> رقم الخدمة</span>
+              <span class="sd-info__val">#{{ service.id }}</span>
+            </div>
+            <div class="sd-info__row">
+              <span class="sd-info__label"><i class="fas fa-layer-group"></i> الفئة</span>
+              <span class="sd-info__val">{{ service.categoryName }}</span>
+            </div>
+            <div class="sd-info__row">
+              <span class="sd-info__label"><i class="fas fa-coins"></i> الرسوم الرسمية</span>
+              <span class="sd-badge sd-badge--green">{{ service.srvFees | number }} جنيه</span>
+            </div>
+            <div class="sd-info__row">
+              <span class="sd-info__label"><i class="fas fa-calculator"></i> الرسوم التقديرية</span>
+              <span class="sd-badge sd-badge--amber">{{ service.estimatedFees | number }} جنيه</span>
+            </div>
+            <div class="sd-info__row">
+              <span class="sd-info__label"><i class="fas fa-clock"></i> وقت الإنجاز</span>
+              <span class="sd-info__val">{{ service.srvTime }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Row 2: Steps -->
+    <div class="sd-card">
+      <div class="sd-card__accent sd-card__accent--green"></div>
+      <div class="sd-card__body">
+        <div class="sd-card__head">
+          <div class="sd-card__icon sd-card__icon--green">
+            <i class="fas fa-shoe-prints"></i>
+          </div>
+          <div>
+            <h2 class="sd-card__title">خطوات الحصول على الخدمة</h2>
+            <p class="sd-card__sub">اتبع هذه الخطوات بالترتيب للحصول على الخدمة</p>
+          </div>
+        </div>
+
+        <!-- Empty steps -->
+        <div class="sd-empty" *ngIf="sortedSteps.length === 0">
+          <i class="fas fa-route"></i>
+          <span>لا توجد خطوات مسجّلة لهذه الخدمة</span>
+        </div>
+
+        <!-- Steps list -->
+        <div class="sd-steps" *ngIf="sortedSteps.length > 0">
+          <div
+            class="sd-step"
+            *ngFor="let step of sortedSteps"
+            [style.animation-delay]="(step.stepOrder * 0.07) + 's'"
+          >
+            <div class="sd-step__num">{{ step.stepOrder }}</div>
+            <span class="sd-step__text">{{ step.title }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Required Documents -->
+    <div class="sd-card">
+      <div class="sd-card__accent sd-card__accent--amber"></div>
+      <div class="sd-card__body">
+        <div class="sd-card__head">
+          <div class="sd-card__icon sd-card__icon--amber">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div>
+            <h2 class="sd-card__title">المستندات المطلوبة</h2>
+            <p class="sd-card__sub">
+              {{ sortedDocs.length }} مستند — يجب تجهيز جميع الوثائق قبل التقديم
+            </p>
+          </div>
+        </div>
+
+        <!-- Empty docs -->
+        <div class="sd-empty" *ngIf="sortedDocs.length === 0">
+          <i class="fas fa-folder-open"></i>
+          <span>لا توجد مستندات مطلوبة لهذه الخدمة</span>
+        </div>
+
+        <!-- Docs list -->
+        <div class="sd-docs" *ngIf="sortedDocs.length > 0">
+          <div
+            class="sd-doc"
+            *ngFor="let doc of sortedDocs"
+            [class.sd-doc--mandatory]="doc.isMandatory"
+          >
+            <div class="sd-doc__icon">
+              <i class="fas fa-file-lines"></i>
+            </div>
+            <span class="sd-doc__name">{{ doc.documentName }}</span>
+            <span
+              class="sd-doc__badge"
+              [class.sd-doc__badge--required]="doc.isMandatory"
+              [class.sd-doc__badge--optional]="!doc.isMandatory"
+            >
+              {{ doc.isMandatory ? 'إلزامي' : 'اختياري' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>
