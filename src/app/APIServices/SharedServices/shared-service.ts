@@ -56,15 +56,9 @@ export class SharedService {
   // }
 
   getAllServices(): Observable<IService[]> {
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJheWFAa2hlZG1ldGFrLmNvbSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJBeWEiLCJqdGkiOiIxM2RhMzc5NS0yMzBmLTQ0MzQtYWY1Ny02MTQ5MzEwMTRhYWEiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc2VyIiwiZXhwIjoxNzgxOTE4MDExLCJpc3MiOiJLaGVkbWV0YWsiLCJhdWQiOiJLaGVkbWV0YWtVc2VycyJ9.YcKktZe2G1lWz90X4igiQe7CT9H_tX5svYSnI3sJgkU"//localStorage.getItem('token');
 
   return this.http.get<ApiResponse<GovServiceDto[]>>(
-    `${this.apiUrl}/GovServices`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
+    `${this.apiUrl}/GovServices`
   ).pipe(
     map((res) => {
       console.log('API Response:', res);
