@@ -1,0 +1,61 @@
+.token-check {
+  min-height: calc(100vh - 160px);
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f7f9fc;
+}
+
+.token-check__card {
+  width: min(100%, 720px);
+  padding: 2rem;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.08);
+}
+
+.token-check__status {
+  margin-bottom: 1.5rem;
+  color: #2f7b3c;
+  font-weight: 700;
+}
+
+.token-check__block {
+  margin-bottom: 1.5rem;
+}
+
+.token-check__block h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: #1c1c1c;
+}
+
+.token-check__block pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f0f4ff;
+  padding: 1rem;
+  border-radius: 12px;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.token-check__error {
+  margin-bottom: 1.5rem;
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.token-check__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  border-radius: 999px;
+  background: #3745f5;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}

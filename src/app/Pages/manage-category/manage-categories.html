@@ -1,0 +1,216 @@
+<div class="cc-page container-fluid py-4">
+
+  <!-- Hero Header -->
+  <header class="cc-hero">
+    <div class="cc-hero__bg"></div>
+    <div class="cc-hero__inner">
+      <div class="cc-hero__text">
+        <span class="cc-hero__tag">
+          <i class="fas fa-layer-group"></i>
+          لوحة الإدارة
+        </span>
+        <h1 class="cc-hero__title">إدارة الفئات</h1>
+        <p class="cc-hero__sub">أضف فئات جديدة أو احذف الموجود منها، وتابع عدد الخدمات تحت كل فئة</p>
+      </div>
+      <div class="cc-hero__stats">
+        <div class="cc-hero__stat">
+          <div class="cc-hero__stat-icon">
+            <i class="fas fa-shapes"></i>
+          </div>
+          <div class="cc-hero__stat-info">
+            <span class="cc-hero__stat-num">{{ categoriesList.length }}</span>
+            <span class="cc-hero__stat-lbl">فئة مسجّلة</span>
+          </div>
+        </div>
+        <div class="cc-hero__stat">
+          <div class="cc-hero__stat-icon">
+            <i class="fas fa-concierge-bell"></i>
+          </div>
+          <div class="cc-hero__stat-info">
+            <span class="cc-hero__stat-num">{{ totalServicesCount }}</span>
+            <span class="cc-hero__stat-lbl">خدمة داخل الفئات</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error banner -->
+  <div class="cc-alert" *ngIf="errorMsg">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMsg }}</span>
+  </div>
+
+  <div class="cc-layout">
+
+    <!-- Add Form -->
+    <aside class="cc-form-panel">
+      <div class="cc-form-panel__accent"></div>
+      <div class="cc-form-panel__body">
+        <div class="cc-form-panel__head">
+          <div class="cc-form-panel__icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div>
+            <h2 class="cc-form-panel__title">فئة جديدة</h2>
+            <p class="cc-form-panel__hint">اكتب اسم الفئة ثم اضغط حفظ</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="addCategory()" class="cc-form">
+
+          <div class="cc-field">
+            <label class="cc-field__label">
+              <i class="fas fa-tag"></i>
+              اسم الفئة
+            </label>
+            <input
+              class="cc-field__input"
+              type="text"
+              [(ngModel)]="newCategory.name"
+              name="name"
+              placeholder="مثال: التعليم"
+              required
+            />
+          </div>
+
+          <button type="submit" class="cc-btn-submit" [disabled]="isAdding">
+            <i class="fas" [ngClass]="isAdding ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+            {{ isAdding ? 'جارٍ الحفظ...' : 'حفظ الفئة' }}
+          </button>
+
+        </form>
+      </div>
+    </aside>
+
+    <!-- Categories Grid -->
+    <main class="cc-grid-panel">
+
+      <div class="cc-grid-panel__head">
+        <div class="cc-grid-panel__head-text">
+          <h2 class="cc-grid-panel__title">الفئات المسجّلة</h2>
+          <p class="cc-grid-panel__sub">جميع فئات الخدمات المتاحة في النظام</p>
+        </div>
+        <span class="cc-grid-panel__count">{{ categoriesList.length }} فئة</span>
+      </div>
+
+      <!-- Loading state -->
+      <div class="cc-loading" *ngIf="isLoading">
+        <div class="cc-loading__spinner"></div>
+        <p>جاري تحميل الفئات…</p>
+      </div>
+
+      <!-- Empty state -->
+      <div class="cc-empty" *ngIf="!isLoading && categoriesList.length === 0">
+        <div class="cc-empty__circle">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <p class="cc-empty__text">لا توجد فئات بعد</p>
+        <p class="cc-empty__hint">استخدم النموذج على اليمين لإضافة أول فئة</p>
+      </div>
+
+      <!-- Grid -->
+      <div class="cc-grid" *ngIf="!isLoading && categoriesList.length > 0">
+        <article
+          class="cc-card"
+          *ngFor="let cat of categoriesList; let i = index"
+          [ngClass]="getCategoryColorClass(cat.id)"
+          [style.animation-delay]="(i * 0.06) + 's'"
+        >
+          <div class="cc-card__accent"></div>
+
+          <div class="cc-card__header">
+            <div class="cc-card__ico">
+              <i class="fas" [ngClass]="getCategoryIcon(cat.name)"></i>
+            </div>
+            <div class="cc-card__actions">
+              <button class="cc-icon-btn cc-icon-btn--edit" (click)="openEdit(cat)" type="button" title="تعديل الفئة">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button class="cc-icon-btn cc-icon-btn--delete" (click)="openDelete(cat)" type="button" title="حذف الفئة">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+
+          <h3 class="cc-card__title">{{ cat.name }}</h3>
+
+          <div class="cc-card__footer">
+            <span class="cc-card__count-num">{{ cat.servicesCount }}</span>
+            <span class="cc-card__count-lbl">خدمة مرتبطة بالفئة</span>
+          </div>
+        </article>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="cc-modal" *ngIf="showEditModal">
+    <div class="cc-modal__backdrop" (click)="closeEdit()"></div>
+    <div class="cc-modal__dialog">
+      <button class="cc-modal__close" (click)="closeEdit()" type="button" title="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="cc-modal__icon cc-modal__icon--edit">
+        <i class="fas fa-pen"></i>
+      </div>
+
+      <h3 class="cc-modal__title">تعديل اسم الفئة</h3>
+      <p class="cc-modal__sub">عدّل الاسم ثم اضغط حفظ التعديل</p>
+
+      <div class="cc-field">
+        <label class="cc-field__label">
+          <i class="fas fa-tag"></i>
+          اسم الفئة
+        </label>
+        <input
+          class="cc-field__input"
+          type="text"
+          [(ngModel)]="editName"
+          name="editName"
+          (keyup.enter)="saveEdit()"
+          placeholder="اكتب اسم الفئة"
+        />
+      </div>
+
+      <div class="cc-modal__actions">
+        <button class="cc-modal-btn cc-modal-btn--ghost" (click)="closeEdit()" type="button">إلغاء</button>
+        <button class="cc-modal-btn cc-modal-btn--primary" (click)="saveEdit()" type="button" [disabled]="isSaving || !editName.trim()">
+          <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+          {{ isSaving ? 'جارٍ الحفظ...' : 'حفظ التعديل' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="cc-modal" *ngIf="showDeleteModal">
+    <div class="cc-modal__backdrop" (click)="closeDelete()"></div>
+    <div class="cc-modal__dialog">
+      <button class="cc-modal__close" (click)="closeDelete()" type="button" title="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="cc-modal__icon cc-modal__icon--danger">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+
+      <h3 class="cc-modal__title">تأكيد الحذف</h3>
+      <p class="cc-modal__sub">
+        هل أنت متأكد أنك تريد حذف فئة "<strong>{{ selectedCategory?.name }}</strong>"؟ هذا الإجراء لا يمكن التراجع عنه.
+      </p>
+
+      <div class="cc-modal__actions">
+        <button class="cc-modal-btn cc-modal-btn--ghost" (click)="closeDelete()" type="button">إلغاء</button>
+        <button class="cc-modal-btn cc-modal-btn--danger" (click)="confirmDelete()" type="button" [disabled]="isDeleting">
+          <i class="fas" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash-alt'"></i>
+          {{ isDeleting ? 'جارٍ الحذف...' : 'حذف الفئة' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

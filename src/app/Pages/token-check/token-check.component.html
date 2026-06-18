@@ -1,0 +1,26 @@
+<section class="token-check">
+  <div class="token-check__card">
+    <h1>التحقق من التوكن</h1>
+
+    <ng-container *ngIf="isValid; else missingToken">
+      <p class="token-check__status">التوكن موجود وصالح.</p>
+
+      <div class="token-check__block">
+        <h2>التوكن</h2>
+        <pre>{{ token }}</pre>
+      </div>
+
+      <div class="token-check__block">
+        <h2>المعلومات داخل التوكن</h2>
+        <pre>{{ payload | json }}</pre>
+      </div>
+    </ng-container>
+
+    <ng-template #missingToken>
+      <p class="token-check__error">{{ errorMessage || 'لا يوجد توكن في الكوكيز.' }}</p>
+      <button type="button" class="token-check__button" (click)="navigateToLogin()">
+        الانتقال إلى تسجيل الدخول
+      </button>
+    </ng-template>
+  </div>
+</section>
