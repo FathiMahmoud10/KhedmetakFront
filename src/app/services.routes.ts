@@ -1,13 +1,13 @@
-// import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 
 
-// export const SERVICES_ROUTES: Routes = [
-//   {
-//     path: '',
-//     loadComponent: () =>
-//       import('./Pages/ServicesPage/all-services/all-services.component').then(m => m.AllServicesComponent),
-//     title: 'جميع الخدمات | خدمتك AI',
-//   },
+export const SERVICES_ROUTES: Routes = [
+  {
+    path: '',
+    loadComponent: () =>
+      import('./Pages/ServicesPage/all-services/all-services.component').then(m => m.AllServicesComponent),
+    title: 'جميع الخدمات | خدمتك AI',
+  },
 //   {
 //     path: 'traffic',
 //     loadComponent: () =>
@@ -33,4 +33,4 @@
 //       import('./Pages/ServicesPage/service-details/service-details.component').then(m => m.ServiceDetailsComponent),
 //     title: 'تفاصيل الخدمة | خدمتك AI',
 //   },
-// ];
+];
