@@ -45,45 +45,57 @@
       </ul>
 
       <!-- NEW: Service Data Management group (matches AdminCategories / AdminFees / AdminRequiredDocuments / AdminServices / AdminSteps) -->
-      <span class="admin-drawer__nav-label">إدارة بيانات الخدمات</span>
-      <ul class="admin-drawer__list">
-        <li>
-          <a routerLink="/admin-categories" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-tags"></i></span>
-            <span class="admin-drawer__link-text">الفئات</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/admin-fees" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-coins"></i></span>
-            <span class="admin-drawer__link-text">الرسوم</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/admin-required-documents" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-file-alt"></i></span>
-            <span class="admin-drawer__link-text">المستندات المطلوبة</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/admin-services" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-concierge-bell"></i></span>
-            <span class="admin-drawer__link-text">الخدمات</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/admin-service-detail/1" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-info-circle"></i></span>
-            <span class="admin-drawer__link-text">تفاصيل الخدمة</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/admin-steps" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-list-ol"></i></span>
-            <span class="admin-drawer__link-text">خطوات الخدمة</span>
-          </a>
-        </li>
-      </ul>
+      <div class="admin-drawer__collapsible">
+        <button 
+          class="admin-drawer__nav-label admin-drawer__collapsible-btn" 
+          (click)="toggleServicesCollapse()"
+          [class.admin-drawer__collapsible-btn--open]="!isServicesCollapsed"
+          type="button"
+          aria-expanded="{{!isServicesCollapsed}}"
+        >
+          <span class="admin-drawer__collapsible-label">الخدمات</span>
+          <i class="fas fa-chevron-down admin-drawer__collapsible-icon" aria-hidden="true"></i>
+        </button>
+        
+        <ul class="admin-drawer__list" *ngIf="!isServicesCollapsed">
+          <li>
+            <a routerLink="/admin-categories" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+              <span class="admin-drawer__link-icon"><i class="fas fa-tags"></i></span>
+              <span class="admin-drawer__link-text">الفئات</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin-fees" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+              <span class="admin-drawer__link-icon"><i class="fas fa-coins"></i></span>
+              <span class="admin-drawer__link-text">الرسوم</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin-required-documents" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+              <span class="admin-drawer__link-icon"><i class="fas fa-file-alt"></i></span>
+              <span class="admin-drawer__link-text">المستندات المطلوبة</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin-services" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+              <span class="admin-drawer__link-icon"><i class="fas fa-concierge-bell"></i></span>
+              <span class="admin-drawer__link-text">إدارة الخدمات</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin-service-detail/1" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+              <span class="admin-drawer__link-icon"><i class="fas fa-info-circle"></i></span>
+              <span class="admin-drawer__link-text">تفاصيل الخدمة</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin-steps" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+              <span class="admin-drawer__link-icon"><i class="fas fa-list-ol"></i></span>
+              <span class="admin-drawer__link-text">خطوات الخدمة</span>
+            </a>
+          </li>
+        </ul>
+      </div>
 
     </nav>
 

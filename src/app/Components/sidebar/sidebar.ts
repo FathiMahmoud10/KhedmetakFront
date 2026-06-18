@@ -13,6 +13,7 @@ import { SidebarService } from '../../Services/sidebar.service';
 })
 export class Sidebar implements OnInit, OnDestroy {
   isOpen = false;
+  isServicesCollapsed = false;
   private sub?: Subscription;
 
   constructor(private sidebarService: SidebarService) {}
@@ -29,5 +30,9 @@ export class Sidebar implements OnInit, OnDestroy {
 
   close(): void {
     this.sidebarService.close();
+  }
+
+  toggleServicesCollapse(): void {
+    this.isServicesCollapsed = !this.isServicesCollapsed;
   }
 }
