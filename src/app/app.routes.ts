@@ -9,6 +9,7 @@ import { ManageServices} from './Pages/manage-services/manage-services';
 import { ManageCategories } from './Pages/manage-category/manage-categories';
 import { TokenCheckComponent } from './Pages/token-check/token-check.component';
 import { AllServicesComponent } from './Pages/ServicesPage/all-services/all-services.component';
+import { ServiceDetailsComponent } from './Pages/ServicesPage/service-details/service-details.component';
 
 
 
@@ -29,5 +30,6 @@ export const routes: Routes = [
     { path: 'manage-services', component: ManageServices },
     { path: 'admin-categories', component: ManageCategories },
     { path: 'token-check', component: TokenCheckComponent },
+    { path: 'services/:id', component: ServiceDetailsComponent }
     // { path: '**', component: NotFound } // for any incorrect path
 ];

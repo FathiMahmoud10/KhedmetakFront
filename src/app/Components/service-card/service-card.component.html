@@ -23,8 +23,11 @@
   </div>
 
   <!-- Action -->
-  <button class="view-btn" (click)="$event.stopPropagation(); viewDetails()">
+  <!-- <button class="view-btn" (click)="$event.stopPropagation(); viewDetails()">
     <span>عرض التفاصيل</span>
     <i class="bi bi-arrow-left"></i>
-  </button>
+  </button> -->
+  <button class="view-btn btn-details" [routerLink]="['/services', service.id]">
+  عرض التفاصيل <i class="bi bi-arrow-left"></i>
+</button>
 </div>

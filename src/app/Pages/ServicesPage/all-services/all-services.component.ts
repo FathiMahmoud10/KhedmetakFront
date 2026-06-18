@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ServiceCardComponent } from '../../../Components/service-card/service-card.component';
 import { CategoryTabsComponent } from '../../../Components/ClientComponents/HomeComponents/ServicesComponents/category-tabs/category-tabs.component';
 import { SearchBarComponent } from '../../../Components/search-bar/search-bar.component';
-import { IService, ServiceCategory } from '../../../Utilities/Interfaces/IService';
+import { IService } from '../../../Utilities/Interfaces/IService';
 import { GovServicesService } from '../../../APIServices/SharedServices/gov-services-service';
 
 @Component({
@@ -15,7 +15,7 @@ import { GovServicesService } from '../../../APIServices/SharedServices/gov-serv
 })
 export class AllServicesComponent implements OnInit {
   services: IService[] = [];
-  category: ServiceCategory = 'all';
+  selectedCategoryId: number = 0; // 0 = all
   pageTitle = 'جميع الخدمات';
   pageSubtitle = 'تصفّح الخدمات الحكومية المتاحة لك بسهولة';
   isLoading = true;
@@ -26,17 +26,22 @@ export class AllServicesComponent implements OnInit {
     this.loadServices();
   }
 
-  private loadServices(): void {
-    this.isLoading = true;
-    this.govService.getByCategory(this.category).subscribe((services) => {
-      this.services = services;
-      this.isLoading = false;
-    });
+  onCategoryChange(categoryId: number): void {
+    this.selectedCategoryId = categoryId;
+    this.loadServices();
   }
 
-  onSearch(query: string): void {
-    this.govService.searchInCategory(query, this.category).subscribe((services) => {
-      this.services = services;
+  private loadServices(): void {
+    this.isLoading = true;
+    this.govService.getServicesByCategory(this.selectedCategoryId).subscribe({
+      next: (services) => {
+        this.services = services;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.services = [];
+        this.isLoading = false;
+      },
     });
   }
 }

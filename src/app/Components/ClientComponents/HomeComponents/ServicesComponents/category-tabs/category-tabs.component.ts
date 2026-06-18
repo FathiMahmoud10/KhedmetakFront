@@ -1,40 +1,47 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-// import { ServiceCategoryTab } from '../../../../../Utilities/Interfaces/IService';
-import { GovServicesService } from '../../../../../APIServices/SharedServices/gov-services-service';
-import { ServiceCategoryTab } from '../../../../../Utilities/Interfaces/IService';
-// import { ServiceCategoryTab } from '../../models/service.model';
-// import { GovernmentServicesService } from '../../services/government-services.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../../../environments/environment';
+// import { environment } from '../../../../../environments/environment';
+
+export interface ICategory {
+  id: number;
+  name: string;
+  servicesCount: number;
+}
 
 @Component({
   selector: 'app-category-tabs',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
   templateUrl: './category-tabs.component.html',
   styleUrls: ['./category-tabs.component.scss'],
 })
 export class CategoryTabsComponent implements OnInit {
-  @Input() activeRoute = '';
-  categories: ServiceCategoryTab[] = [];
+  @Output() categoryChange = new EventEmitter<number>();
 
-  constructor(
-    private govService: GovServicesService,
-    private router: Router
-  ) {}
+  categories: ICategory[] = [];
+  selectedId: number = 0; // 0 = all
+  isLoading = true;
+
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.categories = this.govService.getCategories();
+    this.http
+      .get<{ success: boolean; data: ICategory[] }>(`${environment.apiUrl}/Categories`)
+      .subscribe({
+        next: (res) => {
+          this.categories = res.data;
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        },
+      });
   }
 
-  isActive(route: string): boolean {
-    if (route === '/services') {
-      return this.router.url === '/services' || this.router.url === '/services/all';
-    }
-    return this.router.url.startsWith(route);
-  }
-
-  navigate(route: string): void {
-    this.router.navigate([route]);
+  selectCategory(id: number): void {
+    this.selectedId = id;
+    this.categoryChange.emit(id);
   }
 }

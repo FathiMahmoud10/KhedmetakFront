@@ -1,16 +1,27 @@
-<div class="category-tabs-wrapper" dir="rtl">
-  <div class="tabs-scroll-container">
-    <div class="tabs-inner">
-      <button
-        *ngFor="let cat of categories"
-        class="tab-chip"
-        [class.active]="isActive(cat.route)"
-        (click)="navigate(cat.route)"
-        type="button"
-      >
-        <i [class]="'bi ' + cat.icon + ' tab-icon'"></i>
-        <span>{{ cat.label }}</span>
-      </button>
-    </div>
-  </div>
+<div class="category-tabs" dir="rtl">
+  <ng-container *ngIf="!isLoading; else tabsSkeleton">
+    <!-- "All" tab is always first -->
+    <button
+      class="tab-btn"
+      [class.active]="selectedId === 0"
+      (click)="selectCategory(0)"
+    >
+      <i class="bi bi-grid-fill tab-icon"></i>
+      الكل
+    </button>
+
+    <!-- Dynamic category tabs from API -->
+    <button
+      class="tab-btn"
+      *ngFor="let cat of categories"
+      [class.active]="selectedId === cat.id"
+      (click)="selectCategory(cat.id)"
+    >
+      {{ cat.name }}
+    </button>
+  </ng-container>
+
+  <ng-template #tabsSkeleton>
+    <div class="tab-skeleton" *ngFor="let i of [1,2,3]"></div>
+  </ng-template>
 </div>

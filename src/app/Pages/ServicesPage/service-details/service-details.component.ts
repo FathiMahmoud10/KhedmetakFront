@@ -1,85 +1,116 @@
-// import { Component, OnInit } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-// import { GovernmentService } from '../../../Utilities/Interfaces/IService';
-// import { GovServicesService } from '../../../APIServices/SharedServices/gov-services-service';
-// // import { GovernmentService } from '../../models/service.model';
-// // import { GovernmentServicesService } from '../../services/government-services.service';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
+import { ApiResponse } from '../../../Utilities/Interfaces/IService';
+// import { environment } from '../../../environments/environment';
 
-// @Component({
-//   selector: 'app-service-details',
-//   standalone: true,
-//   imports: [CommonModule, RouterModule],
-//   templateUrl: './service-details.component.html',
-//   styleUrls: ['./service-details.component.scss'],
-// })
-// export class ServiceDetailsComponent implements OnInit {
-//   service: GovernmentService | undefined;
-//   notFound = false;
+// ── API response shape ────────────────────────────────────────────────────
+interface RequiredDocument {
+  id: number;
+  documentName: string;
+  isMandatory: boolean;
+}
 
-//   constructor(
-//     private route: ActivatedRoute,
-//     private router: Router,
-//     private govService: GovServicesService
-//   ) {}
+interface ServiceStep {
+  id: number;
+  title: string;
+  stepOrder: number;
+}
 
-//   ngOnInit(): void {
-//     this.route.paramMap.subscribe(params => {
-//       const id = params.get('id');
-//       if (id) {
-//         this.service = this.govService.getById(id);
-//         this.notFound = !this.service;
-//       }
-//     });
-//   }
+interface ServiceDetailApi {
+  id: number;
+  srvName: string;
+  srvDesc: string;
+  srvFees: number;
+  srvTime: string;
+  estimatedFees: number;
+  categoryName: string;
+  categoryId: number;
+  steps: ServiceStep[];
+  requiredDocuments: RequiredDocument[];
+  options: any[];
+  generalDocs: any[];
+}
 
-//   goBack(): void {
-//     this.router.navigate(['/services']);
-//   }
 
-//   startService(): void {
-//     // Hook into your AI assistant or form workflow
-//     console.log('Starting service:', this.service?.id);
-//   }
+@Component({
+  selector: 'app-service-details',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './service-details.component.html',
+  styleUrls: ['./service-details.component.scss'],
+})
+export class ServiceDetailsComponent implements OnInit {
+  service: ServiceDetailApi | null = null;
+  isLoading = true;
+  notFound = false;
 
-//   askAssistant(): void {
-//     // Hook into Khedmetak AI chat
-//     console.log('Ask assistant about:', this.service?.title);
-//   }
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
+  ) {}
 
-//   getCategoryRoute(): string {
-//     const routeMap: Record<string, string> = {
-//       traffic: '/services/traffic',
-//       'civil-status': '/services/civil-status',
-//       passports: '/services/passports',
-//       supply: '/services/supply',
-//       education: '/services/education',
-//       health: '/services/health',
-//     };
-//     return routeMap[this.service?.category || ''] || '/services';
-//   }
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.fetchService(Number(id));
+      } else {
+        this.notFound = true;
+        this.isLoading = false;
+      }
+    });
+  }
 
-//   getCategoryLabel(): string {
-//     const labelMap: Record<string, string> = {
-//       traffic: 'المرور',
-//       'civil-status': 'الأحوال المدنية',
-//       passports: 'الجوازات والهجرة',
-//       supply: 'التموين',
-//       education: 'التعليم',
-//       health: 'الصحة',
-//     };
-//     return labelMap[this.service?.category || ''] || 'الخدمات';
-//   }
+  private fetchService(id: number): void {
+    this.isLoading = true;
+    this.notFound = false;
 
-//   getCategoryColor(): string {
-//     const colorMap: Record<string, string> = {
-//       traffic: '#f59e0b',
-//       'civil-status': '#298b64',
-//       passports: '#6366f1',
-//       supply: '#ef4444',
-//       education: '#487fb9',
-//       health: '#ec4899',
-//     };
-//     return colorMap[this.service?.category || ''] || '#023264';
-//   }
-// }
+    this.http
+      .get<ApiResponse<ServiceDetailApi>>(`${environment.apiUrl}/GovServices/${id}`)
+      .subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            this.service = res.data;
+          } else {
+            this.notFound = true;
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.notFound = true;
+          this.isLoading = false;
+        },
+      });
+      console.log(this.service?.steps);
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  getCategoryColor(): string {
+    const colorMap: Record<number, string> = {
+      1: '#298b64',
+      2: '#f59e0b',
+      3: '#6366f1',
+      4: '#ef4444',
+      5: '#487fb9',
+      6: '#ec4899',
+    };
+    return colorMap[this.service?.categoryId ?? 0] ?? '#023264';
+  }
+
+  goBack(): void {
+    this.router.navigate(['/services']);
+  }
+
+  startService(): void {
+    console.log('Starting service:', this.service?.id);
+  }
+
+  askAssistant(): void {
+    console.log('Ask assistant about:', this.service?.srvName);
+  }
+}

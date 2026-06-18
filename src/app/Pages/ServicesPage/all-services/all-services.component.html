@@ -6,10 +6,8 @@
         <h1 class="hero-title">{{ pageTitle }}</h1>
         <p class="hero-subtitle">{{ pageSubtitle }}</p>
       </div>
-      <!-- Search Bar -->
-      <app-search-bar (searchChange)="onSearch($event)"></app-search-bar>
-      <!-- Category Tabs -->
-      <app-category-tabs></app-category-tabs>
+      <!-- Category Tabs (dynamic, emits selected category id) -->
+      <app-category-tabs (categoryChange)="onCategoryChange($event)"></app-category-tabs>
     </div>
   </div>
 

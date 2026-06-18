@@ -1,68 +1,62 @@
-import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
-import { IService, ServiceCategory } from '../../Utilities/Interfaces/IService';
-import { SERVICE_CATEGORIES } from '../../DB/data';
-import { SharedService } from './shared-service';
-
-const CATEGORY_ID_MAP: Partial<Record<ServiceCategory, number>> = {
-  'civil-status': 1,
-  'traffic': 2,
-  'passports': 3,
-  'supply': 4,
-};
+import { map, Observable } from "rxjs";
+import { ApiResponse, GovServiceDto, IService } from "../../Utilities/Interfaces/IService";
+import { environment } from "../../../environments/environment";
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class GovServicesService {
-  constructor(private sharedService: SharedService) {}
 
-  getAll(): Observable<IService[]> {
-    return this.sharedService.getAllServices();
-  }
+  private apiUrl = `${environment.apiUrl}/services`;
+ private readonly base = environment.apiUrl;
+  constructor(private http: HttpClient) {}
 
-  getByCategory(category: ServiceCategory): Observable<IService[]> {
-    return this.sharedService.getAllServices().pipe(
-      map((services: IService[]): IService[] => {
-        if (category === 'all') return services;
-        const categoryId = CATEGORY_ID_MAP[category];
-        if (categoryId === undefined) return services;
-        return services.filter((s: IService) => s.categoryId === categoryId);
-      })
+  getAllServices(): Observable<IService[]> {
+    return this.http.get<ApiResponse<GovServiceDto[]>>(this.apiUrl).pipe(
+      map(res => res.data.map(this.mapToService))
     );
   }
 
-  getById(id: number): Observable<IService | undefined> {
-    return this.sharedService.getAllServices().pipe(
-      map((services: IService[]): IService | undefined => services.find((s) => s.id === id))
-    );
+  // getServicesByCategory(categoryId: number): Observable<IService[]> {
+  //   return this.http.get<ApiResponse<GovServiceDto[]>>(
+  //     `${this.apiUrl}/category/${categoryId}`
+  //   ).pipe(
+  //     map(res => res.data.map(this.mapToService))
+  //   );
+  // }
+
+  getServicesByCategory(categoryId: number): Observable<IService[]> {
+    const url =
+      categoryId === 0
+        ? `${this.base}/GovServices`
+        : `${this.base}/GovServices/by-category/${categoryId}`;
+ 
+    return this.http
+      .get<ApiResponse<IService[]>>(url)
+      .pipe(map((res) => res.data));
   }
 
   search(query: string): Observable<IService[]> {
-    return this.sharedService.getAllServices().pipe(
-      map((services: IService[]): IService[] => {
-        const q = query.trim().toLowerCase();
-        if (!q) return services;
-        return services.filter(
-          (s) => s.srvName.toLowerCase().includes(q) || s.srvDesc.toLowerCase().includes(q)
-        );
-      })
+    return this.http.get<ApiResponse<GovServiceDto[]>>(
+      `${this.apiUrl}/search?query=${query}`
+    ).pipe(
+      map(res => res.data.map(this.mapToService))
     );
   }
 
-  searchInCategory(query: string, category: ServiceCategory): Observable<IService[]> {
-    return this.getByCategory(category).pipe(
-      map((pool: IService[]): IService[] => {
-        const q = query.trim().toLowerCase();
-        if (!q) return pool;
-        return pool.filter(
-          (s) => s.srvName.toLowerCase().includes(q) || s.srvDesc.toLowerCase().includes(q)
-        );
-      })
-    );
-  }
+  private mapToService(dto: GovServiceDto): IService {
+    return {
+  id: dto.id,
+  srvName: dto.srvName,
+  srvDesc: dto.srvDesc,
+  categoryId: dto.categoryId,
+  categoryName: dto.categoryName,
+  srvFees: dto.srvFees,
+  srvTime: "",
+  estimatedFees: 0,
 
-  getCategories() {
-    return SERVICE_CATEGORIES;
+};
   }
 }

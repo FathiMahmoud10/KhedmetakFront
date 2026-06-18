@@ -1,12 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { IService } from '../../Utilities/Interfaces/IService';
 
 @Component({
   selector: 'app-service-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './service-card.component.html',
   styleUrls: ['./service-card.component.scss'],
 })
