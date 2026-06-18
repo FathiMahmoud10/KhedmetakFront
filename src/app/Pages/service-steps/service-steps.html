@@ -1,0 +1,243 @@
+<div class="st-page container-fluid py-4">
+
+  <!-- Hero Header -->
+  <header class="st-hero">
+    <div class="st-hero__bg"></div>
+    <div class="st-hero__inner">
+      <div class="st-hero__text">
+        <button class="st-hero__back" (click)="goBack()" type="button">
+          <i class="fas fa-arrow-right"></i>
+          رجوع للخدمات
+        </button>
+        <span class="st-hero__tag">
+          <i class="fas fa-route"></i>
+          لوحة الإدارة
+        </span>
+        <h1 class="st-hero__title">خطوات الخدمة</h1>
+        <p class="st-hero__sub">رتّب خطوات إنجاز الخدمة بالترتيب اللي يظهر للمستخدم</p>
+      </div>
+      <div class="st-hero__stat">
+        <div class="st-hero__stat-icon">
+          <i class="fas fa-list-ol"></i>
+        </div>
+        <div class="st-hero__stat-info">
+          <span class="st-hero__stat-num">{{ stepsList.length }}</span>
+          <span class="st-hero__stat-lbl">خطوة مسجّلة</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error banner -->
+  <div class="st-alert" *ngIf="errorMsg">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ errorMsg }}</span>
+  </div>
+
+  <div class="st-layout">
+
+    <!-- Add Form -->
+    <aside class="st-form-panel">
+      <div class="st-form-panel__accent"></div>
+      <div class="st-form-panel__body">
+        <div class="st-form-panel__head">
+          <div class="st-form-panel__icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div>
+            <h2 class="st-form-panel__title">خطوة جديدة</h2>
+            <p class="st-form-panel__hint">اكتب نص الخطوة وترتيبها</p>
+          </div>
+        </div>
+
+        <form (ngSubmit)="addStep()" class="st-form">
+
+          <div class="st-field">
+            <label class="st-field__label">
+              <i class="fas fa-building"></i>
+              اختر الخدمة
+            </label>
+            <select
+              class="st-field__input"
+              [(ngModel)]="selectedServiceId"
+              name="serviceId"
+              (change)="onServiceChange()"
+              required
+            >
+              <option [ngValue]="null">اختر خدمة...</option>
+              <option *ngFor="let service of govServices" [ngValue]="service.id">
+                {{ service.srvName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="st-field">
+            <label class="st-field__label">
+              <i class="fas fa-align-right"></i>
+              نص الخطوة
+            </label>
+            <input
+              class="st-field__input"
+              type="text"
+              [(ngModel)]="newStep.title"
+              name="title"
+              placeholder="مثال: تقديم الطلب عبر الموقع"
+              required
+            />
+          </div>
+
+          <div class="st-field">
+            <label class="st-field__label">
+              <i class="fas fa-sort-numeric-down"></i>
+              ترتيب الخطوة
+            </label>
+            <input
+              class="st-field__input"
+              type="number"
+              min="1"
+              [(ngModel)]="newStep.stepOrder"
+              name="stepOrder"
+              required
+            />
+          </div>
+
+          <button type="submit" class="st-btn-submit" [disabled]="isAdding">
+            <i class="fas" [ngClass]="isAdding ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+            {{ isAdding ? 'جارٍ الحفظ...' : 'حفظ الخطوة' }}
+          </button>
+
+        </form>
+      </div>
+    </aside>
+
+    <!-- Timeline -->
+    <main class="st-timeline-panel">
+
+      <div class="st-timeline-panel__head">
+        <div class="st-timeline-panel__head-text">
+          <h2 class="st-timeline-panel__title">خطوات الخدمة بالترتيب</h2>
+          <p class="st-timeline-panel__sub">هذا الترتيب هو نفسه الل ي سيعرض  للمستخدم</p>
+          <p class="st-timeline-panel__sub st-timeline-panel__selected-service" *ngIf="selectedServiceId">
+            الخدمة المحددة: {{ selectedServiceName }}
+          </p>
+          <p class="st-timeline-panel__sub st-timeline-panel__selected-service" *ngIf="!selectedServiceId && !isLoading">
+            اختر خدمة من القائمة على اليسار لعرض خطواتها
+          </p>
+        </div>
+        <span class="st-timeline-panel__count">{{ stepsList.length }} خطوة</span>
+      </div>
+
+      <!-- Loading state -->
+      <div class="st-loading" *ngIf="isLoading">
+        <div class="st-loading__spinner"></div>
+        <p>جاري تحميل الخطوات…</p>
+      </div>
+
+      <!-- Empty state -->
+      <div class="st-empty" *ngIf="!isLoading && stepsList.length === 0">
+        <div class="st-empty__circle">
+          <i class="fas fa-route"></i>
+        </div>
+        <p class="st-empty__text">لا توجد خطوات بعد</p>
+        <p class="st-empty__hint">استخدم النموذج على اليمين لإضافة أول خطوة</p>
+      </div>
+
+      <!-- Timeline list -->
+      <ol class="st-timeline" *ngIf="!isLoading && stepsList.length > 0">
+        <li
+          class="st-step"
+          *ngFor="let step of stepsList; let i = index; let last = last"
+          [style.animation-delay]="(i * 0.06) + 's'"
+        >
+          <div class="st-step__marker-col">
+            <span class="st-step__marker">{{ step.stepOrder }}</span>
+            <span class="st-step__line" *ngIf="!last"></span>
+          </div>
+
+          <div class="st-step__body">
+            <p class="st-step__title">{{ step.title }}</p>
+            <div class="st-step__actions">
+              <button class="st-icon-btn st-icon-btn--edit" (click)="openEdit(step)" type="button" title="تعديل الخطوة">
+                <i class="fas fa-pen"></i>
+              </button>
+              <button class="st-icon-btn st-icon-btn--delete" (click)="openDelete(step)" type="button" title="حذف الخطوة">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+    </main>
+
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="st-modal" *ngIf="showEditModal">
+    <div class="st-modal__backdrop" (click)="closeEdit()"></div>
+    <div class="st-modal__dialog">
+      <button class="st-modal__close" (click)="closeEdit()" type="button" title="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="st-modal__icon st-modal__icon--edit">
+        <i class="fas fa-pen"></i>
+      </div>
+
+      <h3 class="st-modal__title">تعديل الخطوة</h3>
+      <p class="st-modal__sub">عدّل نص الخطوة أو ترتيبها</p>
+
+      <div class="st-field">
+        <label class="st-field__label">
+          <i class="fas fa-align-right"></i>
+          نص الخطوة
+        </label>
+        <input class="st-field__input" type="text" [(ngModel)]="editTitle" name="editTitle" />
+      </div>
+
+      <div class="st-field">
+        <label class="st-field__label">
+          <i class="fas fa-sort-numeric-down"></i>
+          ترتيب الخطوة
+        </label>
+        <input class="st-field__input" type="number" min="1" [(ngModel)]="editOrder" name="editOrder" />
+      </div>
+
+      <div class="st-modal__actions">
+        <button class="st-modal-btn st-modal-btn--ghost" (click)="closeEdit()" type="button">إلغاء</button>
+        <button class="st-modal-btn st-modal-btn--primary" (click)="saveEdit()" type="button" [disabled]="isSaving || !editTitle.trim()">
+          <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+          {{ isSaving ? 'جارٍ الحفظ...' : 'حفظ التعديل' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="st-modal" *ngIf="showDeleteModal">
+    <div class="st-modal__backdrop" (click)="closeDelete()"></div>
+    <div class="st-modal__dialog">
+      <button class="st-modal__close" (click)="closeDelete()" type="button" title="إغلاق">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="st-modal__icon st-modal__icon--danger">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+
+      <h3 class="st-modal__title">تأكيد الحذف</h3>
+      <p class="st-modal__sub">
+        هل أنت متأكد أنك تريد حذف خطوة "<strong>{{ selectedStep?.title }}</strong>"؟ هذا الإجراء لا يمكن التراجع عنه.
+      </p>
+
+      <div class="st-modal__actions">
+        <button class="st-modal-btn st-modal-btn--ghost" (click)="closeDelete()" type="button">إلغاء</button>
+        <button class="st-modal-btn st-modal-btn--danger" (click)="confirmDelete()" type="button" [disabled]="isDeleting">
+          <i class="fas" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash-alt'"></i>
+          {{ isDeleting ? 'جارٍ الحذف...' : 'حذف الخطوة' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
