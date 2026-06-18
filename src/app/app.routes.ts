@@ -7,10 +7,11 @@ import { AdminProfileComponent} from './Pages/admin-profile/admin-profile';
 import { AdminDashboard  } from './Pages/admin-dashboard/admin-dashboard';
 import { ManageServices} from './Pages/manage-services/manage-services';
 import { ManageCategories } from './Pages/manage-category/manage-categories';
+import { ServiceSteps } from './Pages/service-steps/service-steps';
 import { TokenCheckComponent } from './Pages/token-check/token-check.component';
 
 
-export const routes: Routes = [
+export const routes: Routes = [ 
     // redirectTo + 'patname'
     // when use redirectTo --> should use pathMatch with it
     { path: '', redirectTo: 'home', pathMatch: "full" },
@@ -23,6 +24,7 @@ export const routes: Routes = [
     { path: 'admin-profile', component: AdminProfileComponent },
     { path: 'manage-services', component: ManageServices },
     { path: 'admin-categories', component: ManageCategories },
+    { path: 'admin-steps', component: ServiceSteps },
     { path: 'token-check', component: TokenCheckComponent },
     // { path: '**', component: NotFound } // for any incorrect path
 ];

@@ -1,0 +1,812 @@
+// ============================================================
+// Design tokens — نفس تركيبة باقي صفحات الإدارة
+// ============================================================
+$navy:   #023264;
+$navy2:  #012050;
+$navy3:  #04498f;
+$green:  #298b64;
+$green2: #1f6e4e;
+$blue:   #487fb9;
+$red:    #dc3545;
+$red2:   #b02a37;
+$bg:     #f0f4f8;
+$white:  #ffffff;
+$border: #e4e9f0;
+$muted:  #6b7a8d;
+$text:   #1a2535;
+
+// ============================================================
+// Page shell
+// ============================================================
+.st-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+// ============================================================
+// Hero header
+// ============================================================
+.st-hero {
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 32px rgba($navy2, 0.18);
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, $navy2 0%, $navy 45%, $blue 100%);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba($white, 0.05);
+    }
+
+    &::before {
+      width: 280px;
+      height: 280px;
+      top: -90px;
+      left: -60px;
+    }
+
+    &::after {
+      width: 200px;
+      height: 200px;
+      bottom: -70px;
+      right: 8%;
+    }
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 32px;
+    flex-wrap: wrap;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.1);
+    border: 1px solid rgba($white, 0.2);
+    color: rgba($white, 0.9);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Cairo', sans-serif;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba($white, 0.18);
+    }
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.12);
+    color: rgba($white, 0.9);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $white;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+
+  &__sub {
+    font-size: 14px;
+    color: rgba($white, 0.78);
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba($white, 0.12);
+    border: 1px solid rgba($white, 0.18);
+    border-radius: 16px;
+    padding: 16px 22px;
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+  }
+
+  &__stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba($white, 0.15);
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  &__stat-num {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    color: $white;
+    line-height: 1;
+  }
+
+  &__stat-lbl {
+    display: block;
+    font-size: 12px;
+    color: rgba($white, 0.75);
+    margin-top: 4px;
+  }
+}
+
+// ============================================================
+// Error alert
+// ============================================================
+.st-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba($red, 0.06);
+  border: 1.5px solid rgba($red, 0.25);
+  color: $red;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+}
+
+// ============================================================
+// Two-column layout
+// ============================================================
+.st-layout {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+// ============================================================
+// Form panel
+// ============================================================
+.st-form-panel {
+  position: relative;
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+  overflow: hidden;
+
+  &__accent {
+    height: 4px;
+    background: linear-gradient(90deg, $green, $blue);
+  }
+
+  &__body {
+    padding: 24px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $border;
+  }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba($green, 0.15), rgba($blue, 0.12));
+    color: $green;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 2px;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: $muted;
+    margin: 0;
+  }
+}
+
+// ============================================================
+// Form fields
+// ============================================================
+.st-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.st-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 0;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $text;
+
+    i {
+      font-size: 11px;
+      color: $blue;
+      opacity: 0.8;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    border: 1.5px solid $border;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'Cairo', sans-serif;
+    color: $text;
+    background: #fafbfc;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    box-sizing: border-box;
+    text-align: right;
+
+    &::placeholder {
+      color: #b0bac6;
+    }
+
+    &:hover {
+      border-color: darken($border, 6%);
+      background: $white;
+    }
+
+    &:focus {
+      border-color: $blue;
+      box-shadow: 0 0 0 3px rgba($blue, 0.12);
+      background: $white;
+      outline: none;
+    }
+  }
+}
+
+.st-btn-submit {
+  margin-top: 6px;
+  background: linear-gradient(135deg, $green, darken($green, 6%));
+  color: $white;
+  border: none;
+  border-radius: 11px;
+  padding: 13px 0;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 14px rgba($green, 0.3);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba($green, 0.38);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// ============================================================
+// Timeline panel
+// ============================================================
+.st-timeline-panel {
+  width: 100%;
+  min-width: 0;
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border;
+  box-shadow: 0 4px 20px rgba($navy, 0.06);
+  padding: 24px;
+  min-height: 360px;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid $border;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 3px;
+  }
+
+  &__sub {
+    font-size: 12.5px;
+    color: $muted;
+    margin: 0;
+  }
+
+  &__count {
+    background: rgba($navy, 0.07);
+    color: $navy;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+}
+
+// ============================================================
+// Loading state
+// ============================================================
+.st-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 24px;
+  color: $muted;
+  font-size: 13.5px;
+
+  &__spinner {
+    width: 34px;
+    height: 34px;
+    border: 3px solid rgba($blue, 0.18);
+    border-top-color: $blue;
+    border-radius: 50%;
+    margin-bottom: 14px;
+    animation: st-spin 0.8s linear infinite;
+  }
+}
+
+@keyframes st-spin {
+  to { transform: rotate(360deg); }
+}
+
+// ============================================================
+// Timeline — مصمم كتسلسل حقيقي (مش جريد كاردات) لأن الترتيب
+// هنا له معنى فعلي بيشوفه المستخدم النهائي
+// ============================================================
+.st-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes st-step-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.st-step {
+  display: flex;
+  gap: 16px;
+  animation: st-step-in 0.35s ease both;
+
+  &__marker-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__marker {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $navy, $blue);
+    color: $white;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba($navy, 0.25);
+    flex-shrink: 0;
+  }
+
+  &__line {
+    width: 2px;
+    flex: 1;
+    margin: 6px 0;
+    background: $border;
+    min-height: 24px;
+  }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    background: #fafbfc;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  &:hover &__body {
+    border-color: rgba($blue, 0.3);
+    box-shadow: 0 6px 18px rgba($navy, 0.07);
+    transform: translateX(-3px);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: $text;
+    line-height: 1.65;
+    padding-top: 6px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+}
+
+.st-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12.5px;
+  cursor: pointer;
+  border: 1.5px solid $border;
+  background: $white;
+  color: $muted;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &--edit {
+    border-color: rgba($blue, 0.22);
+    color: $blue;
+
+    &:hover {
+      background: $blue;
+      color: $white;
+      border-color: $blue;
+    }
+  }
+
+  &--delete {
+    border-color: rgba($red, 0.22);
+    color: $red;
+
+    &:hover {
+      background: $red;
+      color: $white;
+      border-color: $red;
+    }
+  }
+}
+
+// ============================================================
+// Modal
+// ============================================================
+@keyframes st-modal-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes st-modal-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.st-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.st-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 20, 0.55);
+  backdrop-filter: blur(2px);
+  animation: st-modal-backdrop-in 0.2s ease both;
+}
+
+.st-modal__dialog {
+  position: relative;
+  background: $white;
+  border-radius: 16px;
+  padding: 28px 26px 24px;
+  width: min(100%, 440px);
+  box-shadow: 0 24px 60px rgba($navy2, 0.25);
+  z-index: 2;
+  text-align: center;
+  animation: st-modal-dialog-in 0.22s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.st-modal__close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: $bg;
+  color: $muted;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.st-modal__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 16px;
+
+  &--edit {
+    background: rgba($blue, 0.1);
+    color: $blue;
+  }
+
+  &--danger {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.st-modal__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: $navy;
+}
+
+.st-modal__sub {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  color: $muted;
+  line-height: 1.7;
+
+  strong {
+    color: $text;
+  }
+}
+
+.st-modal .st-field {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+.st-modal__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.st-modal-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 10px;
+  padding: 11px 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s, background 0.2s;
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  &--ghost {
+    background: $bg;
+    color: $text;
+    border: 1.5px solid $border;
+
+    &:hover:not(:disabled) {
+      background: darken($bg, 3%);
+    }
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, $blue, darken($blue, 10%));
+    color: $white;
+    box-shadow: 0 4px 14px rgba($blue, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 18px rgba($blue, 0.38);
+    }
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, $red, $red2);
+    color: $white;
+    box-shadow: 0 4px 14px rgba($red, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 18px rgba($red, 0.38);
+    }
+  }
+}
+
+// ============================================================
+// Empty state
+// ============================================================
+.st-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 24px;
+  text-align: center;
+
+  &__circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba($blue, 0.08), rgba($navy, 0.06));
+    color: rgba($blue, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 18px;
+  }
+
+  &__text {
+    font-size: 16px;
+    font-weight: 700;
+    color: $muted;
+    margin: 0 0 6px;
+  }
+
+  &__hint {
+    font-size: 13px;
+    color: #b0bac6;
+    margin: 0;
+  }
+}
+
+// ============================================================
+// Responsive
+// ============================================================
+@media (max-width: 1100px) {
+  .st-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .st-form-panel {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .st-page {
+    padding-top: calc(70px + 1rem) !important;
+  }
+
+  .st-hero__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px 20px;
+  }
+
+  .st-hero__title {
+    font-size: 22px;
+  }
+
+  .st-hero__stat {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .st-hero__stat-num {
+    font-size: 24px;
+  }
+}
