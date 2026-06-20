@@ -10,7 +10,7 @@
           لوحة الإدارة
         </span>
         <h1 class="ms-hero__title">إدارة الخدمات</h1>
-        <p class="ms-hero__sub">أضف خدمات حكومية جديدة أو احذف الموجودة من النظام</p>
+        <p class="ms-hero__sub">أضف خدمات حكومية جديدة أو عدّل أو احذف الموجود منها في النظام</p>
       </div>
       <div class="ms-hero__stat">
         <div class="ms-hero__stat-icon">
@@ -23,6 +23,15 @@
       </div>
     </div>
   </header>
+
+  <!-- Global load error -->
+  <div class="ms-import-alert ms-import-alert--error" *ngIf="loadErrorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ loadErrorMessage }}</span>
+    <button type="button" class="ms-retry-btn" (click)="loadInitialData()">
+      <i class="fas fa-rotate-right"></i> إعادة المحاولة
+    </button>
+  </div>
 
   <!-- Excel Import Panel -->
   <section class="ms-import-panel">
@@ -150,21 +159,21 @@
 
   <div class="ms-layout">
 
-    <!-- Add Form -->
+    <!-- Add / Edit Form -->
     <aside class="ms-form-panel">
       <div class="ms-form-panel__accent"></div>
       <div class="ms-form-panel__body">
         <div class="ms-form-panel__head">
           <div class="ms-form-panel__icon">
-            <i class="fas fa-plus"></i>
+            <i class="fas" [ngClass]="editingServiceId ? 'fa-pen' : 'fa-plus'"></i>
           </div>
           <div>
-            <h2 class="ms-form-panel__title">خدمة جديدة</h2>
-            <p class="ms-form-panel__hint">املأ البيانات ثم اضغط حفظ</p>
+            <h2 class="ms-form-panel__title">{{ editingServiceId ? 'تعديل الخدمة' : 'خدمة جديدة' }}</h2>
+            <p class="ms-form-panel__hint">{{ editingServiceId ? 'عدّلي البيانات ثم اضغطي حفظ التعديلات' : 'املأ البيانات ثم اضغط حفظ' }}</p>
           </div>
         </div>
 
-        <form (ngSubmit)="addService()" class="ms-form">
+        <form (ngSubmit)="saveService()" class="ms-form">
 
           <div class="ms-field">
             <label class="ms-field__label">
@@ -187,11 +196,14 @@
               الفئة
             </label>
             <div class="ms-select-wrap">
-              <select class="ms-field__input ms-field__input--select" [(ngModel)]="newService.category" name="category">
-                <option value="المرور">المرور</option>
-                <option value="الأحوال المدنية">الأحوال المدنية</option>
-                <option value="الشهر العقاري">الشهر العقاري</option>
-                <option value="الجوازات والهجرة">الجوازات والهجرة</option>
+              <select
+                class="ms-field__input ms-field__input--select"
+                [(ngModel)]="newService.categoryId"
+                name="categoryId"
+                [disabled]="categories.length === 0"
+              >
+                <option *ngIf="categories.length === 0" [ngValue]="0">لا توجد تصنيفات بعد</option>
+                <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
               </select>
               <i class="fas fa-chevron-down ms-select-wrap__arrow"></i>
             </div>
@@ -212,10 +224,79 @@
             ></textarea>
           </div>
 
-          <button type="submit" class="ms-btn-submit">
-            <i class="fas fa-save"></i>
-            حفظ الخدمة
-          </button>
+          <div class="ms-field-row">
+            <div class="ms-field">
+              <label class="ms-field__label">
+                <i class="fas fa-coins"></i>
+                الرسوم الأساسية (ج.م)
+              </label>
+              <input
+                class="ms-field__input"
+                type="number"
+                min="0"
+                step="0.01"
+                [(ngModel)]="newService.srvFees"
+                name="srvFees"
+                placeholder="0"
+                required
+              />
+            </div>
+
+            <div class="ms-field">
+              <label class="ms-field__label">
+                <i class="fas fa-coins"></i>
+                الرسوم التقديرية (ج.م)
+              </label>
+              <input
+                class="ms-field__input"
+                type="number"
+                min="0"
+                step="0.01"
+                [(ngModel)]="newService.estimatedFees"
+                name="estimatedFees"
+                placeholder="0"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-clock"></i>
+              مدة التنفيذ
+            </label>
+            <input
+              class="ms-field__input"
+              type="text"
+              [(ngModel)]="newService.srvTime"
+              name="srvTime"
+              placeholder="مثال: من 3 إلى 5 أيام عمل"
+              required
+            />
+          </div>
+
+          <!-- Inline feedback -->
+          <div class="ms-import-alert ms-import-alert--success" *ngIf="formSuccessMessage">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ formSuccessMessage }}</span>
+          </div>
+          <div class="ms-import-alert ms-import-alert--error" *ngIf="formErrorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ formErrorMessage }}</span>
+          </div>
+
+          <div class="ms-form-actions">
+            <button type="submit" class="ms-btn-submit" [disabled]="isSaving || categories.length === 0">
+              <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+              <i class="fas fa-save" *ngIf="!isSaving"></i>
+              {{ isSaving ? 'جاري الحفظ...' : (editingServiceId ? 'حفظ التعديلات' : 'حفظ الخدمة') }}
+            </button>
+
+            <button type="button" class="ms-btn-cancel" *ngIf="editingServiceId" (click)="cancelEdit()" [disabled]="isSaving">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
 
         </form>
       </div>
@@ -232,8 +313,14 @@
         <span class="ms-grid-panel__count">{{ servicesList.length }} خدمة</span>
       </div>
 
+      <!-- Loading state -->
+      <div class="ms-loading" *ngIf="isLoading">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>جاري تحميل الخدمات...</p>
+      </div>
+
       <!-- Empty state -->
-      <div class="ms-empty" *ngIf="servicesList.length === 0">
+      <div class="ms-empty" *ngIf="!isLoading && servicesList.length === 0">
         <div class="ms-empty__circle">
           <i class="fas fa-folder-open"></i>
         </div>
@@ -242,28 +329,49 @@
       </div>
 
       <!-- Grid -->
-      <div class="ms-grid" *ngIf="servicesList.length > 0">
+      <div class="ms-grid" *ngIf="!isLoading && servicesList.length > 0">
         <article
           class="ms-card"
           *ngFor="let svc of servicesList; let i = index"
-          [ngClass]="getCategoryClass(svc.category)"
+          [ngClass]="getCategoryClass(svc.categoryId)"
           [style.animation-delay]="(i * 0.06) + 's'"
         >
           <div class="ms-card__accent"></div>
 
           <div class="ms-card__header">
             <div class="ms-card__ico">
-              <i class="fas" [ngClass]="svc.icon || 'fa-concierge-bell'"></i>
+              <i class="fas" [ngClass]="getCategoryIcon(svc.categoryId)"></i>
             </div>
-            <span class="ms-card__cat">{{ svc.category }}</span>
+            <span class="ms-card__cat">{{ getCategoryName(svc.categoryId) }}</span>
           </div>
 
-          <h3 class="ms-card__title">{{ svc.title }}</h3>
-          <p class="ms-card__desc">{{ svc.description }}</p>
+          <h3 class="ms-card__title">{{ svc.srvName }}</h3>
+          <p class="ms-card__desc">{{ svc.srvDesc }}</p>
+
+          <div class="ms-card__meta">
+            <span class="ms-card__meta-item">
+              <i class="fas fa-coins"></i>
+              {{ svc.srvFees }} ج.م
+            </span>
+            <span class="ms-card__meta-item" *ngIf="svc.srvTime">
+              <i class="fas fa-clock"></i>
+              {{ svc.srvTime }}
+            </span>
+          </div>
 
           <div class="ms-card__footer">
-            <button class="ms-btn-delete" (click)="deleteService(svc.id)" type="button">
-              <i class="fas fa-trash-alt"></i>
+            <button class="ms-btn-edit" (click)="startEdit(svc)" type="button">
+              <i class="fas fa-pen"></i>
+              تعديل
+            </button>
+            <button
+              class="ms-btn-delete"
+              (click)="deleteService(svc.id)"
+              type="button"
+              [disabled]="deletingServiceId === svc.id"
+            >
+              <i class="fas fa-spinner fa-spin" *ngIf="deletingServiceId === svc.id"></i>
+              <i class="fas fa-trash-alt" *ngIf="deletingServiceId !== svc.id"></i>
               حذف الخدمة
             </button>
           </div>
