@@ -22,6 +22,11 @@ export class NavbarCom implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Initialize theme from localStorage
+    const saved = localStorage.getItem('theme');
+    this.isDarkMode = saved === 'dark';
+    document.body.classList.toggle('dark-theme', this.isDarkMode);
+
     this.routeSub = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
@@ -42,5 +47,10 @@ export class NavbarCom implements OnInit, OnDestroy {
   toggleDarkMode(): void {
     this.isDarkMode = !this.isDarkMode;
     document.body.classList.toggle('dark-theme', this.isDarkMode);
+    try {
+      localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+    } catch (e) {
+      // ignore storage errors
+    }
   }
 }

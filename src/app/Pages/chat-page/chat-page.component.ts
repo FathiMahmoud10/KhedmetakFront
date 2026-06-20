@@ -3,6 +3,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ChatApiService } from '../../APIServices/SharedServices/chat-api.service';
+import { AuthService } from '../../APIServices/SharedServices/auth.service';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -41,6 +44,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   isTyping         = false;
   currentMessage   = '';
   activeChat       = 0;
+  currentSessionGuid: string | null = null;
 
   messages:      Message[]    = [];
   uploadedFiles: string[]     = [];
@@ -101,8 +105,18 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   private shouldScroll = false;
   private genTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  constructor(
+    private chatApiService: ChatApiService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
   ngOnInit(): void {
-    // Initialize with welcome message if needed
+    const token = this.authService.getTokenFromCookie();
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -143,6 +157,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     this.currentMessage = ''; 
     this.activeChat = -1;
     this.isTyping = false;
+    this.currentSessionGuid = null;
     if (this.genTimeout) {
       clearTimeout(this.genTimeout);
       this.genTimeout = null;
@@ -152,6 +167,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   loadChat(index: number): void { 
     this.activeChat = index; 
     this.messages = []; 
+    this.currentSessionGuid = null;
   }
 
   sendSuggestion(text: string): void { 
@@ -191,94 +207,60 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
 
   // ── AI Response Generator ──
   private generateAIResponse(query: string): void {
-    const responses: { [key: string]: string } = {
-      license: `<p>لتجديد <strong>رخصة القيادة</strong> في مصر، اتبع الخطوات التالية:</p>
-<ol>
-  <li>بطاقة الرقم القومي (سارية المفعول)</li>
-  <li>الرخصة الحالية</li>
-  <li>نتيجة الكشف الطبي من طبيب معتمد</li>
-  <li>4 صور شخصية حديثة (4×6)</li>
-  <li>سداد الرسوم: <strong>300 جنيه مصري</strong></li>
-</ol>
-<p>توجه إلى أقرب <strong>إدارة مرور</strong> تابع لمحل إقامتك. مدة الإنجاز: <strong>1–3 أيام عمل</strong>.</p>
-<p>يمكنك حجز موعد مسبق عبر <a href="#">بوابة مصر الرقمية</a> لتوفير الوقت.</p>`,
-
-      id: `<p>لاستخراج <strong>بطاقة الرقم القومي</strong>:</p>
-<ol>
-  <li>شهادة الميلاد الأصلية</li>
-  <li>صورة بطاقة أحد الوالدين (للقصر)</li>
-  <li>4 صور شخصية حديثة بخلفية بيضاء</li>
-  <li>نموذج الطلب من مكتب السجل المدني</li>
-  <li>سداد الرسوم: <strong>25 جنيهاً</strong></li>
-</ol>
-<p>مدة الإنجاز: <strong>3–5 أيام عمل</strong> — يمكن الاستلام من نفس المكتب أو اختيار التوصيل.</p>`,
-
-      birth: `<p>لاستخراج <strong>شهادة الميلاد</strong>:</p>
-<ol>
-  <li>بلاغ الميلاد من المستشفى أو الولادة</li>
-  <li>بطاقة الرقم القومي للوالدين</li>
-  <li>عقد الزواج الموثق</li>
-  <li>استمارة الطلب من مكتب الصحة</li>
-</ol>
-<p>التقديم في <strong>مكتب الصحة</strong> التابع لمحل الميلاد خلال <strong>15 يوماً</strong> من تاريخ الولادة.</p>
-<p>التأخير عن المدة المحددة يستلزم موافقة خاصة من الجهات المختصة.</p>`,
-
-      commercial: `<p>لتسجيل <strong>شركة في السجل التجاري</strong>:</p>
-<ol>
-  <li>صورة بطاقة الرقم القومي للمؤسسين</li>
-  <li>عقد تأسيس الشركة موثق من الشهر العقاري</li>
-  <li>إيصال سداد رسوم التسجيل</li>
-  <li>عقد إيجار أو ملكية مقر الشركة</li>
-</ol>
-<p>التقديم إلكترونياً عبر <a href="#">بوابة الاستثمار</a> أو يدوياً في <strong>السجل التجاري</strong>.</p>
-<p>مدة الإنجاز: <strong>7–14 يوم عمل</strong> حسب نوع الشركة.</p>`,
-
-      passport: `<p>لتجديد <strong>جواز السفر المصري</strong>:</p>
-<ol>
-  <li>بطاقة الرقم القومي سارية</li>
-  <li>جواز السفر القديم (إن وجد)</li>
-  <li>4 صور شخصية حديثة</li>
-  <li>سداد الرسوم: <strong>300–500 جنيه</strong> حسب نوع الجواز</li>
-</ol>
-<p>التقديم في <strong>مصلحة الجوازات</strong> أو عبر <a href="#">بوابة مصر الرقمية</a>.</p>`,
-
-      default: `<p>مرحباً! أنا مساعد <strong>خدمتك AI</strong> للخدمات الحكومية المصرية. يمكنني مساعدتك في:</p>
-<ul>
-  <li>الاستفسار عن أي خدمة حكومية</li>
-  <li>معرفة المستندات والرسوم المطلوبة</li>
-  <li>إرشادك خطوة بخطوة حتى إتمام الخدمة</li>
-  <li>تحديد الجهة المختصة والموقع المناسب</li>
-</ul>
-<p>كيف يمكنني مساعدتك اليوم؟</p>`
-    };
-
-    const lowerQuery = query.toLowerCase();
-    let reply = responses['default'];
-
-    if (lowerQuery.includes('رخصة') || lowerQuery.includes('قيادة') || lowerQuery.includes('license') || lowerQuery.includes('مرور')) {
-      reply = responses['license'];
-    } else if (lowerQuery.includes('رقم قومي') || lowerQuery.includes('بطاقة') || lowerQuery.includes('id') || lowerQuery.includes('شخصية')) {
-      reply = responses['id'];
-    } else if (lowerQuery.includes('ميلاد') || lowerQuery.includes('birth') || lowerQuery.includes('صحة')) {
-      reply = responses['birth'];
-    } else if (lowerQuery.includes('سجل') || lowerQuery.includes('تجاري') || lowerQuery.includes('شركة') || lowerQuery.includes('commercial')) {
-      reply = responses['commercial'];
-    } else if (lowerQuery.includes('جواز') || lowerQuery.includes('سفر') || lowerQuery.includes('passport')) {
-      reply = responses['passport'];
+    const token = this.authService.getTokenFromCookie();
+    let email = 'user@khedmetak.gov.eg';
+    if (token) {
+      const payload = this.authService.decodeJwt(token);
+      email = payload?.email || payload?.unique_name || payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] || email;
     }
 
-    // Simulate realistic typing delay
-    const delay = 1200 + Math.random() * 1000;
-
-    this.genTimeout = setTimeout(() => {
-      this.messages.push({ 
-        role: 'assistant', 
-        content: reply, 
-        timestamp: new Date() 
+    if (!this.currentSessionGuid) {
+      this.chatApiService.createSession(email).subscribe({
+        next: (res) => {
+          this.currentSessionGuid = res.data?.sessionGuidId || res.data?.id || res.data;
+          this.sendChatMessage(query);
+        },
+        error: (err) => {
+          console.error('فشل إنشاء الجلسة:', err);
+          this.messages.push({
+            role: 'assistant',
+            content: 'عذراً، فشل إنشاء جلسة محادثة جديدة. يرجى المحاولة لاحقاً.',
+            timestamp: new Date()
+          });
+          this.isTyping = false;
+          this.shouldScroll = true;
+        }
       });
-      this.isTyping = false; 
-      this.shouldScroll = true;
-    }, delay);
+    } else {
+      this.sendChatMessage(query);
+    }
+  }
+
+  private sendChatMessage(query: string): void {
+    if (!this.currentSessionGuid) return;
+
+    this.chatApiService.sendMessage(query, this.currentSessionGuid).subscribe({
+      next: (res) => {
+        const reply = res.data?.message || res.message || 'نعتذر، حدث خطأ أثناء الاتصال بالخادم.';
+        this.messages.push({
+          role: 'assistant',
+          content: reply,
+          timestamp: new Date()
+        });
+        this.isTyping = false;
+        this.shouldScroll = true;
+      },
+      error: (err) => {
+        console.error('فشل إرسال الرسالة للذكاء الاصطناعي:', err);
+        this.messages.push({
+          role: 'assistant',
+          content: 'عذراً، حدث خطأ في الاتصال بالخادم. يرجى المحاولة لاحقاً.',
+          timestamp: new Date()
+        });
+        this.isTyping = false;
+        this.shouldScroll = true;
+      }
+    });
   }
 
   stopGeneration(): void {

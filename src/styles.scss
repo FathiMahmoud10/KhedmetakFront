@@ -17,6 +17,106 @@
   --shadow-card: 0 8px 32px rgba(0,0,0,.12);
 }
 
+body.dark-theme {
+  --brand-bg: #0f1720; 
+  --foreground: #eef5fa; 
+  --muted: #9fb0c2;
+  --border: rgba(255,255,255,0.06);
+  --input-border: rgba(255,255,255,0.08);
+  --gradient-brand: linear-gradient(135deg, #082029 0%, #0f3a44 60%, #1f6f7f 100%);
+  --accent-gold: #d1b06a;
+  --glass: rgba(255,255,255,0.035);
+  --card-bg: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  background: var(--brand-bg);
+}
+
+/* Ensure common app regions/cards/inputs become dark under dark-theme */
+.dark-theme {
+  // page containers
+  .ms-page, .sd-page, .ms-grid-panel, .ms-form-panel, main, header, .container-fluid {
+    background-color: var(--brand-bg) !important;
+    color: var(--foreground) !important;
+    transition: background-color 240ms ease, color 240ms ease;
+  }
+
+  // cards and panels with glassy luxury look
+  .ms-card, .sd-card, .card, .profile-card, .service-management-card, .ms-form-panel__body, .ms-grid-panel {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)) !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    backdrop-filter: blur(6px) saturate(120%);
+    box-shadow: 0 12px 36px rgba(2,6,10,0.45) !important;
+    color: var(--foreground) !important;
+    border-radius: 12px !important;
+    padding: 14px !important;
+  }
+
+  // headings and texts
+  h1,h2,h3,h4,h5,h6, .ms-card__title, .sd-hero__title, p, span, a {
+    color: var(--foreground) !important;
+  }
+
+  // navbar and sidebar backgrounds
+  .app-navbar, .app-navbar__inner {
+    background: linear-gradient(90deg, rgba(10,16,20,0.9), rgba(6,10,14,0.95)) !important;
+    color: var(--foreground) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.02) !important;
+  }
+
+  .admin-drawer__inner {
+    background: linear-gradient(180deg, rgba(7,12,18,0.95) 0%, rgba(8,18,28,0.95) 60%) !important;
+    border-left: 1px solid rgba(255,255,255,0.02) !important;
+  }
+
+  // inputs, selects, textareas
+  input, select, textarea, .ms-field__input, .ms-field__input--select, .ms-field__input--textarea {
+    background-color: rgba(255,255,255,0.045) !important;
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    color: var(--foreground) !important;
+    border-radius: 10px !important;
+    transition: box-shadow 160ms ease, border-color 160ms ease;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    box-shadow: 0 6px 20px rgba(31,111,127,0.08) !important;
+    border-color: rgba(31,111,127,0.5) !important;
+    outline: none !important;
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: rgba(255,255,255,0.45) !important;
+  }
+
+  // buttons — elegant gold accent
+  // buttons — refined contrast and subtle gold rim
+  button, .ms-btn-submit, .ms-btn-delete, .app-navbar__menu-btn {
+    background: linear-gradient(90deg, rgba(30,36,40,0.88), rgba(20,28,32,0.88)) !important;
+    color: var(--foreground) !important;
+    border: 1px solid rgba(209,177,110,0.06) !important;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  .ms-btn-submit, .app-navbar__menu-btn {
+    background: linear-gradient(90deg, rgba(30,40,45,0.95), rgba(20,30,35,0.95)) !important;
+    box-shadow: 0 8px 26px rgba(0,0,0,0.6), 0 4px 18px rgba(198,161,90,0.06) !important;
+  }
+
+  button:hover, .ms-btn-submit:hover, .ms-btn-delete:hover {
+    transform: translateY(-2px);
+  }
+
+  // accent highlights (gold) for important elements
+  .ms-hero__stat-icon, .admin-drawer__link-icon.is-active, .admin-drawer__link.is-active {
+    background: linear-gradient(90deg, rgba(225,188,113,0.98), rgba(255,228,170,0.92)) !important;
+    color: #081014 !important;
+    box-shadow: 0 6px 24px rgba(209,177,110,0.08) !important;
+  }
+
+  // tables and lists
+  .table, .ms-grid, .sd-steps, .ms-empty {
+    color: var(--foreground) !important;
+  }
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -28,3 +128,6 @@ body {
   background: var(--brand-bg);
   color: var(--foreground);
 }
+
+/* Import app-level overrides (includes body.dark-theme rules) */
+@import 'app/app.scss';
