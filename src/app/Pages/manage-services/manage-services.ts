@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
   GovServiceAdminService,
@@ -24,7 +25,7 @@ const CATEGORY_ICONS: Record<string, string> = {
 @Component({
   selector: 'app-manage-services',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './manage-services.html',
   styleUrls: ['./manage-services.scss']
 })
@@ -53,8 +54,6 @@ export class ManageServices implements OnInit {
   // رسائل تنبيه داخل الصفحة بدل alert()
   formSuccessMessage: string | null = null;
   formErrorMessage: string | null = null;
-
-  deletingServiceId: number | null = null;
 
   // ---------------- استيراد ملف الإكسل ----------------
   selectedExcelFile: File | null = null;
@@ -202,23 +201,9 @@ export class ManageServices implements OnInit {
   }
 
   // ----------------- حذف خدمة -----------------
-
-  deleteService(id: number): void {
-    if (!confirm('هل أنتِ متأكدة من حذف هذه الخدمة نهائياً من النظام؟')) return;
-
-    this.deletingServiceId = id;
-    this.adminService.deleteService(id).subscribe({
-      next: () => {
-        this.deletingServiceId = null;
-        this.servicesList = this.servicesList.filter(service => service.id !== id);
-      },
-      error: (err) => {
-        this.deletingServiceId = null;
-        this.formErrorMessage =
-          err?.error?.message || 'تعذّر حذف الخدمة، الرجاء المحاولة مرة أخرى.';
-      }
-    });
-  }
+  // ملحوظة: تنفيذ الحذف الفعلي انتقل لصفحة delete مستقلة (manage-services/delete/:id).
+  // الكارت بيوجّه عليها مباشرة عبر routerLink، وهي بعد نجاح الحذف بترجع هنا فتُعاد
+  // تحميل القائمة تلقائيًا في ngOnInit.
 
   // ---------------- منطق استيراد الإكسل ----------------
 
