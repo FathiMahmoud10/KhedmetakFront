@@ -160,7 +160,7 @@
   <div class="ms-layout">
 
     <!-- Add / Edit Form -->
-    <aside class="ms-form-panel">
+    <aside class="ms-form-panel" [ngClass]="{ 'ms-form-panel--editing': editingServiceId }">
       <div class="ms-form-panel__accent"></div>
       <div class="ms-form-panel__body">
         <div class="ms-form-panel__head">
@@ -168,6 +168,10 @@
             <i class="fas" [ngClass]="editingServiceId ? 'fa-pen' : 'fa-plus'"></i>
           </div>
           <div>
+            <span class="ms-form-mode-badge" *ngIf="editingServiceId">
+              <i class="fas fa-pen"></i>
+              وضع التعديل
+            </span>
             <h2 class="ms-form-panel__title">{{ editingServiceId ? 'تعديل الخدمة' : 'خدمة جديدة' }}</h2>
             <p class="ms-form-panel__hint">{{ editingServiceId ? 'عدّلي البيانات ثم اضغطي حفظ التعديلات' : 'املأ البيانات ثم اضغط حفظ' }}</p>
           </div>
@@ -364,16 +368,13 @@
               <i class="fas fa-pen"></i>
               تعديل
             </button>
-            <button
+            <a
               class="ms-btn-delete"
-              (click)="deleteService(svc.id)"
-              type="button"
-              [disabled]="deletingServiceId === svc.id"
+              [routerLink]="['/manage-services/delete', svc.id]"
             >
-              <i class="fas fa-spinner fa-spin" *ngIf="deletingServiceId === svc.id"></i>
-              <i class="fas fa-trash-alt" *ngIf="deletingServiceId !== svc.id"></i>
+              <i class="fas fa-trash-alt"></i>
               حذف الخدمة
-            </button>
+            </a>
           </div>
         </article>
       </div>

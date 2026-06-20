@@ -175,10 +175,12 @@ $cat-default:   #64748b;
   border: 1px solid $border;
   box-shadow: 0 4px 20px rgba($navy, 0.06);
   overflow: hidden;
+  transition: box-shadow 0.25s ease;
 
   &__accent {
     height: 4px;
     background: linear-gradient(90deg, $green, $blue);
+    transition: background 0.3s ease;
   }
 
   &__body {
@@ -189,7 +191,7 @@ $cat-default:   #64748b;
     display: flex;
     align-items: center;
     gap: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 8px;
     padding-bottom: 20px;
     border-bottom: 1px solid $border;
   }
@@ -205,6 +207,7 @@ $cat-default:   #64748b;
     justify-content: center;
     font-size: 16px;
     flex-shrink: 0;
+    transition: background 0.3s ease, color 0.3s ease;
   }
 
   &__title {
@@ -219,6 +222,36 @@ $cat-default:   #64748b;
     color: $muted;
     margin: 0;
   }
+
+  // وضع التعديل — accent ولون أيقونة بيتحولوا لأزرق عشان يوضّح للمستخدمة إنها في سياق تعديل خدمة موجودة وليس إضافة جديدة
+  &--editing {
+    box-shadow: 0 4px 20px rgba($blue, 0.12);
+
+    .ms-form-panel__accent {
+      background: linear-gradient(90deg, $blue, $navy3);
+    }
+
+    .ms-form-panel__icon {
+      background: linear-gradient(135deg, rgba($blue, 0.18), rgba($navy3, 0.12));
+      color: $blue;
+    }
+  }
+}
+
+// شارة صغيرة توضّح إن الفورم شغال في وضع التعديل دلوقتي، بتظهر فوق العنوان
+.ms-form-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  background: rgba($blue, 0.1);
+  color: $blue;
+
+  i { font-size: 10px; }
 }
 
 // ============================================================
@@ -228,6 +261,7 @@ $cat-default:   #64748b;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  margin-top: 4px;
 }
 
 .ms-field {
@@ -572,6 +606,7 @@ $cat-default:   #64748b;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  text-decoration: none;
   transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
 
   &:hover {
@@ -1002,4 +1037,308 @@ $cat-default:   #64748b;
       color: $muted;
     }
   }
+}
+
+// ============================================================
+// Delete Service — confirmation page (standalone route)
+// ============================================================
+.msd-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.msd-card {
+  width: 100%;
+  max-width: 620px;
+  background: $white;
+  border-radius: 18px;
+  border: 1px solid $border;
+  box-shadow: 0 8px 32px rgba($navy, 0.1);
+  overflow: hidden;
+
+  &__accent {
+    height: 5px;
+    background: linear-gradient(90deg, $red, lighten($red, 12%));
+  }
+
+  &__body {
+    padding: 32px 30px;
+  }
+}
+
+.msd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: $muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 22px;
+  transition: color 0.2s ease;
+
+  i { font-size: 12px; }
+
+  &:hover { color: $navy; }
+}
+
+.msd-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  margin-bottom: 26px;
+
+  &__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba($red, 0.1);
+    color: $red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+
+  &__title {
+    font-size: 19px;
+    font-weight: 800;
+    color: $text;
+    margin: 0;
+  }
+
+  &__sub {
+    font-size: 13.5px;
+    color: $muted;
+    margin: 0;
+    max-width: 420px;
+    line-height: 1.7;
+  }
+}
+
+// كارت بيانات الخدمة المعروضة للتأكيد قبل الحذف
+.msd-service {
+  background: $bg;
+  border: 1px solid $border;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+  }
+
+  &__name {
+    font-size: 16px;
+    font-weight: 800;
+    color: $navy;
+    margin: 0;
+  }
+
+  &__cat {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 11px;
+    border-radius: 20px;
+    background: rgba($cat-default, 0.1);
+    color: $cat-default;
+    white-space: nowrap;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: $muted;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed $border;
+  }
+
+  &__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: $navy3;
+    background: rgba($navy3, 0.07);
+    padding: 4px 10px;
+    border-radius: 20px;
+
+    i { font-size: 10px; }
+  }
+}
+
+.msd-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba($red, 0.07);
+  border: 1px solid rgba($red, 0.2);
+  color: #8a1f2b;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.7;
+  margin-bottom: 24px;
+
+  i {
+    font-size: 16px;
+    color: $red;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+}
+
+.msd-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.msd-btn-confirm {
+  flex: 1;
+  background: linear-gradient(135deg, $red, darken($red, 8%));
+  color: $white;
+  border: none;
+  border-radius: 11px;
+  padding: 13px 0;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba($red, 0.28);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba($red, 0.36);
+  }
+
+  &:active:not(:disabled) { transform: scale(0.98); }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.msd-btn-keep {
+  flex: 1;
+  background: $white;
+  border: 1.5px solid $border;
+  color: $muted;
+  border-radius: 11px;
+  padding: 13px 0;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+
+  &:hover:not(:disabled) {
+    background: $bg;
+    border-color: $muted;
+  }
+
+  &:active:not(:disabled) { transform: scale(0.98); }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// حالات تحميل / نجاح / خطأ داخل صفحة الحذف
+.msd-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  padding: 48px 20px;
+
+  i {
+    font-size: 32px;
+  }
+
+  p {
+    font-size: 14px;
+    color: $muted;
+    margin: 0;
+  }
+
+  &--loading i { color: $blue; }
+
+  &--success {
+    i { color: $green; }
+    p { color: $text; font-weight: 700; font-size: 15px; }
+  }
+
+  &--error {
+    i { color: $red; }
+    p { color: $text; font-weight: 700; font-size: 15px; }
+  }
+}
+
+.msd-status-btn {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, $navy 0%, $navy3 100%);
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 24px;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba($navy2, 0.25);
+  }
+}
+
+@media (max-width: 480px) {
+  .msd-card__body { padding: 24px 18px; }
+  .msd-actions { flex-direction: column; }
 }
