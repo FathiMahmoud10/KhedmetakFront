@@ -24,6 +24,130 @@
     </div>
   </header>
 
+  <!-- Excel Import Panel -->
+  <section class="ms-import-panel">
+    <div class="ms-import-panel__head">
+      <div class="ms-import-panel__icon">
+        <i class="fas fa-file-excel"></i>
+      </div>
+      <div>
+        <h2 class="ms-import-panel__title">استيراد خدمات من ملف Excel</h2>
+        <p class="ms-import-panel__hint">يمكنك رفع ملف واحد يحتوي على الخدمات، التصنيفات، الخطوات، والمستندات المطلوبة دفعة واحدة</p>
+      </div>
+    </div>
+
+    <div class="ms-import-panel__body">
+
+      <div class="ms-import-dropzone">
+        <input
+          type="file"
+          id="excelFileInput"
+          accept=".xlsx,.xls"
+          (change)="onExcelFileSelected($event)"
+          hidden
+        />
+
+        <label for="excelFileInput" class="ms-import-dropzone__label" *ngIf="!selectedExcelFile">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>اضغط هنا لاختيار ملف Excel (.xlsx أو .xls)</span>
+        </label>
+
+        <div class="ms-import-file" *ngIf="selectedExcelFile">
+          <i class="fas fa-file-excel ms-import-file__ico"></i>
+          <span class="ms-import-file__name">{{ selectedExcelFile.name }}</span>
+          <button type="button" class="ms-import-file__remove" (click)="clearSelectedExcelFile()" [disabled]="isImporting">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="ms-btn-import"
+        (click)="uploadExcelFile()"
+        [disabled]="!selectedExcelFile || isImporting"
+      >
+        <i class="fas fa-spinner fa-spin" *ngIf="isImporting"></i>
+        <i class="fas fa-upload" *ngIf="!isImporting"></i>
+        {{ isImporting ? 'جاري الاستيراد...' : 'استيراد الملف' }}
+      </button>
+
+      <!-- Error message -->
+      <div class="ms-import-alert ms-import-alert--error" *ngIf="importErrorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ importErrorMessage }}</span>
+      </div>
+
+      <!-- Result summary -->
+      <div class="ms-import-result" *ngIf="importResult">
+
+        <div class="ms-import-alert" [ngClass]="importResult.errors.length === 0 ? 'ms-import-alert--success' : 'ms-import-alert--warning'">
+          <i class="fas" [ngClass]="importResult.errors.length === 0 ? 'fa-check-circle' : 'fa-exclamation-triangle'"></i>
+          <span>
+            {{ importResult.errors.length === 0
+              ? 'تم استيراد البيانات بنجاح.'
+              : 'تم الاستيراد مع وجود ' + importResult.errors.length + ' صف به أخطاء.' }}
+          </span>
+        </div>
+
+        <div class="ms-import-stats">
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.totalRowsRead }}</span>
+            <span class="ms-import-stat__lbl">صف مقروء</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.rowsProcessed }}</span>
+            <span class="ms-import-stat__lbl">صف منفّذ</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.categoriesCreated }}</span>
+            <span class="ms-import-stat__lbl">تصنيف جديد</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.servicesCreated }}</span>
+            <span class="ms-import-stat__lbl">خدمة جديدة</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.servicesUpdated }}</span>
+            <span class="ms-import-stat__lbl">خدمة محدّثة</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.stepsCreated }}</span>
+            <span class="ms-import-stat__lbl">خطوة جديدة</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.documentsCreated }}</span>
+            <span class="ms-import-stat__lbl">مستند جديد</span>
+          </div>
+        </div>
+
+        <!-- Errors table -->
+        <div class="ms-import-errors" *ngIf="importResult.errors.length > 0">
+          <h3 class="ms-import-errors__title">
+            <i class="fas fa-bug"></i>
+            تفاصيل الأخطاء
+          </h3>
+          <table class="ms-import-errors__table">
+            <thead>
+              <tr>
+                <th>رقم الصف</th>
+                <th>سبب الخطأ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let err of importResult.errors">
+                <td>{{ err.rowNumber }}</td>
+                <td>{{ err.message }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
   <div class="ms-layout">
 
     <!-- Add Form -->

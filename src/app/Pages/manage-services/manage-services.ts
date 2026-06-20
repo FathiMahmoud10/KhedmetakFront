@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  GovServiceAdminService,
+  ImportServicesResultDto
+} from '../../APIServices/SharedServices/gov-service-admin.service';
 
 @Component({
   selector: 'app-manage-services',
@@ -26,7 +30,13 @@ export class ManageServices  implements OnInit {
     description: ''
   };
 
-  constructor() {}
+  // ---------------- استيراد ملف الإكسل ----------------
+  selectedExcelFile: File | null = null;
+  isImporting = false;
+  importResult: ImportServicesResultDto | null = null;
+  importErrorMessage: string | null = null;
+
+  constructor(private adminService: GovServiceAdminService) {}
 
   ngOnInit(): void {}
 
@@ -66,5 +76,65 @@ export class ManageServices  implements OnInit {
     };
     return map[category] ?? 'ms-card--default';
   }
-}
 
+  // ---------------- منطق استيراد الإكسل ----------------
+
+  // يتم استدعاؤها عند اختيار المستخدم لملف من خلال input[type=file]
+  onExcelFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files.length > 0 ? input.files[0] : null;
+
+    this.importResult = null;
+    this.importErrorMessage = null;
+
+    if (!file) {
+      this.selectedExcelFile = null;
+      return;
+    }
+
+    const allowedExtensions = ['.xlsx', '.xls'];
+    const fileName = file.name.toLowerCase();
+    const isValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+
+    if (!isValidExtension) {
+      this.selectedExcelFile = null;
+      this.importErrorMessage = 'نوع الملف غير مدعوم، الرجاء اختيار ملف Excel بصيغة .xlsx أو .xls';
+      input.value = '';
+      return;
+    }
+
+    this.selectedExcelFile = file;
+  }
+
+  // إزالة الملف المختار قبل الرفع
+  clearSelectedExcelFile(): void {
+    this.selectedExcelFile = null;
+    this.importResult = null;
+    this.importErrorMessage = null;
+  }
+
+  // رفع الملف للباك إند واستيراد الخدمات + الخطوات + المستندات منه
+  uploadExcelFile(): void {
+    if (!this.selectedExcelFile) {
+      this.importErrorMessage = 'الرجاء اختيار ملف Excel أولاً.';
+      return;
+    }
+
+    this.isImporting = true;
+    this.importResult = null;
+    this.importErrorMessage = null;
+
+    this.adminService.importFromExcel(this.selectedExcelFile).subscribe({
+      next: (res) => {
+        this.isImporting = false;
+        this.importResult = res.data;
+        this.selectedExcelFile = null;
+      },
+      error: (err) => {
+        this.isImporting = false;
+        this.importErrorMessage =
+          err?.error?.message || 'حدث خطأ أثناء رفع الملف، الرجاء المحاولة مرة أخرى.';
+      }
+    });
+  }
+}
