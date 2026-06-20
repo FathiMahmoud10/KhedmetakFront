@@ -9,7 +9,8 @@ import { Injectable } from "@angular/core";
 })
 export class GovServicesService {
 
-  private apiUrl = `${environment.apiUrl}/services`;
+  // الـ Controller الحقيقي اسمه GovServicesController -> الروت /api/GovServices
+  private apiUrl = `${environment.apiUrl}/GovServices`;
  private readonly base = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
@@ -18,14 +19,6 @@ export class GovServicesService {
       map(res => res.data.map(this.mapToService))
     );
   }
-
-  // getServicesByCategory(categoryId: number): Observable<IService[]> {
-  //   return this.http.get<ApiResponse<GovServiceDto[]>>(
-  //     `${this.apiUrl}/category/${categoryId}`
-  //   ).pipe(
-  //     map(res => res.data.map(this.mapToService))
-  //   );
-  // }
 
   getServicesByCategory(categoryId: number): Observable<IService[]> {
     const url =
@@ -54,8 +47,8 @@ export class GovServicesService {
   categoryId: dto.categoryId,
   categoryName: dto.categoryName,
   srvFees: dto.srvFees,
-  srvTime: "",
-  estimatedFees: 0,
+  srvTime: dto.srvTime,
+  estimatedFees: dto.estimatedFees,
 
 };
   }

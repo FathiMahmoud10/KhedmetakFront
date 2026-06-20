@@ -1,10 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import {
   GovServiceAdminService,
-  ImportServicesResultDto
+  ImportServicesResultDto,
+  CreateGovServiceDto,
+  UpdateGovServiceDto
 } from '../../APIServices/SharedServices/gov-service-admin.service';
+import { GovServicesService } from '../../APIServices/SharedServices/gov-services-service';
+import { CategoryAPI } from '../../APIServices/SharedServices/category-api';
+import { IService } from '../../Utilities/Interfaces/IService';
+import { CategoryDto } from '../../Utilities/Interfaces/ICategory';
+
+// أيقونة افتراضية مرتبطة باسم كل تصنيف (بتتحدّث تلقائيًا لو ظهر تصنيف جديد من الباك إند)
+const CATEGORY_ICONS: Record<string, string> = {
+  'المرور': 'fa-car',
+  'الأحوال المدنية': 'fa-id-card',
+  'الشهر العقاري': 'fa-file-signature',
+  'الجوازات والهجرة': 'fa-passport',
+};
 
 @Component({
   selector: 'app-manage-services',
@@ -13,22 +28,33 @@ import {
   templateUrl: './manage-services.html',
   styleUrls: ['./manage-services.scss']
 })
-export class ManageServices  implements OnInit {
+export class ManageServices implements OnInit {
 
-  // 1. مصفوفة الخدمات الحالية المتاحة في النظام (بيانات تجريبية تطابق الفئات بمشروعكِ)
-  servicesList = [
-    { id: 1, title: 'تجديد رخصة القيادة', category: 'المرور', icon: 'fa-car', description: 'تجديد رخصة القيادة الخاصة والمهنية إلكترونياً.' },
-    { id: 2, title: 'إصدار بطاقة رقم قومي', category: 'الأحوال المدنية', icon: 'fa-id-card', description: 'طلب استخراج بدل تالف أو فاقد لبطاقة الرقم القومي.' },
-    { id: 3, title: 'توثيق عقد بيع', category: 'الشهر العقاري', icon: 'fa-file-signature', description: 'حجز موعد وتوثيق عقود البيع والشراء للمركبات والعقارات.' }
-  ];
+  // ----------------- بيانات حقيقية من الباك إند -----------------
+  servicesList: IService[] = [];
+  categories: CategoryDto[] = [];
 
-  // 2. كائن لحمل بيانات الخدمة الجديدة أثناء الكتابة في الاستمارة
+  isLoading = true;
+  loadErrorMessage: string | null = null;
+
+  // ----------------- نموذج إضافة / تعديل خدمة -----------------
   newService = {
     title: '',
-    category: 'المرور', // الفئة الافتراضية
-    icon: 'fa-concierge-bell',
-    description: ''
+    categoryId: 0,
+    description: '',
+    srvFees: 0,
+    srvTime: '',
+    estimatedFees: 0
   };
+
+  isSaving = false;
+  editingServiceId: number | null = null; // null = وضع إضافة، غير null = وضع تعديل
+
+  // رسائل تنبيه داخل الصفحة بدل alert()
+  formSuccessMessage: string | null = null;
+  formErrorMessage: string | null = null;
+
+  deletingServiceId: number | null = null;
 
   // ---------------- استيراد ملف الإكسل ----------------
   selectedExcelFile: File | null = null;
@@ -36,50 +62,166 @@ export class ManageServices  implements OnInit {
   importResult: ImportServicesResultDto | null = null;
   importErrorMessage: string | null = null;
 
-  constructor(private adminService: GovServiceAdminService) {}
+  constructor(
+    private adminService: GovServiceAdminService,
+    private govServicesService: GovServicesService,
+    private categoryApi: CategoryAPI
+  ) {}
 
-  ngOnInit(): void {}
-
-  // 3. دالة إضافة خدمة جديدة للمصفوفة
-  addService(): void {
-    if (this.newService.title.trim() && this.newService.description.trim()) {
-      // إضافة الخدمة بقيم ديناميكية
-      this.servicesList.push({
-        id: this.servicesList.length + 1,
-        title: this.newService.title,
-        category: this.newService.category,
-        icon: this.newService.icon,
-        description: this.newService.description
-      });
-
-      // إعادة تعيين الحقول لتصبح فارغة مجدداً
-      this.newService = { title: '', category: 'المرور', icon: 'fa-concierge-bell', description: '' };
-      alert('تم إضافة الخدمة الحكومية الجديدة بنجاح! 🚀');
-    } else {
-      alert('من فضلك املأ جميع الحقول المطلوبة أولاً.');
-    }
+  ngOnInit(): void {
+    this.loadInitialData();
   }
 
-  // 4. دالة حذف خدمة من النظام
-  deleteService(id: number): void {
-    if (confirm('هل أنتِ متأكدة من حذف هذه الخدمة نهائياً من النظام؟')) {
-      this.servicesList = this.servicesList.filter(service => service.id !== id);
-    }
+  // تحميل الخدمات والتصنيفات سوا من الباك إند الحقيقي
+  loadInitialData(): void {
+    this.isLoading = true;
+    this.loadErrorMessage = null;
+
+    forkJoin({
+      services: this.govServicesService.getAllServices(),
+      categories: this.categoryApi.getAllCategories()
+    }).subscribe({
+      next: ({ services, categories }) => {
+        this.servicesList = services;
+        this.categories = categories;
+
+        if (!this.newService.categoryId && categories.length > 0) {
+          this.newService.categoryId = categories[0].id;
+        }
+
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.loadErrorMessage =
+          err?.error?.message || 'تعذّر تحميل بيانات الخدمات والتصنيفات من الخادم.';
+      }
+    });
   }
 
-  getCategoryClass(category: string): string {
+  // اسم التصنيف من الـ id (للعرض على الكارت)
+  getCategoryName(categoryId: number): string {
+    return this.categories.find(c => c.id === categoryId)?.name ?? 'غير مصنّف';
+  }
+
+  getCategoryIcon(categoryId: number): string {
+    const name = this.getCategoryName(categoryId);
+    return CATEGORY_ICONS[name] ?? 'fa-concierge-bell';
+  }
+
+  getCategoryClass(categoryId: number): string {
     const map: Record<string, string> = {
       'المرور': 'ms-card--traffic',
       'الأحوال المدنية': 'ms-card--civil',
       'الشهر العقاري': 'ms-card--realestate',
       'الجوازات والهجرة': 'ms-card--passport',
     };
-    return map[category] ?? 'ms-card--default';
+    return map[this.getCategoryName(categoryId)] ?? 'ms-card--default';
+  }
+
+  // ----------------- إضافة / تعديل خدمة -----------------
+
+  saveService(): void {
+    this.formSuccessMessage = null;
+    this.formErrorMessage = null;
+
+    if (
+      !this.newService.title.trim() ||
+      !this.newService.description.trim() ||
+      !this.newService.categoryId ||
+      !this.newService.srvTime.trim() ||
+      this.newService.srvFees < 0 ||
+      this.newService.estimatedFees < 0
+    ) {
+      this.formErrorMessage = 'من فضلك املأ جميع الحقول المطلوبة أولاً (الاسم، الفئة، الوصف، الرسوم، ومدة التنفيذ).';
+      return;
+    }
+
+    const dto: CreateGovServiceDto | UpdateGovServiceDto = {
+      srvName: this.newService.title.trim(),
+      srvDesc: this.newService.description.trim(),
+      categoryId: this.newService.categoryId,
+      srvFees: this.newService.srvFees,
+      srvTime: this.newService.srvTime.trim(),
+      estimatedFees: this.newService.estimatedFees
+    };
+
+    this.isSaving = true;
+
+    const request$ = this.editingServiceId
+      ? this.adminService.updateService(this.editingServiceId, dto)
+      : this.adminService.createService(dto);
+
+    request$.subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.formSuccessMessage = this.editingServiceId
+          ? 'تم تعديل الخدمة بنجاح.'
+          : 'تم إضافة الخدمة الحكومية الجديدة بنجاح.';
+        this.resetForm();
+        this.loadInitialData();
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.formErrorMessage =
+          err?.error?.message || 'حدث خطأ أثناء حفظ الخدمة، الرجاء المحاولة مرة أخرى.';
+      }
+    });
+  }
+
+  // تجهيز النموذج لتعديل خدمة موجودة
+  startEdit(svc: IService): void {
+    this.editingServiceId = svc.id;
+    this.newService = {
+      title: svc.srvName,
+      categoryId: svc.categoryId,
+      description: svc.srvDesc,
+      srvFees: svc.srvFees ?? 0,
+      srvTime: svc.srvTime ?? '',
+      estimatedFees: svc.estimatedFees ?? 0
+    };
+    this.formSuccessMessage = null;
+    this.formErrorMessage = null;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  cancelEdit(): void {
+    this.resetForm();
+  }
+
+  private resetForm(): void {
+    this.editingServiceId = null;
+    this.newService = {
+      title: '',
+      categoryId: this.categories[0]?.id ?? 0,
+      description: '',
+      srvFees: 0,
+      srvTime: '',
+      estimatedFees: 0
+    };
+  }
+
+  // ----------------- حذف خدمة -----------------
+
+  deleteService(id: number): void {
+    if (!confirm('هل أنتِ متأكدة من حذف هذه الخدمة نهائياً من النظام؟')) return;
+
+    this.deletingServiceId = id;
+    this.adminService.deleteService(id).subscribe({
+      next: () => {
+        this.deletingServiceId = null;
+        this.servicesList = this.servicesList.filter(service => service.id !== id);
+      },
+      error: (err) => {
+        this.deletingServiceId = null;
+        this.formErrorMessage =
+          err?.error?.message || 'تعذّر حذف الخدمة، الرجاء المحاولة مرة أخرى.';
+      }
+    });
   }
 
   // ---------------- منطق استيراد الإكسل ----------------
 
-  // يتم استدعاؤها عند اختيار المستخدم لملف من خلال input[type=file]
   onExcelFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files && input.files.length > 0 ? input.files[0] : null;
@@ -106,14 +248,12 @@ export class ManageServices  implements OnInit {
     this.selectedExcelFile = file;
   }
 
-  // إزالة الملف المختار قبل الرفع
   clearSelectedExcelFile(): void {
     this.selectedExcelFile = null;
     this.importResult = null;
     this.importErrorMessage = null;
   }
 
-  // رفع الملف للباك إند واستيراد الخدمات + الخطوات + المستندات منه
   uploadExcelFile(): void {
     if (!this.selectedExcelFile) {
       this.importErrorMessage = 'الرجاء اختيار ملف Excel أولاً.';
@@ -129,6 +269,8 @@ export class ManageServices  implements OnInit {
         this.isImporting = false;
         this.importResult = res.data;
         this.selectedExcelFile = null;
+        // بعد الاستيراد، أعيدي تحميل قائمة الخدمات عشان تتحدث فورًا
+        this.loadInitialData();
       },
       error: (err) => {
         this.isImporting = false;

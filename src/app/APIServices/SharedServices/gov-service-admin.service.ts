@@ -20,6 +20,26 @@ export interface ImportServicesResultDto {
   errors: ImportRowErrorDto[];
 }
 
+// مطابق لـ CreateGovServiceDto في الباك إند (AdminServicesController -> POST /api/admin/govservices)
+export interface CreateGovServiceDto {
+  srvName: string;
+  srvDesc: string;
+  categoryId: number;
+  srvFees: number;
+  srvTime: string;
+  estimatedFees: number;
+}
+
+// مطابق لـ UpdateGovServiceDto (PUT /api/admin/govservices/{id})
+export interface UpdateGovServiceDto {
+  srvName: string;
+  srvDesc: string;
+  categoryId: number;
+  srvFees: number;
+  srvTime: string;
+  estimatedFees: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -37,5 +57,20 @@ export class GovServiceAdminService {
       `${this.apiUrl}/import-excel`,
       formData
     );
+  }
+
+  // إضافة خدمة حكومية جديدة
+  createService(dto: CreateGovServiceDto): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(this.apiUrl, dto);
+  }
+
+  // تعديل خدمة موجودة
+  updateService(id: number, dto: UpdateGovServiceDto): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/${id}`, dto);
+  }
+
+  // حذف خدمة
+  deleteService(id: number): Observable<ApiResponse<any>> {
+    return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
   }
 }
