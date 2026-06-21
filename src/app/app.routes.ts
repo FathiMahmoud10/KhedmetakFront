@@ -6,7 +6,6 @@ import { SignupComponent } from './Pages/signup-page/signup.component';
 import { AdminProfileComponent} from './Pages/admin-profile/admin-profile';
 import { AdminDashboard  } from './Pages/admin-dashboard/admin-dashboard';
 import { ManageServices} from './Pages/manage-services/manage-services';
-import { DeleteService } from './Pages/manage-services/delete-service/delete-service';
 import { ManageCategories } from './Pages/manage-category/manage-categories';
 import { ServiceSteps } from './Pages/service-steps/service-steps';
 import { TokenCheckComponent } from './Pages/token-check/token-check.component';
@@ -31,7 +30,7 @@ export const routes: Routes = [
     { path: 'admin-dashboard', component: AdminDashboard },
     { path: 'admin-profile', component: AdminProfileComponent },
     { path: 'manage-services', component: ManageServices },
-    { path: 'manage-services/delete/:id', component: DeleteService },
+    { path: 'manage-services/delete/:id', component: ManageServices },
     { path: 'admin-categories', component: ManageCategories },
     { path: 'admin-steps', component: ServiceSteps },
     { path: 'admin-service-detail/:id', component: ServiceDetailComponent },

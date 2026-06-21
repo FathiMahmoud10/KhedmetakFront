@@ -1,25 +1,49 @@
 // ============================================================
-// Design tokens
+// Design tokens — لوحة ألوان جديدة (إنديجو/تركواز) أكثر تميّزًا وحيوية
 // ============================================================
-$navy:   #023264;
-$navy2:  #012050;
-$navy3:  #04498f;
-$green:  #298b64;
-$green2: #1f6e4e;
-$blue:   #487fb9;
-$red:    #dc3545;
-$bg:     #f0f4f8;
+$navy:   #1e2a52;   // إنديجو غامق - العناوين والهيدر
+$navy2:  #141c3a;   // إنديجو أعمق - تدرّجات الهيرو
+$navy3:  #34468a;   // إنديجو متوسط - عناصر ثانوية
+$green:  #0d9488;   // تركواز - الإضافة / النجاح
+$green2: #0b7a70;
+$blue:   #6d5ce8;   // بنفسجي-إنديجو - التعديل / التركيز
+$red:    #e0294b;   // وردي مائل للأحمر - الحذف / التحذير
+$amber:  #d97a1f;   // عسلي - تنبيهات وإحصائيات إضافية
+$bg:     #f3f5fb;
 $white:  #ffffff;
-$border: #e4e9f0;
-$muted:  #6b7a8d;
-$text:   #1a2535;
+$border: #e3e7f2;
+$muted:  #69708a;
+$text:   #1c2238;
 
-// Category accents
-$cat-traffic:   #487fb9;
-$cat-civil:     #298b64;
-$cat-realestate:#7c5cbf;
-$cat-passport:  #0d9488;
-$cat-default:   #64748b;
+// Category accents — ألوان مستقلة عن باقي الواجهة لتمييز كل تصنيف بصريًا
+$cat-traffic:    #2f6fed;
+$cat-civil:      #11997a;
+$cat-realestate: #9b3fd1;
+$cat-passport:   #0e8fa6;
+$cat-default:    #6b7693;
+
+// شارة رقم الخطوة — توضّح ترتيب الأقسام (استيراد ← إضافة ← القائمة) بنظرة سريعة
+.ms-step-badge {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $navy, $navy3);
+  color: $white;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba($navy2, 0.25);
+
+  &--inline {
+    display: inline-flex;
+    margin-inline-end: 8px;
+    vertical-align: middle;
+  }
+}
+
 
 // ============================================================
 // Page shell — full viewport width (matches admin-dashboard)
@@ -35,6 +59,15 @@ $cat-default:   #64748b;
   box-sizing: border-box;
 }
 
+// غلاف بعرض أقصى ومُمركز، عشان المحتوى يبان منظم ومتقسم بدل ما يتمدد على عرض الشاشة كله
+.ms-shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
 // ============================================================
 // Hero header
 // ============================================================
@@ -43,7 +76,6 @@ $cat-default:   #64748b;
   width: 100%;
   border-radius: 18px;
   overflow: hidden;
-  margin-bottom: 28px;
   box-shadow: 0 8px 32px rgba($navy2, 0.18);
 
   &__bg {
@@ -457,6 +489,7 @@ $cat-default:   #64748b;
   gap: 10px;
   background: $white;
   overflow: hidden;
+  cursor: pointer;
   transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
   animation: ms-card-in 0.4s ease both;
 
@@ -811,7 +844,6 @@ $cat-default:   #64748b;
   border: 1px solid $border;
   box-shadow: 0 4px 18px rgba($navy2, 0.06);
   padding: 24px 28px;
-  margin-bottom: 28px;
 
   &__head {
     display: flex;
@@ -1341,4 +1373,295 @@ $cat-default:   #64748b;
 @media (max-width: 480px) {
   .msd-card__body { padding: 24px 18px; }
   .msd-actions { flex-direction: column; }
+}
+
+// ============================================================
+// Category Tabs — فلترة الكروت بالتصنيف (تاب "الكل" مختار بشكل افتراضي)
+// ============================================================
+.ms-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.ms-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: $white;
+  border: 1.5px solid $border;
+  color: $muted;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s;
+
+  i {
+    font-size: 12px;
+  }
+
+  &:hover {
+    border-color: $navy3;
+    color: $navy;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &--active {
+    background: linear-gradient(135deg, $navy 0%, $navy3 100%);
+    border-color: transparent;
+    color: $white;
+    box-shadow: 0 4px 14px rgba($navy2, 0.25);
+
+    .ms-tab__count {
+      background: rgba($white, 0.22);
+      color: $white;
+    }
+  }
+}
+
+.ms-tab__count {
+  background: $bg;
+  color: $muted;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 8px;
+  min-width: 20px;
+  text-align: center;
+}
+
+// ============================================================
+// Delete Modal — Pop-up زي مودال إدارة الفئات (cc-modal)
+// ============================================================
+@keyframes ms-modal-backdrop-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ms-modal-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ms-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.ms-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 12, 20, 0.55);
+  backdrop-filter: blur(2px);
+  animation: ms-modal-backdrop-in 0.2s ease both;
+}
+
+.ms-modal__dialog {
+  position: relative;
+  background: $white;
+  border-radius: 16px;
+  padding: 28px 26px 24px;
+  width: min(100%, 460px);
+  box-shadow: 0 24px 60px rgba($navy2, 0.25);
+  z-index: 2;
+  text-align: center;
+  animation: ms-modal-dialog-in 0.22s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+
+.ms-modal__close {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: $bg;
+  color: $muted;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.ms-modal__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 16px;
+
+  &--danger {
+    background: rgba($red, 0.1);
+    color: $red;
+  }
+}
+
+.ms-modal__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 800;
+  color: $navy;
+}
+
+.ms-modal__sub {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  color: $muted;
+  line-height: 1.7;
+
+  strong {
+    color: $text;
+  }
+}
+
+.ms-modal__preview {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.ms-modal__preview-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: $bg;
+  color: $text;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+
+  i {
+    color: $navy3;
+    font-size: 11px;
+  }
+}
+
+.ms-modal__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.ms-modal-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 10px;
+  padding: 11px 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s, background 0.2s;
+
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  &--ghost {
+    background: $bg;
+    color: $text;
+    border: 1.5px solid $border;
+
+    &:hover:not(:disabled) {
+      background: darken($bg, 3%);
+    }
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, $red, darken($red, 8%));
+    color: $white;
+    box-shadow: 0 4px 14px rgba($red, 0.3);
+
+    &:hover:not(:disabled) {
+      box-shadow: 0 6px 18px rgba($red, 0.38);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .ms-modal__dialog { padding: 24px 18px 20px; }
+  .ms-modal__actions { flex-direction: column; }
+}
+
+// ============================================================
+// Edit Modal — توسعة على نفس ms-modal لاستيعاب نموذج التعديل الكامل
+// ============================================================
+.ms-modal__dialog--wide {
+  width: min(100%, 560px);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.ms-modal__icon--edit {
+  background: rgba($blue, 0.1);
+  color: $blue;
+}
+
+.ms-modal__form {
+  text-align: right;
+  margin-top: 8px;
+}
+
+.ms-modal .ms-field,
+.ms-modal .ms-field-row {
+  margin-bottom: 16px;
+}
+
+.ms-modal-btn--primary {
+  background: linear-gradient(135deg, $blue, darken($blue, 10%));
+  color: $white;
+  box-shadow: 0 4px 14px rgba($blue, 0.3);
+
+  &:hover:not(:disabled) {
+    box-shadow: 0 6px 18px rgba($blue, 0.38);
+  }
+}
+
+@media (max-width: 480px) {
+  .ms-modal__dialog--wide { padding: 22px 16px 18px; }
 }

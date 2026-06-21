@@ -1,4 +1,5 @@
 <div class="ms-page container-fluid py-4">
+<div class="ms-shell">
 
   <!-- Hero Header -->
   <header class="ms-hero">
@@ -36,6 +37,7 @@
   <!-- Excel Import Panel -->
   <section class="ms-import-panel">
     <div class="ms-import-panel__head">
+      <span class="ms-step-badge">١</span>
       <div class="ms-import-panel__icon">
         <i class="fas fa-file-excel"></i>
       </div>
@@ -159,21 +161,18 @@
 
   <div class="ms-layout">
 
-    <!-- Add / Edit Form -->
-    <aside class="ms-form-panel" [ngClass]="{ 'ms-form-panel--editing': editingServiceId }">
+    <!-- Add Form -->
+    <aside class="ms-form-panel">
       <div class="ms-form-panel__accent"></div>
       <div class="ms-form-panel__body">
         <div class="ms-form-panel__head">
+          <span class="ms-step-badge">٢</span>
           <div class="ms-form-panel__icon">
-            <i class="fas" [ngClass]="editingServiceId ? 'fa-pen' : 'fa-plus'"></i>
+            <i class="fas fa-plus"></i>
           </div>
           <div>
-            <span class="ms-form-mode-badge" *ngIf="editingServiceId">
-              <i class="fas fa-pen"></i>
-              وضع التعديل
-            </span>
-            <h2 class="ms-form-panel__title">{{ editingServiceId ? 'تعديل الخدمة' : 'خدمة جديدة' }}</h2>
-            <p class="ms-form-panel__hint">{{ editingServiceId ? 'عدّلي البيانات ثم اضغطي حفظ التعديلات' : 'املأ البيانات ثم اضغط حفظ' }}</p>
+            <h2 class="ms-form-panel__title">خدمة جديدة</h2>
+            <p class="ms-form-panel__hint">املأ البيانات ثم اضغط حفظ</p>
           </div>
         </div>
 
@@ -293,12 +292,7 @@
             <button type="submit" class="ms-btn-submit" [disabled]="isSaving || categories.length === 0">
               <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
               <i class="fas fa-save" *ngIf="!isSaving"></i>
-              {{ isSaving ? 'جاري الحفظ...' : (editingServiceId ? 'حفظ التعديلات' : 'حفظ الخدمة') }}
-            </button>
-
-            <button type="button" class="ms-btn-cancel" *ngIf="editingServiceId" (click)="cancelEdit()" [disabled]="isSaving">
-              <i class="fas fa-times"></i>
-              إلغاء
+              {{ isSaving ? 'جاري الحفظ...' : 'حفظ الخدمة' }}
             </button>
           </div>
 
@@ -311,11 +305,39 @@
 
       <div class="ms-grid-panel__head">
         <div class="ms-grid-panel__head-text">
+          <span class="ms-step-badge ms-step-badge--inline">٣</span>
           <h2 class="ms-grid-panel__title">الخدمات المسجّلة</h2>
           <p class="ms-grid-panel__sub">جميع الخدمات الحكومية المتاحة في النظام</p>
         </div>
-        <span class="ms-grid-panel__count">{{ servicesList.length }} خدمة</span>
+        <span class="ms-grid-panel__count">{{ filteredServicesList.length }} خدمة</span>
       </div>
+
+      <!-- Category Tabs -->
+      <div class="ms-tabs" *ngIf="!isLoading && servicesList.length > 0">
+        <button
+          type="button"
+          class="ms-tab"
+          [class.ms-tab--active]="activeCategoryId === 0"
+          (click)="selectCategoryTab(0)"
+        >
+          <i class="fas fa-border-all"></i>
+          الكل
+          <span class="ms-tab__count">{{ servicesList.length }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="ms-tab"
+          *ngFor="let cat of categories"
+          [class.ms-tab--active]="activeCategoryId === cat.id"
+          (click)="selectCategoryTab(cat.id)"
+        >
+          <i class="fas" [ngClass]="getCategoryIcon(cat.id)"></i>
+          {{ cat.name }}
+          <span class="ms-tab__count">{{ getCategoryCount(cat.id) }}</span>
+        </button>
+      </div>
+
 
       <!-- Loading state -->
       <div class="ms-loading" *ngIf="isLoading">
@@ -332,13 +354,25 @@
         <p class="ms-empty__hint">استخدم النموذج على اليمين لإضافة أول خدمة</p>
       </div>
 
+      <!-- Empty filter state -->
+      <div class="ms-empty" *ngIf="!isLoading && servicesList.length > 0 && filteredServicesList.length === 0">
+        <div class="ms-empty__circle">
+          <i class="fas fa-filter-circle-xmark"></i>
+        </div>
+        <p class="ms-empty__text">لا توجد خدمات في هذه الفئة</p>
+        <p class="ms-empty__hint">جرّب اختيار فئة أخرى أو تبويب "الكل"</p>
+      </div>
+
       <!-- Grid -->
-      <div class="ms-grid" *ngIf="!isLoading && servicesList.length > 0">
+      <div class="ms-grid" *ngIf="!isLoading && filteredServicesList.length > 0">
         <article
           class="ms-card"
-          *ngFor="let svc of servicesList; let i = index"
+          *ngFor="let svc of filteredServicesList; let i = index"
           [ngClass]="getCategoryClass(svc.categoryId)"
           [style.animation-delay]="(i * 0.06) + 's'"
+          [routerLink]="['/admin-service-detail', svc.id]"
+          role="button"
+          tabindex="0"
         >
           <div class="ms-card__accent"></div>
 
@@ -364,13 +398,14 @@
           </div>
 
           <div class="ms-card__footer">
-            <button class="ms-btn-edit" (click)="startEdit(svc)" type="button">
+            <button class="ms-btn-edit" (click)="openEdit(svc); $event.stopPropagation()" type="button">
               <i class="fas fa-pen"></i>
               تعديل
             </button>
             <a
               class="ms-btn-delete"
-              [routerLink]="['/manage-services/delete', svc.id]"
+              type="button"
+              (click)="openDelete(svc); $event.stopPropagation()"
             >
               <i class="fas fa-trash-alt"></i>
               حذف الخدمة
@@ -382,4 +417,182 @@
     </main>
 
   </div>
+
+  <!-- Edit Modal -->
+  <div class="ms-modal" *ngIf="showEditModal">
+    <div class="ms-modal__backdrop" (click)="closeEdit()"></div>
+    <div class="ms-modal__dialog ms-modal__dialog--wide">
+      <button class="ms-modal__close" (click)="closeEdit()" type="button" title="إغلاق" [disabled]="isSavingEdit">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="ms-modal__icon ms-modal__icon--edit">
+        <i class="fas fa-pen"></i>
+      </div>
+
+      <h3 class="ms-modal__title">تعديل الخدمة</h3>
+      <p class="ms-modal__sub">عدّلي البيانات ثم اضغطي حفظ التعديلات</p>
+
+      <form class="ms-form ms-modal__form" (ngSubmit)="saveEdit()">
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-tag"></i>
+            اسم الخدمة
+          </label>
+          <input
+            class="ms-field__input"
+            type="text"
+            [(ngModel)]="editServiceForm.title"
+            name="editTitle"
+            placeholder="مثال: استخراج جواز سفر"
+            required
+          />
+        </div>
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-layer-group"></i>
+            الفئة
+          </label>
+          <div class="ms-select-wrap">
+            <select
+              class="ms-field__input ms-field__input--select"
+              [(ngModel)]="editServiceForm.categoryId"
+              name="editCategoryId"
+            >
+              <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+            </select>
+            <i class="fas fa-chevron-down ms-select-wrap__arrow"></i>
+          </div>
+        </div>
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-align-right"></i>
+            الوصف
+          </label>
+          <textarea
+            class="ms-field__input ms-field__input--textarea"
+            [(ngModel)]="editServiceForm.description"
+            name="editDescription"
+            rows="3"
+            placeholder="اكتب شروط وأوراق الخدمة…"
+            required
+          ></textarea>
+        </div>
+
+        <div class="ms-field-row">
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-coins"></i>
+              الرسوم الأساسية (ج.م)
+            </label>
+            <input
+              class="ms-field__input"
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="editServiceForm.srvFees"
+              name="editSrvFees"
+              required
+            />
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-coins"></i>
+              الرسوم التقديرية (ج.م)
+            </label>
+            <input
+              class="ms-field__input"
+              type="number"
+              min="0"
+              step="0.01"
+              [(ngModel)]="editServiceForm.estimatedFees"
+              name="editEstimatedFees"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-clock"></i>
+            مدة التنفيذ
+          </label>
+          <input
+            class="ms-field__input"
+            type="text"
+            [(ngModel)]="editServiceForm.srvTime"
+            name="editSrvTime"
+            placeholder="مثال: من 3 إلى 5 أيام عمل"
+            required
+          />
+        </div>
+
+        <div class="ms-import-alert ms-import-alert--error" *ngIf="editErrorMessage">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ editErrorMessage }}</span>
+        </div>
+
+        <div class="ms-modal__actions">
+          <button class="ms-modal-btn ms-modal-btn--ghost" (click)="closeEdit()" type="button" [disabled]="isSavingEdit">إلغاء</button>
+          <button class="ms-modal-btn ms-modal-btn--primary" type="submit" [disabled]="isSavingEdit">
+            <i class="fas" [ngClass]="isSavingEdit ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+            {{ isSavingEdit ? 'جارٍ الحفظ...' : 'حفظ التعديلات' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="ms-modal" *ngIf="showDeleteModal">
+    <div class="ms-modal__backdrop" (click)="closeDelete()"></div>
+    <div class="ms-modal__dialog">
+      <button class="ms-modal__close" (click)="closeDelete()" type="button" title="إغلاق" [disabled]="isDeleting">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="ms-modal__icon ms-modal__icon--danger">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+
+      <h3 class="ms-modal__title">تأكيد حذف الخدمة</h3>
+      <p class="ms-modal__sub">
+        هل أنت متأكدة أنك تريدين حذف خدمة "<strong>{{ selectedService?.srvName }}</strong>"؟ هذا الإجراء لا يمكن التراجع عنه.
+      </p>
+
+      <div class="ms-modal__preview" *ngIf="selectedService">
+        <span class="ms-modal__preview-item">
+          <i class="fas fa-layer-group"></i>
+          {{ getCategoryName(selectedService.categoryId) }}
+        </span>
+        <span class="ms-modal__preview-item">
+          <i class="fas fa-coins"></i>
+          {{ selectedService.srvFees }} ج.م
+        </span>
+        <span class="ms-modal__preview-item" *ngIf="selectedService.srvTime">
+          <i class="fas fa-clock"></i>
+          {{ selectedService.srvTime }}
+        </span>
+      </div>
+
+      <div class="ms-import-alert ms-import-alert--error" *ngIf="deleteErrorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ deleteErrorMessage }}</span>
+      </div>
+
+      <div class="ms-modal__actions">
+        <button class="ms-modal-btn ms-modal-btn--ghost" (click)="closeDelete()" type="button" [disabled]="isDeleting">إلغاء</button>
+        <button class="ms-modal-btn ms-modal-btn--danger" (click)="confirmDelete()" type="button" [disabled]="isDeleting">
+          <i class="fas" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash-alt'"></i>
+          {{ isDeleting ? 'جارٍ الحذف...' : 'حذف الخدمة' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
 </div>

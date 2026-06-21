@@ -49,11 +49,29 @@ export class ManageServices implements OnInit {
   };
 
   isSaving = false;
-  editingServiceId: number | null = null; // null = وضع إضافة، غير null = وضع تعديل
 
   // رسائل تنبيه داخل الصفحة بدل alert()
   formSuccessMessage: string | null = null;
   formErrorMessage: string | null = null;
+
+  // ----------------- تبويبات التصنيف (فلترة الكروت) -----------------
+  // 0 = "الكل" (تعرض كل الخدمات وهي المختارة بشكل افتراضي)
+  activeCategoryId = 0;
+
+  selectCategoryTab(categoryId: number): void {
+    this.activeCategoryId = categoryId;
+  }
+
+  get filteredServicesList(): IService[] {
+    if (!this.activeCategoryId) {
+      return this.servicesList;
+    }
+    return this.servicesList.filter(s => s.categoryId === this.activeCategoryId);
+  }
+
+  getCategoryCount(categoryId: number): number {
+    return this.servicesList.filter(s => s.categoryId === categoryId).length;
+  }
 
   // ---------------- استيراد ملف الإكسل ----------------
   selectedExcelFile: File | null = null;
@@ -118,7 +136,7 @@ export class ManageServices implements OnInit {
     return map[this.getCategoryName(categoryId)] ?? 'ms-card--default';
   }
 
-  // ----------------- إضافة / تعديل خدمة -----------------
+  // ----------------- إضافة خدمة جديدة -----------------
 
   saveService(): void {
     this.formSuccessMessage = null;
@@ -136,7 +154,7 @@ export class ManageServices implements OnInit {
       return;
     }
 
-    const dto: CreateGovServiceDto | UpdateGovServiceDto = {
+    const dto: CreateGovServiceDto = {
       srvName: this.newService.title.trim(),
       srvDesc: this.newService.description.trim(),
       categoryId: this.newService.categoryId,
@@ -147,16 +165,10 @@ export class ManageServices implements OnInit {
 
     this.isSaving = true;
 
-    const request$ = this.editingServiceId
-      ? this.adminService.updateService(this.editingServiceId, dto)
-      : this.adminService.createService(dto);
-
-    request$.subscribe({
+    this.adminService.createService(dto).subscribe({
       next: () => {
         this.isSaving = false;
-        this.formSuccessMessage = this.editingServiceId
-          ? 'تم تعديل الخدمة بنجاح.'
-          : 'تم إضافة الخدمة الحكومية الجديدة بنجاح.';
+        this.formSuccessMessage = 'تم إضافة الخدمة الحكومية الجديدة بنجاح.';
         this.resetForm();
         this.loadInitialData();
       },
@@ -168,28 +180,7 @@ export class ManageServices implements OnInit {
     });
   }
 
-  // تجهيز النموذج لتعديل خدمة موجودة
-  startEdit(svc: IService): void {
-    this.editingServiceId = svc.id;
-    this.newService = {
-      title: svc.srvName,
-      categoryId: svc.categoryId,
-      description: svc.srvDesc,
-      srvFees: svc.srvFees ?? 0,
-      srvTime: svc.srvTime ?? '',
-      estimatedFees: svc.estimatedFees ?? 0
-    };
-    this.formSuccessMessage = null;
-    this.formErrorMessage = null;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  cancelEdit(): void {
-    this.resetForm();
-  }
-
   private resetForm(): void {
-    this.editingServiceId = null;
     this.newService = {
       title: '',
       categoryId: this.categories[0]?.id ?? 0,
@@ -200,10 +191,125 @@ export class ManageServices implements OnInit {
     };
   }
 
-  // ----------------- حذف خدمة -----------------
-  // ملحوظة: تنفيذ الحذف الفعلي انتقل لصفحة delete مستقلة (manage-services/delete/:id).
-  // الكارت بيوجّه عليها مباشرة عبر routerLink، وهي بعد نجاح الحذف بترجع هنا فتُعاد
-  // تحميل القائمة تلقائيًا في ngOnInit.
+  // ----------------- تعديل خدمة (Pop-up مودال زي إدارة الفئات) -----------------
+  showEditModal = false;
+  editingService: IService | null = null;
+  editServiceForm = {
+    title: '',
+    categoryId: 0,
+    description: '',
+    srvFees: 0,
+    srvTime: '',
+    estimatedFees: 0
+  };
+  isSavingEdit = false;
+  editErrorMessage: string | null = null;
+
+  openEdit(svc: IService): void {
+    this.editingService = svc;
+    this.editServiceForm = {
+      title: svc.srvName,
+      categoryId: svc.categoryId,
+      description: svc.srvDesc,
+      srvFees: svc.srvFees ?? 0,
+      srvTime: svc.srvTime ?? '',
+      estimatedFees: svc.estimatedFees ?? 0
+    };
+    this.editErrorMessage = null;
+    this.showEditModal = true;
+  }
+
+  closeEdit(): void {
+    if (this.isSavingEdit) return;
+    this.showEditModal = false;
+    this.editingService = null;
+    this.editErrorMessage = null;
+  }
+
+  saveEdit(): void {
+    if (!this.editingService || this.isSavingEdit) return;
+
+    this.editErrorMessage = null;
+
+    if (
+      !this.editServiceForm.title.trim() ||
+      !this.editServiceForm.description.trim() ||
+      !this.editServiceForm.categoryId ||
+      !this.editServiceForm.srvTime.trim() ||
+      this.editServiceForm.srvFees < 0 ||
+      this.editServiceForm.estimatedFees < 0
+    ) {
+      this.editErrorMessage = 'من فضلك املأ جميع الحقول المطلوبة أولاً (الاسم، الفئة، الوصف، الرسوم، ومدة التنفيذ).';
+      return;
+    }
+
+    const id = this.editingService.id;
+    const dto: UpdateGovServiceDto = {
+      srvName: this.editServiceForm.title.trim(),
+      srvDesc: this.editServiceForm.description.trim(),
+      categoryId: this.editServiceForm.categoryId,
+      srvFees: this.editServiceForm.srvFees,
+      srvTime: this.editServiceForm.srvTime.trim(),
+      estimatedFees: this.editServiceForm.estimatedFees
+    };
+
+    this.isSavingEdit = true;
+
+    this.adminService.updateService(id, dto).subscribe({
+      next: () => {
+        this.isSavingEdit = false;
+        this.showEditModal = false;
+        this.editingService = null;
+        this.loadInitialData();
+      },
+      error: (err) => {
+        this.isSavingEdit = false;
+        this.editErrorMessage =
+          err?.error?.message || 'حدث خطأ أثناء تعديل الخدمة، الرجاء المحاولة مرة أخرى.';
+      }
+    });
+  }
+
+  // ----------------- حذف خدمة (Pop-up مودال زي إدارة الفئات) -----------------
+  showDeleteModal = false;
+  selectedService: IService | null = null;
+  isDeleting = false;
+  deleteErrorMessage: string | null = null;
+
+  openDelete(svc: IService): void {
+    this.selectedService = svc;
+    this.deleteErrorMessage = null;
+    this.showDeleteModal = true;
+  }
+
+  closeDelete(): void {
+    if (this.isDeleting) return;
+    this.showDeleteModal = false;
+    this.selectedService = null;
+    this.deleteErrorMessage = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.selectedService || this.isDeleting) return;
+
+    const id = this.selectedService.id;
+    this.isDeleting = true;
+    this.deleteErrorMessage = null;
+
+    this.adminService.deleteService(id).subscribe({
+      next: () => {
+        this.servicesList = this.servicesList.filter(s => s.id !== id);
+        this.isDeleting = false;
+        this.showDeleteModal = false;
+        this.selectedService = null;
+      },
+      error: (err) => {
+        this.isDeleting = false;
+        this.deleteErrorMessage =
+          err?.error?.message || 'تعذّر حذف الخدمة، الرجاء المحاولة مرة أخرى.';
+      }
+    });
+  }
 
   // ---------------- منطق استيراد الإكسل ----------------
 
