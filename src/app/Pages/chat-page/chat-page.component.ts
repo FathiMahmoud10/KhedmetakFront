@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ChatApiService } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 
@@ -108,7 +108,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   constructor(
     private chatApiService: ChatApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -117,12 +118,20 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
       this.router.navigate(['/login']);
       return;
     }
+
+    // لو الصفحة وصلت برسالة جاهزة من صفحة تفاصيل خدمة (زرار "اسأل المساعد الذكي" مثلاً)
+    // نبعتها تلقائيًا كأول رسالة في المحادثة
+    const prefill = this.route.snapshot.queryParamMap.get('prefill');
+    if (prefill && prefill.trim()) {
+      this.currentMessage = prefill.trim();
+      setTimeout(() => this.sendMessage());
+    }
   }
 
   ngAfterViewChecked(): void {
-    if (this.shouldScroll) { 
-      this.scrollBottom(); 
-      this.shouldScroll = false; 
+    if (this.shouldScroll) {
+      this.scrollBottom();
+      this.shouldScroll = false;
     }
   }
 
@@ -152,9 +161,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   }
 
   startNewChat(): void {
-    this.messages = []; 
+    this.messages = [];
     this.uploadedFiles = [];
-    this.currentMessage = ''; 
+    this.currentMessage = '';
     this.activeChat = -1;
     this.isTyping = false;
     this.currentSessionGuid = null;
@@ -164,22 +173,22 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  loadChat(index: number): void { 
-    this.activeChat = index; 
-    this.messages = []; 
+  loadChat(index: number): void {
+    this.activeChat = index;
+    this.messages = [];
     this.currentSessionGuid = null;
   }
 
-  sendSuggestion(text: string): void { 
-    this.currentMessage = text; 
-    this.sendMessage(); 
+  sendSuggestion(text: string): void {
+    this.currentMessage = text;
+    this.sendMessage();
   }
 
   onEnterKey(event: KeyboardEvent): void {
-    if (!event.shiftKey) { 
-      event.preventDefault(); 
+    if (!event.shiftKey) {
+      event.preventDefault();
       if (this.currentMessage.trim()) {
-        this.sendMessage(); 
+        this.sendMessage();
       }
     }
   }
@@ -188,14 +197,14 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     const text = this.currentMessage.trim();
     if (!text || this.isTyping) return;
 
-    this.messages.push({ 
-      role: 'user', 
-      content: text, 
-      timestamp: new Date() 
+    this.messages.push({
+      role: 'user',
+      content: text,
+      timestamp: new Date()
     });
 
-    this.currentMessage = ''; 
-    this.shouldScroll = true; 
+    this.currentMessage = '';
+    this.shouldScroll = true;
     this.isTyping = true;
 
     if (this.messageInput?.nativeElement) {
@@ -264,9 +273,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   }
 
   stopGeneration(): void {
-    if (this.genTimeout) { 
-      clearTimeout(this.genTimeout); 
-      this.genTimeout = null; 
+    if (this.genTimeout) {
+      clearTimeout(this.genTimeout);
+      this.genTimeout = null;
     }
     this.isTyping = false;
   }
@@ -284,8 +293,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  triggerUpload(): void { 
-    this.fileInput?.nativeElement.click(); 
+  triggerUpload(): void {
+    this.fileInput?.nativeElement.click();
   }
 
   onFileSelected(event: Event): void {
@@ -300,8 +309,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     input.value = '';
   }
 
-  removeFile(index: number): void { 
-    this.uploadedFiles.splice(index, 1); 
+  removeFile(index: number): void {
+    this.uploadedFiles.splice(index, 1);
   }
 
   autoResize(event: Event): void {

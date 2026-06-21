@@ -34,6 +34,30 @@ $text:   #1a2535;
 }
 
 // ============================================================
+// Back button
+// ============================================================
+.sd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  color: $muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: -10px;
+  transition: color 0.2s ease;
+
+  i { font-size: 12px; }
+
+  &:hover { color: $navy; }
+}
+
+// ============================================================
 // Loading state
 // ============================================================
 .sd-loading {
