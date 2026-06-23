@@ -15,7 +15,7 @@ import { ServiceDetailComponent } from './Pages/service-detail/service-detail.co
 
 
 
-export const routes: Routes = [ 
+export const routes: Routes = [
     // redirectTo + 'patname'
     // when use redirectTo --> should use pathMatch with it
     { path: '', redirectTo: 'home', pathMatch: "full" },
@@ -24,12 +24,13 @@ export const routes: Routes = [
     { path: 'signup', component: SignupComponent },
     { path: 'chat', component: ChatPageComponent },
     { path: 'services', component: AllServicesComponent },
-    
+
     // { path: 'services', loadChildren: () => import('./services.routes').then(m => m.SERVICES_ROUTES) },
-   
+
     { path: 'admin-dashboard', component: AdminDashboard },
     { path: 'admin-profile', component: AdminProfileComponent },
     { path: 'manage-services', component: ManageServices },
+    { path: 'manage-services/delete/:id', component: ManageServices },
     { path: 'admin-categories', component: ManageCategories },
     { path: 'admin-steps', component: ServiceSteps },
     { path: 'admin-service-detail/:id', component: ServiceDetailComponent },

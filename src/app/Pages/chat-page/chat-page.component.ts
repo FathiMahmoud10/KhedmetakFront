@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ChatApiService } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 
@@ -105,7 +105,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   constructor(
     private chatApiService: ChatApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   // ─────────────────────────────────────────
@@ -146,6 +147,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
+    if (this.shouldScroll) {
+      this.scrollBottom();
+      this.shouldScroll = false;
     if (this.shouldScroll) {
       this.scrollBottom();
       this.shouldScroll = false;
@@ -204,7 +208,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
 
   startNewChat(): void {
     this.messages = [];
+    this.messages = [];
     this.uploadedFiles = [];
+    this.currentMessage = '';
     this.currentMessage = '';
     this.activeChat = -1;
     this.isTyping = false;
@@ -222,9 +228,15 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   loadChat(index: number): void {
     this.activeChat = index;
     this.messages = [];
+  loadChat(index: number): void {
+    this.activeChat = index;
+    this.messages = [];
     this.currentSessionGuid = null;
   }
 
+  sendSuggestion(text: string): void {
+    this.currentMessage = text;
+    this.sendMessage();
   sendSuggestion(text: string): void {
     this.currentMessage = text;
     this.sendMessage();
