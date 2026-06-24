@@ -1,0 +1,78 @@
+<div class="ureq-page container-fluid py-4">
+
+  <header class="ureq-header">
+    <div>
+      <h1 class="ureq-header__title"><i class="fas fa-file-circle-check"></i> طلباتي</h1>
+      <p class="ureq-header__sub">كل الخدمات الحكومية اللي تكلمت عنها مع المساعد الذكي ومتابعة حالتها</p>
+    </div>
+    <a routerLink="/chat" class="ureq-header__cta">
+      <i class="fas fa-plus"></i> طلب جديد
+    </a>
+  </header>
+
+  <!-- Filters -->
+  <div class="ureq-filters">
+    <button class="ureq-filter" [class.is-active]="activeFilter === 'all'" (click)="setFilter('all')">
+      الكل <span class="ureq-filter__count">{{ countByStatus('all') }}</span>
+    </button>
+    <button class="ureq-filter" [class.is-active]="activeFilter === 'Pending'" (click)="setFilter('Pending')">
+      قيد الانتظار <span class="ureq-filter__count">{{ countByStatus('Pending') }}</span>
+    </button>
+    <button class="ureq-filter" [class.is-active]="activeFilter === 'InProgress'" (click)="setFilter('InProgress')">
+      قيد التنفيذ <span class="ureq-filter__count">{{ countByStatus('InProgress') }}</span>
+    </button>
+    <button class="ureq-filter" [class.is-active]="activeFilter === 'Completed'" (click)="setFilter('Completed')">
+      مكتملة <span class="ureq-filter__count">{{ countByStatus('Completed') }}</span>
+    </button>
+    <button class="ureq-filter" [class.is-active]="activeFilter === 'Rejected'" (click)="setFilter('Rejected')">
+      مرفوضة <span class="ureq-filter__count">{{ countByStatus('Rejected') }}</span>
+    </button>
+  </div>
+
+  <!-- Error -->
+  <div class="ureq-alert" *ngIf="errorMsg">
+    <i class="fas fa-circle-exclamation"></i> {{ errorMsg }}
+  </div>
+
+  <!-- Loading -->
+  <div class="ureq-loading" *ngIf="loading">
+    <div class="ureq-spinner"></div>
+    <span>جاري تحميل طلباتك...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- Empty -->
+    <div class="ureq-empty" *ngIf="filteredRequests.length === 0">
+      <i class="fas fa-inbox"></i>
+      <p>لا توجد طلبات في هذا التصنيف حتى الآن.</p>
+      <a routerLink="/chat" class="ureq-empty__btn">ابدأ محادثة مع المساعد الذكي</a>
+    </div>
+
+    <!-- Cards -->
+    <div class="ureq-grid" *ngIf="filteredRequests.length > 0">
+      <article class="ureq-card" *ngFor="let req of filteredRequests">
+        <div class="ureq-card__top">
+          <span class="ureq-badge" [ngClass]="getStatusClass(req.status)">{{ req.statusLabel }}</span>
+          <span class="ureq-card__date">{{ req.startedAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <h3 class="ureq-card__title">{{ req.serviceName }}</h3>
+        <span class="ureq-card__category">
+          <i class="fas fa-tag"></i> {{ req.categoryName }}
+        </span>
+
+        <div class="ureq-card__meta">
+          <span><i class="fas fa-comments"></i> {{ req.messagesCount }} رسالة</span>
+          <span><i class="fas fa-paperclip"></i> {{ req.uploadedDocumentsCount }} مستند</span>
+        </div>
+
+        <a routerLink="/chat" class="ureq-card__action">
+          متابعة المحادثة <i class="fas fa-arrow-left"></i>
+        </a>
+      </article>
+    </div>
+
+  </ng-container>
+
+</div>

@@ -1,0 +1,222 @@
+$navy:   #023264;
+$navy2:  #012050;
+$blue:   #487fb9;
+$green:  #298b64;
+$amber:  #e6a817;
+$red:    #dc3545;
+$bg:     #f0f4f8;
+$white:  #ffffff;
+$border: #e4e9f0;
+$muted:  #6b7a8d;
+$text:   #1a2535;
+
+.ureq-page {
+  width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+}
+
+.ureq-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+
+  &__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: $text;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 4px;
+
+    i { color: $navy; }
+  }
+
+  &__sub { color: $muted; font-size: 14px; margin: 0; }
+
+  &__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: $navy;
+    color: $white;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform .2s ease;
+
+    &:hover { transform: translateY(-2px); background: $navy2; }
+  }
+}
+
+.ureq-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.ureq-filter {
+  border: 1px solid $border;
+  background: $white;
+  color: $muted;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all .2s ease;
+
+  &__count {
+    background: rgba($navy, 0.08);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+  }
+
+  &.is-active {
+    background: $navy;
+    color: $white;
+    border-color: $navy;
+
+    .ureq-filter__count { background: rgba($white, 0.2); color: $white; }
+  }
+}
+
+.ureq-alert {
+  background: rgba($red, 0.08);
+  border: 1px solid rgba($red, 0.25);
+  color: darken($red, 10%);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.ureq-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: $muted;
+}
+
+.ureq-spinner {
+  width: 36px; height: 36px;
+  border: 4px solid rgba($navy, 0.15);
+  border-top-color: $navy;
+  border-radius: 50%;
+  animation: ureq-spin 0.8s linear infinite;
+}
+@keyframes ureq-spin { to { transform: rotate(360deg); } }
+
+.ureq-empty {
+  text-align: center;
+  padding: 60px 0;
+  color: $muted;
+  background: $white;
+  border-radius: 16px;
+
+  i { font-size: 36px; opacity: .5; margin-bottom: 14px; display: block; }
+  p { margin-bottom: 16px; }
+
+  &__btn {
+    background: $navy;
+    color: $white;
+    padding: 10px 22px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 13.5px;
+  }
+}
+
+.ureq-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+
+  @media (max-width: 992px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+.ureq-card {
+  background: $white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba($navy2, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__date { font-size: 12px; color: $muted; }
+
+  &__title { font-size: 16px; font-weight: 700; color: $text; margin: 0; }
+
+  &__category {
+    font-size: 12.5px;
+    color: $muted;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12.5px;
+    color: $muted;
+    border-top: 1px dashed $border;
+    padding-top: 10px;
+    margin-top: 4px;
+  }
+
+  &__action {
+    margin-top: 4px;
+    align-self: flex-start;
+    color: $blue;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover { color: $navy; }
+  }
+}
+
+.ureq-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+
+  &--pending  { background: rgba($muted, 0.12); color: $muted; }
+  &--progress { background: rgba($amber, 0.14); color: darken($amber, 15%); }
+  &--success  { background: rgba($green, 0.14); color: $green; }
+  &--danger   { background: rgba($red, 0.1);    color: $red; }
+  &--default  { background: rgba($navy, 0.1);   color: $navy; }
+}

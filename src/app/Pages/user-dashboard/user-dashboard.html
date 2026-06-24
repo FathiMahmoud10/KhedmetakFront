@@ -1,0 +1,157 @@
+<div class="udash-page container-fluid py-4">
+
+  <!-- Hero -->
+  <header class="udash-hero">
+    <div class="udash-hero__bg"></div>
+    <div class="udash-hero__inner">
+      <div class="udash-hero__text">
+        <span class="udash-hero__tag">
+          <i class="fas fa-gauge-high"></i>
+          لوحة التحكم
+        </span>
+        <h1 class="udash-hero__title">أهلاً بك، {{ userName }} 👋</h1>
+        <p class="udash-hero__sub">نظرة سريعة على طلباتك وملفاتك في Khedmetak AI</p>
+      </div>
+      <div class="udash-hero__meta">
+        <div class="udash-hero__date">
+          <i class="fas fa-calendar-alt"></i>
+          <span>{{ todayLabel }}</span>
+        </div>
+        <a routerLink="/chat" class="udash-hero__cta">
+          <i class="fas fa-robot"></i>
+          ابدأ محادثة جديدة
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Error -->
+  <div class="udash-alert udash-alert--danger" *ngIf="errorMsg">
+    <i class="fas fa-circle-exclamation"></i>
+    {{ errorMsg }}
+  </div>
+
+  <!-- Loading -->
+  <div class="udash-loading" *ngIf="loading">
+    <div class="udash-spinner"></div>
+    <span>جاري تحميل بياناتك...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- Stats -->
+    <section class="udash-stats">
+      <article class="udash-stat udash-stat--navy">
+        <div class="udash-stat__accent"></div>
+        <div class="udash-stat__body">
+          <div class="udash-stat__info">
+            <span class="udash-stat__label">إجمالي الطلبات</span>
+            <span class="udash-stat__value">{{ stats.totalRequests }}</span>
+            <span class="udash-stat__hint">خدمة قدّمت عليها</span>
+          </div>
+          <div class="udash-stat__icon"><i class="fas fa-file-circle-check"></i></div>
+        </div>
+      </article>
+
+      <article class="udash-stat udash-stat--amber">
+        <div class="udash-stat__accent"></div>
+        <div class="udash-stat__body">
+          <div class="udash-stat__info">
+            <span class="udash-stat__label">قيد التنفيذ</span>
+            <span class="udash-stat__value">{{ stats.inProgressCount + stats.pendingCount }}</span>
+            <span class="udash-stat__hint">جاري متابعتها</span>
+          </div>
+          <div class="udash-stat__icon"><i class="fas fa-clock"></i></div>
+        </div>
+      </article>
+
+      <article class="udash-stat udash-stat--green">
+        <div class="udash-stat__accent"></div>
+        <div class="udash-stat__body">
+          <div class="udash-stat__info">
+            <span class="udash-stat__label">مكتملة</span>
+            <span class="udash-stat__value">{{ stats.completedCount }}</span>
+            <span class="udash-stat__hint">تم إنهاؤها بنجاح</span>
+          </div>
+          <div class="udash-stat__icon"><i class="fas fa-circle-check"></i></div>
+        </div>
+      </article>
+
+      <article class="udash-stat udash-stat--blue">
+        <div class="udash-stat__accent"></div>
+        <div class="udash-stat__body">
+          <div class="udash-stat__info">
+            <span class="udash-stat__label">ملفاتي المرفوعة</span>
+            <span class="udash-stat__value">{{ stats.totalUploadedFiles }}</span>
+            <span class="udash-stat__hint">مستند مرفوع</span>
+          </div>
+          <div class="udash-stat__icon"><i class="fas fa-folder-open"></i></div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Recent requests -->
+    <section class="udash-panel">
+      <div class="udash-panel__header">
+        <h2 class="udash-panel__title">
+          <i class="fas fa-list-check"></i>
+          آخر طلباتي
+        </h2>
+        <a routerLink="/my-requests" class="udash-panel__link">عرض الكل <i class="fas fa-arrow-left"></i></a>
+      </div>
+
+      <div class="udash-empty" *ngIf="stats.recentRequests.length === 0">
+        <i class="fas fa-inbox"></i>
+        <p>لسه مقدمتش على أي خدمة. ابدأ محادثة مع المساعد الذكي عشان تبدأ أول طلب.</p>
+        <a routerLink="/chat" class="udash-empty__btn">المساعد الذكي</a>
+      </div>
+
+      <div class="udash-table-wrap" *ngIf="stats.recentRequests.length > 0">
+        <table class="udash-table">
+          <thead>
+            <tr>
+              <th>الخدمة</th>
+              <th>الفئة</th>
+              <th>تاريخ البدء</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of stats.recentRequests">
+              <td class="udash-table__service">{{ req.serviceName }}</td>
+              <td>{{ req.categoryName }}</td>
+              <td>{{ req.startedAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="udash-badge" [ngClass]="getStatusClass(req.status)">
+                  {{ req.statusLabel }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Quick links -->
+    <section class="udash-quick">
+      <a routerLink="/chat" class="udash-quick__card">
+        <i class="fas fa-robot"></i>
+        <span>المساعد الذكي</span>
+      </a>
+      <a routerLink="/my-requests" class="udash-quick__card">
+        <i class="fas fa-file-circle-check"></i>
+        <span>طلباتي</span>
+      </a>
+      <a routerLink="/my-files" class="udash-quick__card">
+        <i class="fas fa-folder-open"></i>
+        <span>ملفاتي</span>
+      </a>
+      <a routerLink="/services" class="udash-quick__card">
+        <i class="fas fa-concierge-bell"></i>
+        <span>كل الخدمات</span>
+      </a>
+    </section>
+
+  </ng-container>
+
+</div>

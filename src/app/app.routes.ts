@@ -12,6 +12,10 @@ import { TokenCheckComponent } from './Pages/token-check/token-check.component';
 import { AllServicesComponent } from './Pages/ServicesPage/all-services/all-services.component';
 import { ServiceDetailsComponent } from './Pages/ServicesPage/service-details/service-details.component';
 import { ServiceDetailComponent } from './Pages/service-detail/service-detail.component';
+import { UserDashboard } from './Pages/user-dashboard/user-dashboard';
+import { MyRequests } from './Pages/my-requests/my-requests';
+import { MyFiles } from './Pages/my-files/my-files';
+
 
 
 
@@ -26,7 +30,12 @@ export const routes: Routes = [
     { path: 'services', component: AllServicesComponent },
 
     // { path: 'services', loadChildren: () => import('./services.routes').then(m => m.SERVICES_ROUTES) },
+    { path: 'user-dashboard', component: UserDashboard },
+    { path: 'admin-profile', component: AdminProfileComponent },
+    { path: 'my-requests', component: MyRequests },
+    { path: 'my-files', component: MyFiles },
 
+    
     { path: 'admin-dashboard', component: AdminDashboard },
     { path: 'admin-profile', component: AdminProfileComponent },
     { path: 'manage-services', component: ManageServices },
