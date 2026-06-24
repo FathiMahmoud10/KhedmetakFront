@@ -118,14 +118,12 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
       this.isLoggedIn = true;
       const payload = this.authService.decodeJwt(token);
       if (payload) {
-        // Extract email from common JWT claims
         this.userEmail =
           payload['email'] ||
           payload['unique_name'] ||
           payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
           '';
 
-        // Extract display name
         this.userDisplayName =
           payload['name'] ||
           payload['given_name'] ||
@@ -134,7 +132,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
           'مستخدم';
       }
     } else {
-      // Guest mode — restore saved count and session
       this.isLoggedIn = false;
       const stored = localStorage.getItem(this.GUEST_COUNT_KEY);
       this.guestMessageCount = stored ? parseInt(stored, 10) : 0;
@@ -146,10 +143,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  // ✅ FIX: closing brace was missing — block now closed correctly
   ngAfterViewChecked(): void {
-    if (this.shouldScroll) {
-      this.scrollBottom();
-      this.shouldScroll = false;
     if (this.shouldScroll) {
       this.scrollBottom();
       this.shouldScroll = false;
@@ -206,11 +201,10 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     return this.services.find(s => s.active) || this.services[0];
   }
 
+  // ✅ FIX: removed duplicate lines inside startNewChat
   startNewChat(): void {
     this.messages = [];
-    this.messages = [];
     this.uploadedFiles = [];
-    this.currentMessage = '';
     this.currentMessage = '';
     this.activeChat = -1;
     this.isTyping = false;
@@ -225,18 +219,14 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     if (this.genTimeout) { clearTimeout(this.genTimeout); this.genTimeout = null; }
   }
 
-  loadChat(index: number): void {
-    this.activeChat = index;
-    this.messages = [];
+  // ✅ FIX: removed duplicate method definition
   loadChat(index: number): void {
     this.activeChat = index;
     this.messages = [];
     this.currentSessionGuid = null;
   }
 
-  sendSuggestion(text: string): void {
-    this.currentMessage = text;
-    this.sendMessage();
+  // ✅ FIX: removed duplicate method definition
   sendSuggestion(text: string): void {
     this.currentMessage = text;
     this.sendMessage();
@@ -259,7 +249,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     if (!text && this.uploadedFiles.length === 0) return;
     if (this.isTyping) return;
 
-    // Check guest limit
     if (!this.isLoggedIn && this.guestMessageCount >= this.guestMessageLimit) {
       this.showLoginPopup = true;
       return;
@@ -298,7 +287,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     if (this.isLoggedIn && this.userEmail) {
       return this.userEmail;
     }
-    // Guest: use stored UUID
     let guestId = localStorage.getItem(this.GUEST_ID_KEY);
     if (!guestId) {
       guestId = 'guest_' + this.generateUUID();
