@@ -1,49 +1,157 @@
-<div class="chat-layout">
+<div class="chat-layout"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
 
-  <!-- Sidebar -->
-  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
-
-    <div class="sidebar-stripe" aria-hidden="true">
-      <span></span><span></span><span></span>
+  <!-- ══ DRAG OVERLAY ══ -->
+  <div class="drag-overlay" [class.visible]="isDragging">
+    <div class="drag-overlay-inner">
+      <div class="drag-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="3"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </div>
+      <p>أفلت الصورة هنا لرفعها</p>
     </div>
+  </div>
 
-    <!-- Brand -->
-    <div class="sidebar-header">
-      <div class="brand" *ngIf="!sidebarCollapsed">
-        <div class="brand-logo">
-          <img src="\Images\Logo3.png" alt="Khedmetak" class="brand-logo-img" />
+  <!-- ══ LOGIN POPUP ══ -->
+  <div class="popup-overlay" *ngIf="showLoginPopup" (click)="closeLoginPopup()">
+    <div class="popup-card" (click)="$event.stopPropagation()">
+      <button class="popup-close" (click)="closeLoginPopup()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <div class="popup-glow"></div>
+
+      <div class="popup-lock-icon">
+        <div class="popup-lock-ring"></div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div> 
+
+      <h2 class="popup-title">انتهت رسائلك المجانية</h2>
+      <p class="popup-body">
+        لقد استخدمت <strong>{{ guestMessageLimit }}</strong> رسائل مجانية.<br/>
+        سجّل دخولك للاستمرار بلا حدود.
+      </p>
+
+      <div class="popup-usage">
+        <div class="popup-usage-track">
+          <div class="popup-usage-fill"></div>
         </div>
-        <div class="brand-text">
-          <span class="brand-name">Khedmetak AI</span>
-          <span class="brand-tag">بوابة الخدمات الحكومية</span>
+        <div class="popup-usage-labels">
+          <span>{{ guestMessageLimit }}/{{ guestMessageLimit }} رسائل مُستخدمة</span>
+          <span class="popup-usage-badge">مكتمل</span>
         </div>
       </div>
-      <button class="icon-btn toggle-btn" (click)="toggleSidebar()" title="Toggle sidebar">
+
+      <div class="popup-actions">
+        <button class="popup-btn-primary" id="popup-login-btn" (click)="goToLogin()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          تسجيل الدخول
+        </button>
+        <button class="popup-btn-secondary" id="popup-register-btn" (click)="goToRegister()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+          إنشاء حساب مجاني
+        </button>
+      </div>
+
+      <p class="popup-note">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        بياناتك مشفّرة وآمنة بالكامل
+      </p>
+    </div>
+  </div>
+
+  <!-- ══ IMAGE LIGHTBOX ══ -->
+  <div class="lightbox-overlay" *ngIf="showImagePreview" (click)="closeImagePreview()">
+    <button class="lightbox-close" (click)="closeImagePreview()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <img [src]="previewImageUrl" class="lightbox-img" (click)="$event.stopPropagation()" alt="معاينة" />
+  </div>
+
+  <!-- ══════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════ -->
+  <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+
+    <div class="sb-top">
+      <div class="sb-brand" *ngIf="!sidebarCollapsed">
+        <div class="sb-logo-box">
+          <img src="\Images\Logo3.png" alt="K" class="sb-logo-img" />
+        </div>
+        <div>
+          <div class="sb-brand-name">Khedmetak AI</div>
+          <div class="sb-brand-sub">المساعد الحكومي الذكي</div>
+        </div>
+      </div>
+      <button class="sb-toggle" (click)="toggleSidebar()" id="sidebar-toggle-btn">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <line x1="3" y1="12" x2="21" y2="12"/>
-          <line x1="3" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
     </div>
 
-    <!-- New Chat -->
-    <button class="new-chat-btn" (click)="startNewChat()" [title]="sidebarCollapsed ? 'محادثة جديدة' : ''">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M12 5v14M5 12h14"/>
-      </svg>
-      <span *ngIf="!sidebarCollapsed">محادثة جديدة</span>
-    </button>
+    <!-- new chat -->
+    <div class="sb-new-wrap">
+      <button class="sb-new-btn" (click)="startNewChat()" id="new-chat-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        <span *ngIf="!sidebarCollapsed">محادثة جديدة</span>
+      </button>
+    </div>
 
-    <!-- History -->
-    <div class="sidebar-scroll" *ngIf="!sidebarCollapsed">
-      <p class="section-label">اليوم</p>
-      <ul class="chat-history">
+    <!-- guest progress -->
+    <div class="sb-guest-info" *ngIf="!isLoggedIn && !sidebarCollapsed">
+      <div class="sb-guest-header">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>{{ remainingGuestMessages }} رسائل متبقية من {{ guestMessageLimit }}</span>
+      </div>
+      <div class="sb-progress-track">
+        <div class="sb-progress-fill"
+          [style.width.%]="guestProgressPercent"
+          [class.danger]="isGuestLimitReached">
+        </div>
+      </div>
+      <button class="sb-login-cta" (click)="goToLogin()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        سجّل الدخول للمزيد
+      </button>
+    </div>
+
+    <!-- history -->
+    <div class="sb-scroll" *ngIf="!sidebarCollapsed">
+      <p class="sb-section-label">المحادثات الأخيرة</p>
+      <ul class="sb-history">
         <li *ngFor="let chat of recentChats; let i = index"
-            class="chat-item"
+            class="sb-chat-item"
             [class.active]="i === activeChat"
             (click)="loadChat(i)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
           <span>{{ chat }}</span>
@@ -51,292 +159,398 @@
       </ul>
     </div>
 
-    <!-- User -->
-    <div class="sidebar-footer" *ngIf="!sidebarCollapsed">
-      <div class="user-card">
-        <div class="user-avatar">أ</div>
-        <div class="user-info">
-          <span class="user-name"> خدماتك</span>
-          <span class="user-badge">
-            <span class="badge-dot"></span>متصل
+    <!-- user footer -->
+    <div class="sb-footer" *ngIf="!sidebarCollapsed">
+      <div class="sb-user">
+        <div class="sb-avatar" [class.guest-avatar]="!isLoggedIn">{{ userInitials }}</div>
+        <div class="sb-user-info">
+          <span class="sb-user-name">{{ isLoggedIn ? (userDisplayName || 'مستخدم') : 'زائر' }}</span>
+          <span class="sb-user-status">
+            <span class="sb-dot" [class.sb-dot-guest]="!isLoggedIn"></span>
+            {{ isLoggedIn ? 'متصل' : 'وضع الزائر' }}
           </span>
         </div>
-        <button class="icon-btn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="5" r="1"/>
-            <circle cx="12" cy="12" r="1"/>
-            <circle cx="12" cy="19" r="1"/>
+        <button class="sb-icon-btn" *ngIf="!isLoggedIn" (click)="goToLogin()" title="تسجيل الدخول">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
           </svg>
         </button>
       </div>
     </div>
-
   </aside>
 
-  <!-- Main -->
+  <!-- ══════════════════════════════════
+       MAIN
+  ══════════════════════════════════ -->
   <main class="chat-main">
 
-    <!-- Header -->
+    <!-- ── Header ── -->
     <header class="chat-header">
-      <div class="header-start">
-        <div class="service-selector" (click)="toggleModelMenu()">
-          <div class="service-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-              <path d="M2 17l10 5 10-5"/>
-              <path d="M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <span class="service-name">المساعد العام</span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <div class="hdr-start">
+        <div class="svc-pill service-selector" (click)="toggleModelMenu()">
+          <div class="svc-pill-dot"></div>
+          <span class="svc-pill-name">{{ activeService.icon }} {{ activeService.name }}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               [style.transform]="modelMenuOpen ? 'rotate(180deg)' : ''"
+               style="transition: transform 0.2s ease">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
 
-          <div class="service-dropdown" *ngIf="modelMenuOpen">
-            <div class="dropdown-label">اختر الخدمة الحكومية</div>
-            <div class="service-option active">
-              <span class="option-icon">🤖</span>
-              <div>
-                <span class="option-name">المساعد العام</span>
-                <span class="option-desc">أسئلة عامة عن الخدمات الحكومية</span>
+          <!-- dropdown -->
+          <div class="svc-dropdown" *ngIf="modelMenuOpen">
+            <div class="svc-dropdown-title">اختر نوع الخدمة</div>
+            <div class="svc-option" *ngFor="let s of services"
+                 [class.active]="s.active"
+                 (click)="selectService(s.id); $event.stopPropagation()">
+              <span class="svc-opt-icon">{{ s.icon }}</span>
+              <div class="svc-opt-info">
+                <span class="svc-opt-name">{{ s.name }}</span>
+                <span class="svc-opt-desc">{{ s.description }}</span>
               </div>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <svg *ngIf="s.active" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
-            </div>
-            <div class="service-option">
-              <span class="option-icon">🚗</span>
-              <div>
-                <span class="option-name">رخصة القيادة</span>
-                <span class="option-desc">تجديد واستخراج الرخص المرورية</span>
-              </div>
-            </div>
-            <div class="service-option">
-              <span class="option-icon">🪪</span>
-              <div>
-                <span class="option-name">بطاقة الرقم القومي</span>
-                <span class="option-desc">استخراج وتجديد البطاقة الشخصية</span>
-              </div>
-            </div>
-            <div class="service-option">
-              <span class="option-icon">📄</span>
-              <div>
-                <span class="option-name">شهادة الميلاد</span>
-                <span class="option-desc">طلب واستخراج شهادات الميلاد</span>
-              </div>
-            </div>
-            <div class="service-option">
-              <span class="option-icon">🏢</span>
-              <div>
-                <span class="option-name">السجل التجاري</span>
-                <span class="option-desc">تسجيل الشركات والمنشآت التجارية</span>
-              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="header-center">
-        <div class="status-pill">
-          <span class="pulse"></span>
+      <div class="hdr-center">
+        <div class="hdr-live">
+          <span class="live-dot"></span>
           <span>متاح الآن</span>
         </div>
       </div>
 
-      <div class="header-end">
-        <button class="icon-btn" style="color: var(--slate-500);" title="مشاركة">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="18" cy="5" r="3"/>
-            <circle cx="6" cy="12" r="3"/>
-            <circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        </button>
-        <div class="user-avatar header-av">أ</div>
+      <div class="hdr-end">
+        <!-- Guest message counter badge -->
+        <div class="hdr-guest-badge" *ngIf="!isLoggedIn">
+          <div class="hdr-guest-progress">
+            <div class="hdr-guest-dots">
+              <span *ngFor="let i of [1,2,3]"
+                    [class.used]="i <= guestMessageCount"
+                    [class.danger]="i <= guestMessageCount && isGuestLimitReached">
+              </span>
+            </div>
+            <span class="hdr-guest-text">{{ remainingGuestMessages }} متبقي</span>
+          </div>
+          <button class="hdr-login-btn" (click)="goToLogin()">دخول</button>
+        </div>
+
+        <div class="hdr-avatar" [class.logged-in]="isLoggedIn">{{ userInitials }}</div>
       </div>
     </header>
 
-    <!-- Messages -->
-    <div class="messages-wrap" #messagesContainer>
+    <!-- ── Messages ── -->
+    <div class="msgs-wrap" #messagesContainer>
 
-      <!-- Empty / Welcome -->
-      <div class="welcome-screen" *ngIf="messages.length === 0">
-        <div class="welcome-gov-badge">
-          <i class="bi bi-shield-check"></i>
-          <span>جمهورية مصر العربية — المساعد الذكي للخدمات الحكومية</span>
-        </div>
+      <!-- Welcome -->
+      <div class="welcome" *ngIf="messages.length === 0">
+        <div class="welcome-bg-orb orb-1"></div>
+        <div class="welcome-bg-orb orb-2"></div>
+        <div class="welcome-bg-orb orb-3"></div>
 
-        <div class="welcome-emblem">
-          <div class="emblem-ring outer"></div>
-          <div class="emblem-ring middle"></div>
-          <div class="emblem-ring inner"></div>
-          <div class="emblem-core">
-            <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-              <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
-              <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.6"/>
+        <div class="welcome-inner">
+          <div class="welcome-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
             </svg>
+            جمهورية مصر العربية
           </div>
-        </div>
 
-        <h1 class="welcome-title">كيف يمكنني مساعدتك؟</h1>
-        <p class="welcome-sub">اسألني عن أي خدمة حكومية مصرية — المرور، الأحوال، الجوازات، التموين — وسأرشدك خطوة بخطوة</p>
+          <div class="welcome-logo-wrap">
+            <div class="welcome-logo-ring r1"></div>
+            <div class="welcome-logo-ring r2"></div>
+            <div class="welcome-logo-core">
+              <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+                <polygon points="20,4 36,32 4,32" fill="#fff" opacity="0.95"/>
+                <polygon points="20,12 30,28 10,28" fill="#6366f1" opacity="0.5"/>
+              </svg>
+            </div>
+          </div>
 
-        <div class="chips-row">
-          <span class="chip"><i class="bi bi-lightning-charge-fill"></i> سريع</span>
-          <span class="chip"><i class="bi bi-shield-lock-fill"></i> آمن</span>
-          <span class="chip"><i class="bi bi-check-circle-fill"></i> دقيق</span>
-          <span class="chip"><i class="bi bi-clock-fill"></i> 24/7</span>
-        </div>
+          <h1 class="welcome-title">
+            <span *ngIf="isLoggedIn">مرحباً، {{ userDisplayName || 'مستخدم' }}!<br/></span>
+            <span class="welcome-title-grad">كيف يمكنني مساعدتك؟</span>
+          </h1>
+          <p class="welcome-sub">اسألني عن أي خدمة حكومية — المرور، الأحوال، الجوازات، التموين</p>
 
-        <div class="suggestion-grid">
-          <button class="sug-card" *ngFor="let s of suggestions" (click)="sendSuggestion(s.text)">
-            <span class="sug-icon">{{ s.icon }}</span>
-            <span class="sug-text">{{ s.text }}</span>
-            <svg class="sug-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
+          <!-- guest notice -->
+          <div class="welcome-guest-notice" *ngIf="!isLoggedIn">
+            <div class="wgn-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="wgn-text">
+              وضع الزائر — <strong>{{ guestMessageLimit }} رسائل</strong> مجانية
+              <div class="wgn-progress">
+                <div class="wgn-fill" [style.width.%]="guestProgressPercent"></div>
+              </div>
+            </div>
+            <button class="wgn-btn" (click)="goToLogin()">تسجيل الدخول</button>
+          </div>
+
+          <div class="welcome-tags">
+            <span class="wtag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>
+              سريع الرد
+            </span>
+            <span class="wtag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              موثوق وآمن
+            </span>
+            <span class="wtag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              متاح 24/7
+            </span>
+            <span class="wtag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              دقيق ومحدّث
+            </span>
+          </div>
+
+          <div class="sugg-grid">
+            <button class="sugg-card" *ngFor="let s of suggestions" (click)="sendSuggestion(s.text)">
+              <span class="sugg-icon">{{ s.icon }}</span>
+              <span class="sugg-text">{{ s.text }}</span>
+              <svg class="sugg-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Messages List -->
-      <div class="messages-list" *ngIf="messages.length > 0">
+      <!-- Messages list -->
+      <div class="msgs-list" *ngIf="messages.length > 0">
 
-        <div *ngFor="let msg of messages"
+        <div *ngFor="let msg of messages; let i = index"
              class="msg-row"
              [class.msg-user]="msg.role === 'user'"
              [class.msg-ai]="msg.role === 'assistant'">
 
-          <!-- AI -->
+          <!-- AI message -->
           <ng-container *ngIf="msg.role === 'assistant'">
-            <div class="ai-avatar-wrap">
-              <div class="ai-avatar">
-                <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-                  <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
-                  <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.55"/>
-                </svg>
-              </div>
+            <div class="ai-av">
+              <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+                <polygon points="20,4 36,32 4,32" fill="#fff" opacity="0.9"/>
+                <polygon points="20,12 30,28 10,28" fill="#818cf8" opacity="0.6"/>
+              </svg>
             </div>
-            <div class="ai-bubble-wrap">
-              <span class="sender-label">Khedmetak AI</span>
+            <div class="ai-content">
+              <div class="msg-meta">
+                <span class="ai-label">Khedmetak AI</span>
+                <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+              </div>
               <div class="bubble ai-bubble" [innerHTML]="msg.content"></div>
               <div class="msg-actions">
-                <button class="act-btn" (click)="copyMessage(msg.content)" title="نسخ">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                  </svg>
-                  نسخ
+                <button class="act-btn" [class.act-copied]="copiedIndex === i"
+                        (click)="copyMessage(msg.content, i)">
+                  <ng-container *ngIf="copiedIndex !== i">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="9" y="9" width="13" height="13" rx="2"/>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>نسخ
+                  </ng-container>
+                  <ng-container *ngIf="copiedIndex === i">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>تم!
+                  </ng-container>
                 </button>
-                <button class="act-btn" title="مفيد">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="act-btn" [class.act-liked]="msg.liked" (click)="likeMessage(i)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
                     <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-                  </svg>
-                  مفيد
+                  </svg>{{ msg.liked ? 'مفيد ✓' : 'مفيد' }}
                 </button>
-                <button class="act-btn" title="إعادة">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="act-btn" (click)="retryLastMessage()" [disabled]="isTyping">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="1 4 1 10 7 10"/>
                     <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
-                  </svg>
-                  إعادة
+                  </svg>إعادة
                 </button>
               </div>
             </div>
           </ng-container>
 
-          <!-- User -->
+          <!-- User message -->
           <ng-container *ngIf="msg.role === 'user'">
-            <div class="user-bubble-wrap">
-              <div class="bubble user-bubble">{{ msg.content }}</div>
+            <div class="user-content">
+              <!-- image attachments grid -->
+              <div class="msg-img-grid" *ngIf="msg.attachments && msg.attachments.length > 0">
+                <ng-container *ngFor="let att of msg.attachments">
+                  <div class="att-img" *ngIf="att.isImage && att.previewUrl"
+                       (click)="openImagePreview(att.previewUrl!)">
+                    <img [src]="att.previewUrl" [alt]="att.name" />
+                    <div class="att-img-overlay">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="att-file" *ngIf="!att.isImage">
+                    <div class="att-file-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div class="att-file-name">{{ att.name }}</div>
+                      <div class="att-file-size">{{ formatFileSize(att.size) }}</div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <div class="bubble user-bubble" *ngIf="msg.content">{{ msg.content }}</div>
+              <div class="msg-meta user-meta">
+                <span class="msg-time">{{ formatTime(msg.timestamp) }}</span>
+              </div>
             </div>
-            <div class="user-av-wrap">
-              <div class="user-avatar-sm">أ</div>
-            </div>
+            <div class="user-av" [class.logged-av]="isLoggedIn">{{ userInitials }}</div>
           </ng-container>
 
         </div>
 
-        <!-- Typing -->
+        <!-- typing -->
         <div class="msg-row msg-ai" *ngIf="isTyping">
-          <div class="ai-avatar-wrap">
-            <div class="ai-avatar">
-              <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
-                <polygon points="20,3 37,33 3,33" fill="#fff" opacity="0.95"/>
-                <polygon points="20,11 30,29 10,29" fill="#0D2E5C" opacity="0.55"/>
-              </svg>
-            </div>
+          <div class="ai-av">
+            <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+              <polygon points="20,4 36,32 4,32" fill="#fff" opacity="0.9"/>
+              <polygon points="20,12 30,28 10,28" fill="#818cf8" opacity="0.6"/>
+            </svg>
           </div>
-          <div class="ai-bubble-wrap">
-            <span class="sender-label">Khedmetak AI</span>
+          <div class="ai-content">
+            <div class="msg-meta"><span class="ai-label">Khedmetak AI</span></div>
             <div class="bubble ai-bubble typing-bubble">
               <span></span><span></span><span></span>
             </div>
           </div>
         </div>
 
+        <!-- limit banner -->
+        <div class="limit-banner" *ngIf="isGuestLimitReached">
+          <div class="limit-banner-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div class="limit-banner-text">
+            <strong>انتهت رسائلك المجانية</strong>
+            <span>سجّل دخولك لمواصلة المحادثة بلا حدود</span>
+          </div>
+          <button class="limit-banner-btn" (click)="showLoginPopup = true">تسجيل الدخول</button>
+        </div>
+
       </div>
     </div>
 
-    <!-- Input -->
+    <!-- ── Input Zone ── -->
     <div class="input-zone">
-      <div class="input-inner">
+      <div class="input-wrap">
 
-        <div class="file-chips" *ngIf="uploadedFiles.length > 0">
-          <div class="file-chip" *ngFor="let f of uploadedFiles; let i = index">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <!-- image previews inside input -->
+        <div class="file-previews" *ngIf="uploadedFiles.length > 0">
+          <div class="fp-chip" *ngFor="let f of uploadedFiles; let i = index">
+            <div class="fp-img-wrap" *ngIf="f.isImage && f.previewUrl"
+                 (click)="openImagePreview(f.previewUrl!)">
+              <img [src]="f.previewUrl" class="fp-thumb" [alt]="f.name"/>
+              <div class="fp-zoom">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              </div>
+            </div>
+            <svg *ngIf="!f.isImage" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
             </svg>
-            {{ f }}
-            <button (click)="removeFile(i)">×</button>
+            <span class="fp-name" *ngIf="!f.isImage">{{ f.name }}</span>
+            <button class="fp-remove" (click)="removeFile(i)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
         </div>
 
-        <div class="input-box">
-          <button class="attach-btn" (click)="triggerUpload()" title="رفع مستند">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        <!-- input box -->
+        <div class="input-box" [class.input-locked]="isGuestLimitReached">
+
+          <!-- attach buttons group -->
+          <div class="input-attach-group">
+            <!-- image upload -->
+            <button class="input-attach img-attach" (click)="triggerImageUpload()"
+                    [disabled]="isGuestLimitReached" title="رفع صورة" id="img-upload-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+            </button>
+            <!-- file upload -->
+            <button class="input-attach" (click)="triggerUpload()"
+                    [disabled]="isGuestLimitReached" title="رفع ملف" id="file-upload-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- hidden inputs -->
+          <input #imageInput type="file" style="display:none"
+                 (change)="onImageSelected($event)" multiple
+                 accept="image/*"/>
+          <input #fileInput type="file" style="display:none"
+                 (change)="onFileSelected($event)" multiple
+                 accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.webp"/>
+
+          <textarea #messageInput
+                    [(ngModel)]="currentMessage"
+                    (keydown.enter)="onEnterKey($any($event))"
+                    (input)="autoResize($event)"
+                    [placeholder]="isGuestLimitReached ? 'سجّل دخولك للاستمرار...' : 'اسأل عن أي خدمة حكومية...'"
+                    rows="1"
+                    class="input-textarea"
+                    id="chat-input-textarea"
+                    [disabled]="isGuestLimitReached">
+          </textarea>
+
+          <!-- locked btn -->
+          <button *ngIf="isGuestLimitReached" class="input-send locked-send"
+                  (click)="showLoginPopup = true" id="locked-send-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
             </svg>
           </button>
-          <input #fileInput type="file" style="display:none" (change)="onFileSelected($event)" multiple accept=".pdf,.jpg,.png,.doc,.docx"/>
 
-          <textarea
-            #messageInput
-            [(ngModel)]="currentMessage"
-            (keydown.enter)="onEnterKey($any($event))"
-            (input)="autoResize($event)"
-            placeholder="اكتب سؤالك عن أي خدمة حكومية..."
-            rows="1"
-            class="msg-input"
-          ></textarea>
-
-          <button
-            class="send-btn"
-            [class.ready]="currentMessage.trim().length > 0"
-            [class.stop]="isTyping"
-            (click)="isTyping ? stopGeneration() : sendMessage()"
-            [disabled]="!currentMessage.trim() && !isTyping"
-          >
+          <!-- send/stop -->
+          <button *ngIf="!isGuestLimitReached"
+                  class="input-send"
+                  [class.send-ready]="currentMessage.trim().length > 0 || uploadedFiles.length > 0"
+                  [class.send-stop]="isTyping"
+                  (click)="isTyping ? stopGeneration() : sendMessage()"
+                  [disabled]="!currentMessage.trim() && uploadedFiles.length === 0 && !isTyping"
+                  id="send-btn">
             <svg *ngIf="!isTyping" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="22" y1="2" x2="11" y2="13"/>
               <polygon points="22 2 15 22 11 13 2 9 22 2"/>
             </svg>
-            <svg *ngIf="isTyping" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <svg *ngIf="isTyping" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
               <rect x="3" y="3" width="18" height="18" rx="3"/>
             </svg>
           </button>
         </div>
 
-        <p class="disclaimer-text">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
+        <p class="input-disclaimer">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          خدمتك AI قد تُخطئ — تحقق دائماً من المعلومات على المصادر الرسمية للجهات الحكومية
+          قد يُخطئ الذكاء الاصطناعي — تحقق دائماً من المصادر الرسمية
         </p>
       </div>
     </div>
