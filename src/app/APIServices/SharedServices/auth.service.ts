@@ -14,6 +14,26 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/Auth/login`, { email, password });
   }
 
+  register(data: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    fullName: string;
+    nationalId?: string;
+    phone?: string;
+    dateOfBirth?: string | null;
+    city?: string;
+    district?: string;
+    street?: string;
+    buildingNumber?: string;
+    floorNumber?: string;
+    apartmentNumber?: string;
+    postalCode?: string;
+  }) {
+    return this.http.post<any>(`${this.apiUrl}/Auth/register`, data);
+  }
+
   getTokenFromCookie(): string | null {
     const match = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
     return match ? decodeURIComponent(match[1]) : null;

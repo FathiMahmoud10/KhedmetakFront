@@ -250,6 +250,12 @@ form { display: grid; gap: 1.25rem; }
     font-weight: 600;
     color: $navyBlue;
   }
+
+  .optional-label {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: $grayText;
+  }
 }
 
 .field-row {
