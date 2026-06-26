@@ -1,0 +1,254 @@
+<div class="af-page container-fluid py-4">
+  <div class="af-shell">
+
+    <!-- Hero Header -->
+    <header class="af-hero">
+      <div class="af-hero__bg"></div>
+      <div class="af-hero__inner">
+        <div class="af-hero__text">
+          <span class="af-hero__tag">
+            <i class="fas fa-coins"></i>
+            لوحة الإدارة
+          </span>
+          <h1 class="af-hero__title">إدارة رسوم الخدمات</h1>
+          <p class="af-hero__sub">اختر خدمة حكومية لتعديل رسومها الأساسية والتقديرية</p>
+        </div>
+        <div class="af-hero__stat" *ngIf="selectedService">
+          <div class="af-hero__stat-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="af-hero__stat-info">
+            <span class="af-hero__stat-num">{{ selectedService.srvFees }} ج.م</span>
+            <span class="af-hero__stat-lbl">الرسوم الحالية</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Global load error -->
+    <div class="af-alert af-alert--error" *ngIf="loadErrorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ loadErrorMessage }}</span>
+      <button type="button" class="af-retry-btn" (click)="loadServices()">
+        <i class="fas fa-rotate-right"></i> إعادة المحاولة
+      </button>
+    </div>
+
+    <!-- Service Selector Panel -->
+    <section class="af-selector-panel">
+      <div class="af-selector-panel__head">
+        <span class="af-step-badge">١</span>
+        <div class="af-selector-panel__icon">
+          <i class="fas fa-concierge-bell"></i>
+        </div>
+        <div>
+          <h2 class="af-selector-panel__title">اختيار الخدمة</h2>
+          <p class="af-selector-panel__hint">اختر الخدمة الحكومية التي تريد تعديل رسومها</p>
+        </div>
+      </div>
+
+      <div class="af-selector-body">
+        <div class="af-select-wrap af-select-wrap--lg" *ngIf="!isLoadingServices">
+          <!-- تم تعديل الربط هنا ليعتمد مباشرة على دالة التغيير وتحديد الكائن الداخلي دون كسر المترجم -->
+          <select
+            class="af-select"
+            [ngModel]="selectedService?.id"
+            (change)="onServiceChange($any($event.target).value)"
+            [disabled]="services.length === 0"
+          >
+            <option [value]="''">-- اختر خدمة --</option>
+            <option *ngFor="let svc of services" [value]="svc.id">
+              {{ svc.srvName }} — {{ svc.categoryName }}
+            </option>
+          </select>
+          <i class="fas fa-chevron-down af-select-wrap__arrow"></i>
+        </div>
+
+        <div class="af-loading af-loading--inline" *ngIf="isLoadingServices">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>جاري تحميل الخدمات...</span>
+        </div>
+
+        <!-- Selected service chip -->
+        <div class="af-service-chip" *ngIf="selectedService && selectedService.categoryId">
+          <span class="af-service-chip__cat">
+            <i class="fas" [ngClass]="getCategoryIcon(selectedService.categoryId)"></i>
+            {{ selectedService.categoryName }}
+          </span>
+          <span class="af-service-chip__sep">·</span>
+          <span class="af-service-chip__time">
+            <i class="fas fa-clock"></i>
+            {{ selectedService.srvTime }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fees Form — shows after service selected -->
+    <div class="af-layout" *ngIf="selectedService">
+
+      <!-- Service Info Card -->
+      <div class="af-info-card">
+        <div class="af-info-card__accent"></div>
+        <div class="af-info-card__body">
+
+          <div class="af-info-card__head">
+            <span class="af-step-badge">٢</span>
+            <div class="af-info-card__icon">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div>
+              <h2 class="af-info-card__title">بيانات الخدمة</h2>
+              <p class="af-info-card__hint">الرسوم الحالية المسجّلة في النظام</p>
+            </div>
+          </div>
+
+          <div class="af-info-rows">
+            <div class="af-info-row">
+              <span class="af-info-row__label">
+                <i class="fas fa-tag"></i>
+                اسم الخدمة
+              </span>
+              <span class="af-info-row__value">{{ selectedService.srvName }}</span>
+            </div>
+            <div class="af-info-row">
+              <span class="af-info-row__label">
+                <i class="fas fa-layer-group"></i>
+                التصنيف
+              </span>
+              <span class="af-info-row__value">{{ selectedService.categoryName }}</span>
+            </div>
+            <div class="af-info-row">
+              <span class="af-info-row__label">
+                <i class="fas fa-clock"></i>
+                مدة التنفيذ
+              </span>
+              <span class="af-info-row__value">{{ selectedService.srvTime }}</span>
+            </div>
+            <div class="af-info-row af-info-row--highlight">
+              <span class="af-info-row__label">
+                <i class="fas fa-coins"></i>
+                الرسوم الأساسية الحالية
+              </span>
+              <span class="af-info-row__value af-info-row__value--fee">
+                {{ selectedService.srvFees }} <small>ج.م</small>
+              </span>
+            </div>
+            <div class="af-info-row af-info-row--highlight">
+              <span class="af-info-row__label">
+                <i class="fas fa-coins"></i>
+                الرسوم التقديرية الحالية
+              </span>
+              <span class="af-info-row__value af-info-row__value--fee">
+                {{ selectedService.estimatedFees }} <small>ج.م</small>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Fees Form Panel -->
+      <div class="af-form-panel">
+        <div class="af-form-panel__accent"></div>
+        <div class="af-form-panel__body">
+
+          <div class="af-form-panel__head">
+            <span class="af-step-badge">٣</span>
+            <div class="af-form-panel__icon">
+              <i class="fas fa-pen"></i>
+            </div>
+            <div>
+              <h2 class="af-form-panel__title">تعديل الرسوم</h2>
+              <p class="af-form-panel__hint">أدخل الرسوم الجديدة ثم اضغط حفظ</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="saveFees()" class="af-form">
+
+            <div class="af-field">
+              <label class="af-field__label">
+                <i class="fas fa-coins"></i>
+                الرسوم الأساسية الجديدة (ج.م)
+              </label>
+              <div class="af-input-wrap">
+                <input
+                  class="af-field__input"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  [(ngModel)]="feesForm.srvFees"
+                  name="srvFees"
+                  placeholder="0.00"
+                  required
+                />
+                <span class="af-input-wrap__suffix">ج.م</span>
+              </div>
+              <p class="af-field__hint" *ngIf="selectedService.srvFees !== feesForm.srvFees">
+                <i class="fas fa-arrow-right-arrow-left"></i>
+                كانت {{ selectedService.srvFees }} ج.م
+              </p>
+            </div>
+
+            <div class="af-field">
+              <label class="af-field__label">
+                <i class="fas fa-coins"></i>
+                الرسوم التقديرية الجديدة (ج.م)
+              </label>
+              <div class="af-input-wrap">
+                <input
+                  class="af-field__input"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  [(ngModel)]="feesForm.estimatedFees"
+                  name="estimatedFees"
+                  placeholder="0.00"
+                  required
+                />
+                <span class="af-input-wrap__suffix">ج.م</span>
+              </div>
+              <p class="af-field__hint" *ngIf="selectedService.estimatedFees !== feesForm.estimatedFees">
+                <i class="fas fa-arrow-right-arrow-left"></i>
+                كانت {{ selectedService.estimatedFees }} ج.م
+              </p>
+            </div>
+
+            <!-- تم استكمال وتصحيح رسائل النجاح أو الفشل عند الحفظ والمقصوصة في رسالتك -->
+            <div class="af-alert af-alert--success mt-3" *ngIf="successMessage">
+              <i class="fas fa-check-circle"></i>
+              <span>{{ successMessage }}</span>
+            </div>
+
+            <div class="af-alert af-alert--error mt-3" *ngIf="errorMessage">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>{{ errorMessage }}</span>
+            </div>
+
+            <!-- أزرار التحكم مدمجة بذكاء مع التحميل والتعطيل في حال عدم وجود تغييرات -->
+            <div class="af-form-actions mt-4 d-flex gap-2">
+              <button 
+                type="submit" 
+                class="btn btn-primary d-flex align-items-center gap-2"
+                [disabled]="!hasDiff || isSaving"
+              >
+                <i class="fas" [ngClass]="isSaving ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+                {{ isSaving ? 'جاري الحفظ...' : 'حفظ التعديلات' }}
+              </button>
+              
+              <button 
+                type="button" 
+                class="btn btn-outline-secondary"
+                (click)="resetForm()"
+                [disabled]="!hasDiff || isSaving"
+              >
+                إلغاء التغييرات
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

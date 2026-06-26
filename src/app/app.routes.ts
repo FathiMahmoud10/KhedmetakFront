@@ -12,7 +12,8 @@ import { TokenCheckComponent } from './Pages/token-check/token-check.component';
 import { AllServicesComponent } from './Pages/ServicesPage/all-services/all-services.component';
 import { ServiceDetailsComponent } from './Pages/ServicesPage/service-details/service-details.component';
 import { ServiceDetailComponent } from './Pages/service-detail/service-detail.component';
-
+import { AdminFeesComponent } from './Pages/admin-fees/admin-fees';
+import { AdminRequiredDocumentsComponent } from './Pages/admin-required-documents/admin-required-documents';
 
 
 export const routes: Routes = [
@@ -24,7 +25,7 @@ export const routes: Routes = [
     { path: 'signup', component: SignupComponent },
     { path: 'chat', component: ChatPageComponent },
     { path: 'services', component: AllServicesComponent },
-
+    { path: 'admin-fees', component: AdminFeesComponent },
     // { path: 'services', loadChildren: () => import('./services.routes').then(m => m.SERVICES_ROUTES) },
 
     { path: 'admin-dashboard', component: AdminDashboard },
@@ -35,6 +36,7 @@ export const routes: Routes = [
     { path: 'admin-steps', component: ServiceSteps },
     { path: 'admin-service-detail/:id', component: ServiceDetailComponent },
     { path: 'token-check', component: TokenCheckComponent },
+    { path: 'admin-required-documents', component: AdminRequiredDocumentsComponent },
     { path: 'services/:id', component: ServiceDetailsComponent }
     // { path: '**', component: NotFound } // for any incorrect path
 ];
