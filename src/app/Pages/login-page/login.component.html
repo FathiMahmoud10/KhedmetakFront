@@ -4,6 +4,16 @@
     <span></span><span></span><span></span>
   </div>
 
+  <!-- Floating Dark/Light Mode Toggle -->
+  <button
+    type="button"
+    class="auth-theme-toggle"
+    (click)="toggleDarkMode()"
+    [attr.aria-label]="isDarkMode ? 'الوضع النهاري' : 'الوضع الليلي'"
+  >
+    <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+  </button>
+
   <!-- Left panel -->
   <aside class="login-hero">
     <div class="login-hero__bg"></div>

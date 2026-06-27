@@ -405,3 +405,141 @@ form { display: grid; gap: 1.25rem; }
   color: $grayText;
   margin: 0;
 }
+
+.auth-theme-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid $grayBorder;
+  background: $white;
+  color: $navyBlue;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    border-color: $hoverColor;
+    color: $hoverColor;
+  }
+}
+
+:host-context(.dark-theme) {
+  .auth-theme-toggle {
+    background: #1d1d1d;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      border-color: #487fb9;
+      color: #487fb9;
+    }
+  }
+
+  .signup-page {
+    background: #0f1720;
+  }
+
+  .right-panel {
+    background: #0f1720;
+  }
+
+  .form-brand {
+    .form-brand-icon {
+      background: #1d1d1d;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    .form-brand-name {
+      color: #ffffff;
+    }
+    .form-brand-sub {
+      color: #9fb0c2;
+    }
+  }
+
+  .card {
+    background: #1d1d1d;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 12px 36px rgba(2, 6, 10, 0.4);
+  }
+
+  .card-title {
+    color: #ffffff;
+  }
+
+  .card-sub {
+    color: #9fb0c2;
+  }
+
+  .btn-google {
+    background: #252525;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+
+    &:hover {
+      border-color: rgba(72, 127, 185, 0.4);
+      box-shadow: 0 2px 8px rgba(72, 127, 185, 0.2);
+    }
+  }
+
+  .divider {
+    &::before, &::after {
+      background: rgba(255, 255, 255, 0.08);
+    }
+    span { color: #9fb0c2; }
+  }
+
+  .field {
+    label {
+      color: #ffffff;
+    }
+    .optional-label {
+      color: #9fb0c2;
+    }
+  }
+
+  .input-wrap {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: #252525;
+
+    input {
+      color: #ffffff;
+      &::placeholder { color: rgba(255, 255, 255, 0.35); }
+    }
+
+    .field-icon {
+      color: #9fb0c2;
+    }
+
+    &:focus-within {
+      border-color: #487fb9;
+      box-shadow: 0 0 0 3px rgba(72, 127, 185, 0.15);
+    }
+
+    &.has-error {
+      border-color: #d14343;
+    }
+  }
+
+  .terms-label {
+    color: #e0e0e0;
+  }
+
+  .signin-link {
+    color: #9fb0c2;
+  }
+
+  .legal-footer {
+    color: #9fb0c2;
+  }
+}

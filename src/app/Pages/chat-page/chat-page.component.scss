@@ -1872,4 +1872,144 @@
     color: var(--green);
     white-space: nowrap;
   }
+}
+
+:host-context(.dark-theme) {
+  --surface: #1d1d1d;
+  --surface2: #252525;
+  --text: #e0e0e0;
+  --border: rgba(255, 255, 255, 0.06);
+  --border2: rgba(255, 255, 255, 0.12);
+  --muted: #b0b0b0;
+  --hint: #808080;
+
+  --blue-light: rgba(46, 144, 168, 0.15);
+  --blue-dark: #3aaec9;
+  --green-light: rgba(41, 139, 100, 0.15);
+  --green-dark: #40b583;
+  --amber-light: rgba(240, 165, 0, 0.15);
+  --amber-dark: #f5b933;
+  --red-light: rgba(209, 67, 67, 0.15);
+  --red-dark: #e06c6c;
+
+  background: #121212 !important;
+  color: #e0e0e0 !important;
+
+  .chat {
+    background: #121212 !important;
+  }
+
+  .chat-top {
+    background: #1d1d1d !important;
+    border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .ct-name {
+    color: #ffffff !important;
+  }
+
+  .bub.bot {
+    background: #1d1d1d !important;
+    color: #e0e0e0 !important;
+    border-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .bub-title {
+    color: #ffffff !important;
+  }
+
+  .empty-state {
+    .es-title {
+      color: #ffffff !important;
+    }
+    .es-sub {
+      color: #b0b0b0 !important;
+    }
+    .es-hint {
+      background: #1d1d1d !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #e0e0e0 !important;
+    }
+  }
+
+  .qr {
+    background: #121212 !important;
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+    
+    .qr-chip {
+      background: #1d1d1d !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #e0e0e0 !important;
+      &:hover {
+        background: #252525 !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+    }
+  }
+
+  .ibar {
+    background: #1d1d1d !important;
+    border-top-color: rgba(255, 255, 255, 0.06) !important;
+
+    .ibar-input {
+      background: #252525 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #ffffff !important;
+      &:focus {
+        border-color: #2e90a8 !important;
+      }
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+      }
+    }
+
+    .ibar-attach {
+      color: #b0b0b0 !important;
+      &:hover {
+        background: #252525 !important;
+        color: #ffffff !important;
+      }
+    }
+  }
+
+  .sidebar {
+    background: #1d1d1d !important;
+    border-right-color: rgba(255, 255, 255, 0.06) !important;
+    border-left-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .sb-header, .sb-info {
+    border-color: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .svc-card {
+    background: rgba(46, 144, 168, 0.1) !important;
+    .svc-name {
+      color: #3aaec9 !important;
+    }
+    .svc-sub {
+      color: #2e90a8 !important;
+    }
+  }
+
+  .info-item {
+    background: #252525 !important;
+  }
+
+  .info-val {
+    color: #ffffff !important;
+  }
+
+  .step-row {
+    .s-name {
+      color: #e0e0e0 !important;
+      &.idle {
+        color: #808080 !important;
+      }
+    }
+    .s-dot.idle {
+      background: #252525 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+  }
 }

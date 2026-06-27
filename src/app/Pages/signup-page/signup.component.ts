@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { ThemeService } from '../../Services/theme.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -11,7 +13,7 @@ import { AuthService } from '../../APIServices/SharedServices/auth.service';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss']
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit, OnDestroy {
 
   fullName = '';
   nationalId = '';
@@ -47,7 +49,29 @@ export class SignupComponent {
   streetError = false;
   buildingNumberError = false;
 
-  constructor(private router: Router, private authService: AuthService) {}
+  isDarkMode = false;
+  private themeSub?: Subscription;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private themeService: ThemeService
+  ) {}
+
+  ngOnInit(): void {
+    this.isDarkMode = this.themeService.isDarkMode;
+    this.themeSub = this.themeService.isDarkMode$.subscribe(dark => {
+      this.isDarkMode = dark;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.themeSub?.unsubscribe();
+  }
+
+  toggleDarkMode(): void {
+    this.themeService.toggleTheme();
+  }
 
   validateName() { this.nameError = !this.fullName.trim(); }
   validateNationalId() { this.nationalIdError = !/^\d{14}$/.test(this.nationalId); }

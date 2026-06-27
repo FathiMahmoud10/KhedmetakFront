@@ -52,10 +52,14 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   loginPassword = '';
   msgText = '';
 
-  // Service info (populated from API)
+  // Service info (populated from API or AI response)
   serviceName = 'جاري التحميل...';
   serviceAgency = '';
   serviceFee: number | null = null;
+  serviceTime = '3–5 أيام';
+  serviceAlertActive = true;
+  // Track whether sidebar info has been overridden by AI
+  sidebarUpdatedByAI = false;
 
   // Chat message history
   messages: Array<{
@@ -64,6 +68,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     isHtml?: boolean;
     isTyping?: boolean;
     timestamp?: string;
+    steps?: string[];
+    currentStep?: number;
   }> = [];
 
 
@@ -78,6 +84,22 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     { id: 1, documentName: 'بطاقة الرقم القومي', isMandatory: true },
     { id: 2, documentName: 'الرخصة الحالية', isMandatory: true },
     { id: 3, documentName: '6 صور شخصية', isMandatory: true }
+  ];
+
+  // Step-by-step assistant variables
+  activeStep = 1;
+  onlineMode = false;
+  officeMode = false;
+  showUploadZone = false;
+  uploadVerified = false;
+  step3Completed = false;
+  step4Completed = false;
+  chatDone = false;
+
+  step1Checklist = [
+    { label: 'بطاقة الرقم القومي', checked: false },
+    { label: 'الرخصة الحالية', checked: false },
+    { label: '6 صور شخصية', checked: false }
   ];
 
 
@@ -244,10 +266,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       next: (res) => {
         if (res && res.success && res.data) {
           const data = res.data;
-          // Populate service display info
-          this.serviceName    = data.srvName || 'خدمة حكومية';
-          this.serviceAgency  = (data as any).agencyName || (data as any).agency || 'هيئة حكومية';
-          this.serviceFee     = (data as any).fee ?? (data as any).totalFee ?? (data as any).cost ?? null;
+          // Populate service display info only if AI hasn't overridden yet
+          if (!this.sidebarUpdatedByAI) {
+            this.serviceName    = data.srvName || 'خدمة حكومية';
+            this.serviceAgency  = (data as any).agencyName || (data as any).agency || 'هيئة حكومية';
+            this.serviceFee     = (data as any).fee ?? (data as any).totalFee ?? (data as any).cost ?? null;
+          }
 
           if (data.requiredDocuments && data.requiredDocuments.length > 0) {
             this.requiredDocuments = data.requiredDocuments;
@@ -255,18 +279,104 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
             this.requiredDocuments = this.fallbackDocuments;
           }
         } else {
-          this.serviceName = 'تجديد رخصة القيادة';
+          if (!this.sidebarUpdatedByAI) {
+            this.serviceName = 'تجديد رخصة القيادة';
+          }
           this.requiredDocuments = this.fallbackDocuments;
         }
         this.initSelectedDocumentId();
       },
       error: (err) => {
         console.warn('Failed to fetch service data, using fallback.', err);
-        this.serviceName = 'تجديد رخصة القيادة';
+        if (!this.sidebarUpdatedByAI) {
+          this.serviceName = 'تجديد رخصة القيادة';
+        }
         this.requiredDocuments = this.fallbackDocuments;
         this.initSelectedDocumentId();
       }
     });
+  }
+
+  /**
+   * Extracts structured service info from an AI reply text and updates
+   * the sidebar info-cards dynamically.
+   */
+  private extractServiceInfoFromReply(text: string): void {
+    if (!text || text.trim().length === 0) return;
+
+    // ── 1. Service Name ──────────────────────────────────────
+    // Look for patterns like: "خدمة: ...", "اسم الخدمة ...", or quoted names
+    const namePatterns = [
+      /(?:اسم الخدمة|الخدمة)[:\s]+([^\n،,]{4,60})/i,
+      /(?:معاملة|تجديد|استخراج|إصدار)[\s]+([^\n،,]{4,50})/i,
+    ];
+    for (const pat of namePatterns) {
+      const m = text.match(pat);
+      if (m && m[1]) {
+        this.serviceName = m[1].trim().replace(/[*#_]/g, '');
+        this.sidebarUpdatedByAI = true;
+        break;
+      }
+    }
+
+    // ── 2. Fee / Cost ─────────────────────────────────────────
+    // e.g. "370 جنيه", "الرسوم: 250", "تكلفة 500 ج"
+    const feePatterns = [
+      /(?:الرسوم|رسوم|التكلفة|تكلفة|إجمالي|المبلغ)[:\s]*(\d+(?:\.\d+)?)/i,
+      /(\d+(?:\.\d+)?)\s*(?:جنيه|ج\.م|EGP|LE)/i,
+    ];
+    for (const pat of feePatterns) {
+      const m = text.match(pat);
+      if (m && m[1]) {
+        const parsed = parseFloat(m[1]);
+        if (!isNaN(parsed) && parsed > 0) {
+          this.serviceFee = parsed;
+          this.sidebarUpdatedByAI = true;
+          break;
+        }
+      }
+    }
+
+    // ── 3. Time ──────────────────────────────────────────────
+    // e.g. "3-5 أيام", "من 7 إلى 10 أيام عمل", "أسبوع"
+    const timePatterns = [
+      /(?:الوقت|وقت|مدة|يستغرق|تستغرق|خلال)[:\s]*([\d٠-٩\-–]+(?:\s*(?:إلى|to|–|-)\s*[\d٠-٩]+)?\s*(?:يوم|أيام|يوماً|ساعة|ساعات|أسبوع|أسابيع|شهر|شهور))/i,
+      /([\d٠-٩]+\s*(?:–|-|إلى)\s*[\d٠-٩]+\s*(?:أيام|يوم|يوماً|أسبوع|ساعة))/i,
+    ];
+    for (const pat of timePatterns) {
+      const m = text.match(pat);
+      if (m && m[1]) {
+        this.serviceTime = m[1].trim();
+        this.sidebarUpdatedByAI = true;
+        break;
+      }
+    }
+
+    // ── 4. Required Documents ─────────────────────────────────
+    // Look for lists of documents in the AI reply
+    const docListPatterns = [
+      /(?:الأوراق|المستندات|الوثائق|متطلبات)[:\s\n]+([\s\S]{10,400}?)(?=\n\n|\n#|$)/i,
+    ];
+    for (const pat of docListPatterns) {
+      const m = text.match(pat);
+      if (m && m[1]) {
+        // Extract individual document items (numbered or bulleted)
+        const items = m[1]
+          .split(/\n/)
+          .map(l => l.replace(/^[\s\d١٢٣٤٥٦٧٨٩\-.*•\[\]]+/, '').trim())
+          .filter(l => l.length > 3 && l.length < 100);
+        if (items.length >= 2) {
+          this.requiredDocuments = items.map((name, idx) => ({
+            id: idx + 1,
+            documentName: name,
+            isMandatory: true
+          }));
+          this.initSelectedDocumentId();
+          this.sidebarUpdatedByAI = true;
+          break;
+        }
+      }
+    }
   }
 
 
@@ -321,15 +431,11 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       this.messages.splice(typingIndicatorIndex, 1);
 
       const replyText = (res || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
-      const steps = this.parseIntoSteps(replyText);
 
-      if (steps.length > 1) {
-        // Multi-step response — show step 0, user advances with "التالي"
-        this.messages.push({ sender: 'bot', text: '', steps, currentStep: 0 });
-      } else {
-        // Single-step response — show as normal bubble
-        this.messages.push({ sender: 'bot', text: steps[0] || this.mdToHtml(replyText), isHtml: true });
-      }
+      // ── Extract & update sidebar info from the AI reply ──
+      this.extractServiceInfoFromReply(replyText);
+
+      this.messages.push({ sender: 'bot', text: this.mdToHtml(replyText), isHtml: true });
     } catch (err: any) {
       this.messages.splice(typingIndicatorIndex, 1);
       this.messages.push({ 

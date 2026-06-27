@@ -1,5 +1,15 @@
 <div class="signup-page" dir="rtl">
 
+  <!-- Floating Dark/Light Mode Toggle -->
+  <button
+    type="button"
+    class="auth-theme-toggle"
+    (click)="toggleDarkMode()"
+    [attr.aria-label]="isDarkMode ? 'الوضع النهاري' : 'الوضع الليلي'"
+  >
+    <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+  </button>
+
   <!-- اليسار - اللوحة التعريفية -->
   <div class="left-panel">
     <div class="left-inner">

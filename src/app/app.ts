@@ -6,6 +6,7 @@ import { FooterCom } from "./Components/SharedComponents/footer-com/footer-com";
 import { NavbarCom } from "./Components/SharedComponents/navbar-com/navbar-com";
 import { AdminSidebar } from "./Components/admin-sidebar/admin-sidebar";
 import { UserSidebar } from "./Components/user-sidebar/sidebar";
+import { ThemeService } from './Services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ export class App implements OnInit {
   showFooter: boolean = true;
   showNavbar: boolean = true;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private themeService: ThemeService) {}
 
   ngOnInit(): void {
     this.router.events.pipe(
