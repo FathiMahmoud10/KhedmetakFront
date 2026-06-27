@@ -36,12 +36,7 @@
             <span class="admin-drawer__link-text">إدارة الخدمات</span>
           </a>
         </li>
-        <li>
-          <a routerLink="/admin-profile" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-user-shield"></i></span>
-            <span class="admin-drawer__link-text">ملف الأدمن</span>
-          </a>
-        </li>
+        <!-- ملف الأدمن مخفي حسب الطلب -->
       </ul>
 
       <!-- Collapsible: الخدمات -->
@@ -82,12 +77,6 @@
             </a>
           </li>
           <li>
-            <a routerLink="/admin-service-detail/1" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-              <span class="admin-drawer__link-icon"><i class="fas fa-info-circle"></i></span>
-              <span class="admin-drawer__link-text">تفاصيل الخدمة</span>
-            </a>
-          </li>
-          <li>
             <a routerLink="/admin-steps" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
               <span class="admin-drawer__link-icon"><i class="fas fa-list-ol"></i></span>
               <span class="admin-drawer__link-text">خطوات الخدمة</span>
@@ -111,7 +100,10 @@
         <span class="admin-drawer__user-name">مدير النظام</span>
         <span class="admin-drawer__user-email">admin@khedmetak.gov.eg</span>
       </div>
-      <span class="admin-drawer__status"></span>
+      <!-- زرار تسجيل الخروج -->
+      <button class="admin-drawer__logout-btn" (click)="logout()" type="button" title="تسجيل الخروج">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
     </div>
 
   </div>

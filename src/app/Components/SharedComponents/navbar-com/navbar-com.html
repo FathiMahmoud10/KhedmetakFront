@@ -32,7 +32,8 @@
     <div class="app-navbar__center" *ngIf="!isDashboardPage">
       <ul class="app-navbar__links">
         <li><a class="app-navbar__link" routerLink="/home" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">الرئيسية</a></li>
-        <li><a class="app-navbar__link" routerLink="/chat" routerLinkActive="is-active">المساعد الذكي</a></li>
+        <!-- المساعد الذكي والخدمات للمستخدم العادي فقط -->
+        <li *ngIf="!isAdmin"><a class="app-navbar__link" routerLink="/chat" routerLinkActive="is-active">المساعد الذكي</a></li>
         <li><a class="app-navbar__link" routerLink="/services" routerLinkActive="is-active">الخدمات</a></li>
       </ul>
     </div>
@@ -53,20 +54,35 @@
       </a>
 
       <ul class="app-navbar__auth" *ngIf="!isDashboardPage">
-        <li>
+
+        <!-- ملف المستخدم — يظهر فقط للـ user العادي -->
+        <li *ngIf="isLoggedIn && !isAdmin">
           <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/user-dashboard">
             <i class="fas fa-user"></i>
             ملف المستخدم
           </a>
         </li>
-        <li>
+
+        <!-- لوحة الأدمن — للأدمن فقط -->
+        <li *ngIf="isLoggedIn && isAdmin">
           <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/admin-dashboard">
             <i class="fas fa-user-shield"></i>
-            ملف الأدمن
+            لوحة التحكم
           </a>
         </li>
-        <li><a class="app-navbar__auth-link" routerLink="/signup">حساب جديد</a></li>
-        <li><a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">تسجيل الدخول</a></li>
+
+        <!-- حساب جديد وتسجيل الدخول — للزوار فقط -->
+        <li *ngIf="!isLoggedIn"><a class="app-navbar__auth-link" routerLink="/signup">حساب جديد</a></li>
+        <li *ngIf="!isLoggedIn"><a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">تسجيل الدخول</a></li>
+
+        <!-- زرار تسجيل الخروج — للمسجلين فقط -->
+        <li *ngIf="isLoggedIn">
+          <button class="app-navbar__auth-link app-navbar__auth-link--logout" (click)="logout()" type="button">
+            <i class="fas fa-sign-out-alt"></i>
+            تسجيل الخروج
+          </button>
+        </li>
+
       </ul>
     </div>
 

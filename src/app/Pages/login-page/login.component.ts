@@ -31,7 +31,7 @@ export class LoginComponent {
     private router: Router,
     private http: HttpClient,
     private authService: AuthService
-  ) {}
+  ) { }
 
   validateEmail() { this.emailError = !this.email.trim(); }
   validatePassword() { this.passwordError = this.password.length < 6; }
@@ -68,9 +68,9 @@ export class LoginComponent {
         // توجيه حسب الـ Role
         const role = this.authService.getRole();
         if (role === 'Admin') {
-          this.router.navigate(['/admin-dashboard']);
+          this.router.navigate(['/home']);
         } else {
-          this.router.navigate(['/user-dashboard']);
+          this.router.navigate(['/home']);
         }
       },
 
