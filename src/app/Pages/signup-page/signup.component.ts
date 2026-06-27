@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../APIServices/SharedServices/auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -20,9 +21,19 @@ export class SignupComponent {
   confirmPassword = '';
   agreed = false;
 
+  dateOfBirth = '';
+  city = '';
+  district = '';
+  street = '';
+  buildingNumber = '';
+  floorNumber = '';
+  apartmentNumber = '';
+  postalCode = '';
+
   showPass = false;
   showConfirm = false;
   isLoading = false;
+  serverError: string | null = null;
 
   nameError = false;
   nationalIdError = false;
@@ -30,8 +41,13 @@ export class SignupComponent {
   emailError = false;
   passwordError = false;
   confirmError = false;
+  dateOfBirthError = false;
+  cityError = false;
+  districtError = false;
+  streetError = false;
+  buildingNumberError = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   validateName() { this.nameError = !this.fullName.trim(); }
   validateNationalId() { this.nationalIdError = !/^\d{14}$/.test(this.nationalId); }
@@ -39,6 +55,11 @@ export class SignupComponent {
   validateEmail() { this.emailError = !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email); }
   validatePassword() { this.passwordError = this.password.length < 6; }
   validateConfirm() { this.confirmError = this.password !== this.confirmPassword; }
+  validateDateOfBirth() { this.dateOfBirthError = !this.dateOfBirth; }
+  validateCity() { this.cityError = !this.city.trim(); }
+  validateDistrict() { this.districtError = !this.district.trim(); }
+  validateStreet() { this.streetError = !this.street.trim(); }
+  validateBuildingNumber() { this.buildingNumberError = !this.buildingNumber.trim(); }
 
   signUpWithGoogle() {
     // TODO: Google OAuth
@@ -52,23 +73,52 @@ export class SignupComponent {
     this.validateEmail();
     this.validatePassword();
     this.validateConfirm();
+    this.validateDateOfBirth();
+    this.validateCity();
+    this.validateDistrict();
+    this.validateStreet();
+    this.validateBuildingNumber();
 
     if (this.nameError || this.nationalIdError || this.phoneError ||
-        this.emailError || this.passwordError || this.confirmError || !this.agreed) {
+        this.emailError || this.passwordError || this.confirmError ||
+        this.dateOfBirthError || this.cityError || this.districtError ||
+        this.streetError || this.buildingNumberError || !this.agreed) {
       return;
     }
 
     this.isLoading = true;
+    this.serverError = null;
 
-    // TODO: استبدلي بـ API call حقيقي
-    // this.authService.register({...}).subscribe({
-    //   next: () => this.router.navigate(['/login']),
-    //   error: () => { this.isLoading = false; }
-    // });
+    this.authService.register({
+      name: this.fullName,
+      fullName: this.fullName,
+      email: this.email,
+      password: this.password,
+      confirmPassword: this.confirmPassword,
+      nationalId: this.nationalId,
+      phone: this.phone,
+      dateOfBirth: this.dateOfBirth,
+      city: this.city,
+      district: this.district,
+      street: this.street,
+      buildingNumber: this.buildingNumber,
+      floorNumber: this.floorNumber,
+      apartmentNumber: this.apartmentNumber,
+      postalCode: this.postalCode
+    }).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.isLoading = false;
 
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/login']);
-    }, 1500);
+        if (err.status === 400) {
+          this.serverError = err?.error?.message || 'البريد الإلكتروني مسجل بالفعل أو البيانات غير صحيحة';
+        } else {
+          this.serverError = 'حدث خطأ، يرجى المحاولة مرة أخرى';
+        }
+      }
+    });
   }
 }

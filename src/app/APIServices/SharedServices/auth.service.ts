@@ -14,6 +14,26 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/Auth/login`, { email, password });
   }
 
+  register(data: {
+    name: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    fullName: string;
+    nationalId?: string;
+    phone?: string;
+    dateOfBirth?: string | null;
+    city?: string;
+    district?: string;
+    street?: string;
+    buildingNumber?: string;
+    floorNumber?: string;
+    apartmentNumber?: string;
+    postalCode?: string;
+  }) {
+    return this.http.post<any>(`${this.apiUrl}/Auth/register`, data);
+  }
+
   getTokenFromCookie(): string | null {
     const match = document.cookie.match(/(?:^|;\s*)token=([^;]+)/);
     return match ? decodeURIComponent(match[1]) : null;
@@ -34,5 +54,37 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  isLoggedIn(): boolean {
+    const token = this.getTokenFromCookie();
+    if (!token) return false;
+    const payload = this.decodeJwt(token);
+    return !!payload;
+  }
+
+  getRole(): string | null {
+    const token = this.getTokenFromCookie();
+    if (!token) return null;
+    const payload = this.decodeJwt(token);
+    if (!payload) return null;
+
+    // الـ Backend بيستخدم ClaimTypes.Role اللي بيتحول لـ URI ده في الـ JWT
+    const roleClaim =
+      payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+      ?? payload?.role
+      ?? payload?.Role
+      ?? null;
+
+    // لو الـ roles جت كـ array (لو User معاه أكتر من role)، خد الأولى
+    if (Array.isArray(roleClaim)) {
+      return roleClaim[0] ?? null;
+    }
+
+    return roleClaim;
+  }
+
+  logout(): void {
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
   }
 }

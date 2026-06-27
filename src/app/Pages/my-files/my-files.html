@@ -1,0 +1,56 @@
+<div class="ufiles-page container-fluid py-4">
+
+  <header class="ufiles-header">
+    <div>
+      <h1 class="ufiles-header__title"><i class="fas fa-folder-open"></i> ملفاتي</h1>
+      <p class="ufiles-header__sub">كل المستندات اللي رفعتها لخدمة طلباتك الحكومية</p>
+    </div>
+
+    <div>
+      <input type="file" #fileInput hidden (change)="onFileSelected($event)" />
+      <button class="ufiles-header__cta" (click)="triggerUpload()" [disabled]="uploading">
+        <i class="fas fa-spinner fa-spin" *ngIf="uploading"></i>
+        <i class="fas fa-upload" *ngIf="!uploading"></i>
+        {{ uploading ? 'جاري الرفع...' : 'رفع ملف جديد' }}
+      </button>
+    </div>
+  </header>
+
+  <div class="ufiles-alert ufiles-alert--danger" *ngIf="errorMsg">
+    <i class="fas fa-circle-exclamation"></i> {{ errorMsg }}
+  </div>
+  <div class="ufiles-alert ufiles-alert--success" *ngIf="successMsg">
+    <i class="fas fa-circle-check"></i> {{ successMsg }}
+  </div>
+
+  <div class="ufiles-loading" *ngIf="loading">
+    <div class="ufiles-spinner"></div>
+    <span>جاري تحميل ملفاتك...</span>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <div class="ufiles-empty" *ngIf="files.length === 0">
+      <i class="fas fa-folder-open"></i>
+      <p>لسه مرفعتش أي ملفات. ابدأ برفع المستندات المطلوبة لخدماتك.</p>
+      <button class="ufiles-empty__btn" (click)="triggerUpload()">رفع أول ملف</button>
+    </div>
+
+    <div class="ufiles-grid" *ngIf="files.length > 0">
+      <article class="ufiles-card" *ngFor="let file of files">
+        <div class="ufiles-card__icon">
+          <i class="fas" [ngClass]="getFileIcon(file.fileType)"></i>
+        </div>
+        <div class="ufiles-card__body">
+          <span class="ufiles-card__name" [title]="file.fileName">{{ file.fileName }}</span>
+          <span class="ufiles-card__meta">{{ file.uploadedAt | date:'dd/MM/yyyy' }} · {{ file.fileType }}</span>
+        </div>
+        <a class="ufiles-card__action" [href]="fileUrl(file.filePath)" target="_blank" rel="noopener">
+          <i class="fas fa-eye"></i>
+        </a>
+      </article>
+    </div>
+
+  </ng-container>
+
+</div>

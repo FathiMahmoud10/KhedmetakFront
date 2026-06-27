@@ -1,11 +1,14 @@
-<!-- الناف بار العلوي الموحد يظهر دائماً في كل الصفحات تفاعلياً -->
-<app-navbar-com></app-navbar-com>
-<app-sidebar></app-sidebar>
+<!-- الناف بار - يتخبى على صفحات اللوجن والسيجنأب -->
+<app-navbar-com *ngIf="showNavbar"></app-navbar-com>
 
-<!-- محتوى الصفحات المتنقلة ديناميكياً -->
+<!-- قائمة الأدمن - تظهر فقط في صفحات الأدمن -->
+<app-admin-sidebar></app-admin-sidebar>
+
+<!-- قائمة المستخدم - تظهر فقط في صفحات المستخدم -->
+<app-user-sidebar></app-user-sidebar>
+
+<!-- محتوى الصفحات -->
 <router-outlet></router-outlet>
 
-<!-- عرض الفوتر السفلي فقط بناءً على قيمة المتغير الموحد showFooter -->
+<!-- الفوتر -->
 <app-footer-com *ngIf="showFooter"></app-footer-com>
-
-

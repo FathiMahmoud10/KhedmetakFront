@@ -1,0 +1,72 @@
+<!-- Overlay -->
+<div class="sidebar-overlay" *ngIf="isOpen" (click)="close()"></div>
+
+<!-- User Drawer -->
+<aside class="admin-drawer" [class.admin-drawer--open]="isOpen">
+  <div class="admin-drawer__inner">
+
+    <!-- Header -->
+    <div class="admin-drawer__header">
+      <div class="admin-drawer__header-text">
+        <span class="admin-drawer__badge">
+          <i class="fas fa-user-circle"></i>
+          حسابي
+        </span>
+        <h2 class="admin-drawer__title">Khedmetak AI</h2>
+        <p class="admin-drawer__sub">مساعد ذكي للخدمات الحكومية</p>
+      </div>
+      <button class="admin-drawer__close" (click)="close()" type="button" aria-label="إغلاق القائمة">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Nav -->
+    <nav class="admin-drawer__nav">
+      <span class="admin-drawer__nav-label">حسابي</span>
+      <ul class="admin-drawer__list">
+        <li>
+          <a routerLink="/user-dashboard" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-gauge-high"></i></span>
+            <span class="admin-drawer__link-text">الداشبورد</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/chat" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-robot"></i></span>
+            <span class="admin-drawer__link-text">المساعد الذكي</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/my-requests" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-file-circle-check"></i></span>
+            <span class="admin-drawer__link-text">طلباتي</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/my-files" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-folder-open"></i></span>
+            <span class="admin-drawer__link-text">ملفاتي</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Footer -->
+    <div class="admin-drawer__footer">
+      <img
+        [src]="avatarUrl"
+        alt="User"
+        class="admin-drawer__avatar"
+        width="44"
+        height="44"
+        (error)="onAvatarError($event)"
+      />
+      <div class="admin-drawer__user">
+        <span class="admin-drawer__user-name">{{ userName }}</span>
+        <span class="admin-drawer__user-email">{{ userEmail }}</span>
+      </div>
+      <span class="admin-drawer__status"></span>
+    </div>
+
+  </div>
+</aside>
