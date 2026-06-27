@@ -1,518 +1,609 @@
-import {
-  Component, OnInit, ViewChild, ElementRef,
-  AfterViewChecked, HostListener
-} from '@angular/core';
+import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ChatApiService } from '../../APIServices/SharedServices/chat-api.service';
+import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { ChatApiService, ChatResponse } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { environment } from '../../../environments/environment';
+import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  liked?: boolean;
-  attachments?: UploadedFile[];
+interface RequiredDocument {
+  id: number;
+  documentName: string;
+  isMandatory: boolean;
 }
 
-interface Suggestion {
-  icon: string;
-  text: string;
-}
-
-interface Service {
-  id: string;
-  icon: string;
-  name: string;
-  description: string;
-  active: boolean;
-}
-
-export interface UploadedFile {
-  name: string;
-  size: number;
-  type: string;
-  previewUrl?: string;
-  isImage: boolean;
+interface ServiceDetailApi {
+  id: number;
+  srvName: string;
+  requiredDocuments: RequiredDocument[];
 }
 
 @Component({
   selector: 'app-chat-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './chat-page.component.html',
-  styleUrls: ['./chat-page.component.scss'],
+  styleUrls: ['./chat-page.component.scss']
 })
-export class ChatPageComponent implements OnInit, AfterViewChecked {
-  @ViewChild('messagesContainer') messagesContainer!: ElementRef;
-  @ViewChild('messageInput')      messageInput!: ElementRef;
-  @ViewChild('fileInput')         fileInput!: ElementRef;
-  @ViewChild('imageInput')        imageInput!: ElementRef;
+export class ChatPageComponent implements OnInit, AfterViewInit {
 
-  sidebarCollapsed = false;
-  modelMenuOpen    = false;
-  isTyping         = false;
-  currentMessage   = '';
-  activeChat       = 0;
-  currentSessionGuid: string | null = null;
-  isDragging       = false;
+  @ViewChild('msgsContainer') msgsContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
 
-  // ── Guest / Auth ──────────────────────────
-  isLoggedIn        = false;
-  userEmail         = '';
-  userDisplayName   = '';
-  guestMessageLimit = 3;
+  // ===========================
+  // State variables
+  // ===========================
+  readonly MAX_FREE_MSGS = 3;
+  freeRemaining = this.MAX_FREE_MSGS;
   guestMessageCount = 0;
-  showLoginPopup    = false;
-  showImagePreview  = false;
-  previewImageUrl   = '';
-  copiedIndex       = -1;
+  
+  sessionGuid: string | null = null;
+  chatSessionId: number | null = null;
+  isLoggedIn = false;
+  isSending = false;
+  showLoginPopup = false;
+  loginLoading = false;
+  loginError = '';
 
-  private readonly GUEST_COUNT_KEY   = 'khedmetak_guest_msg_count';
-  private readonly GUEST_SESSION_KEY = 'khedmetak_guest_session';
-  private readonly GUEST_ID_KEY      = 'khedmetak_guest_id';
+  loginEmail = '';
+  loginPassword = '';
+  msgText = '';
 
-  messages:      Message[]      = [];
-  uploadedFiles: UploadedFile[] = [];
+  // Service info (populated from API)
+  serviceName = 'جاري التحميل...';
+  serviceAgency = '';
+  serviceFee: number | null = null;
 
-  services: Service[] = [
-    { id: 'general',    icon: '🤖', name: 'المساعد العام',         description: 'أسئلة عامة عن الخدمات الحكومية',     active: true  },
-    { id: 'license',    icon: '🚗', name: 'رخصة القيادة',          description: 'تجديد واستخراج الرخص المرورية',       active: false },
-    { id: 'id',         icon: '🪪', name: 'بطاقة الرقم القومي',    description: 'استخراج وتجديد البطاقة الشخصية',      active: false },
-    { id: 'birth',      icon: '📄', name: 'شهادة الميلاد',         description: 'طلب واستخراج شهادات الميلاد',         active: false },
-    { id: 'commercial', icon: '🏢', name: 'السجل التجاري',         description: 'تسجيل الشركات والمنشآت التجارية',     active: false },
+  // Chat message history
+  messages: Array<{
+    sender: 'bot' | 'user';
+    text: string;
+    isHtml?: boolean;
+    isTyping?: boolean;
+    timestamp?: string;
+  }> = [];
+
+
+  // File Upload State
+  requiredDocuments: RequiredDocument[] = [];
+  selectedDocumentIdForUpload: number | null = null;
+  uploadProgress: number | null = null;
+  uploadSuccessMessage = '';
+  uploadErrorMessage = '';
+
+  fallbackDocuments: RequiredDocument[] = [
+    { id: 1, documentName: 'بطاقة الرقم القومي', isMandatory: true },
+    { id: 2, documentName: 'الرخصة الحالية', isMandatory: true },
+    { id: 3, documentName: '6 صور شخصية', isMandatory: true }
   ];
 
-  recentChats: string[] = [
-    'كيف أجدد رخصة القيادة؟',
-    'المستندات المطلوبة للرقم القومي',
-    'خطوات استخراج شهادة الميلاد',
-    'رسوم السجل التجاري',
-    'تجديد جواز السفر',
-  ];
-
-  suggestions: Suggestion[] = [
-    { icon: '🪪', text: 'كيف أجدد بطاقة الرقم القومي؟' },
-    { icon: '🚗', text: 'خطوات تجديد رخصة القيادة' },
-    { icon: '📄', text: 'المستندات المطلوبة لشهادة الميلاد' },
-    { icon: '🏢', text: 'كيف أسجّل شركتي في مصر؟' },
-  ];
-
-  private shouldScroll = false;
-  private genTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
+    private http: HttpClient,
     private chatApiService: ChatApiService,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
+    private authService: AuthService
   ) {}
 
-  // ─────────────────────────────────────────
-  // Init — check cookie session
-  // ─────────────────────────────────────────
+  // ===========================
+  // Lifecycle
+  // ===========================
+
   ngOnInit(): void {
-    const token = this.authService.getTokenFromCookie();
-    if (token) {
-      this.isLoggedIn = true;
-      const payload = this.authService.decodeJwt(token);
-      if (payload) {
-        this.userEmail =
-          payload['email'] ||
-          payload['unique_name'] ||
-          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
-          '';
+    this.isLoggedIn = this.checkLoggedInStatus();
+    this.initGuestLimits();
+    this.ensureSession();
+    this.fetchRequiredDocuments();
+    // Chat starts empty — messages appear only after user sends first message
+  }
 
-        this.userDisplayName =
-          payload['name'] ||
-          payload['given_name'] ||
-          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
-          this.userEmail.split('@')[0] ||
-          'مستخدم';
-      }
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
+  }
+
+  // ===========================
+  // Initialization Helpers
+  // ===========================
+
+  private checkLoggedInStatus(): boolean {
+    return !!this.authService.getTokenFromCookie();
+  }
+
+  private initGuestLimits(): void {
+    if (!this.isLoggedIn) {
+      const storedCount = localStorage.getItem('guest_msg_count');
+      this.guestMessageCount = storedCount ? parseInt(storedCount, 10) : 0;
+      this.freeRemaining = Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
     } else {
-      this.isLoggedIn = false;
-      const stored = localStorage.getItem(this.GUEST_COUNT_KEY);
-      this.guestMessageCount = stored ? parseInt(stored, 10) : 0;
+      this.freeRemaining = 0;
+    }
+  }
 
-      const storedSession = localStorage.getItem(this.GUEST_SESSION_KEY);
-      if (storedSession) {
-        this.currentSessionGuid = storedSession;
+  // ===========================
+  // Step-based Response Parsing
+  // ===========================
+
+  /**
+   * Splits a bot reply into logical step segments.
+   * Tries numbered list → markdown headers → paragraph breaks → single step.
+   */
+  private parseIntoSteps(text: string): string[] {
+    if (!text || text.trim().length === 0) return [];
+
+    // 1. Try Arabic/Latin numbered lists (1. / ١. / 1- / etc.)
+    const numbered = text.split(/(?=\n(?:\d+|[١٢٣٤٥٦٧٨٩])[.)\-:]\s)/);
+    const numFiltered = numbered.map(s => s.trim()).filter(s => s.length > 15);
+    if (numFiltered.length >= 2) return numFiltered.map(s => this.mdToHtml(s));
+
+    // 2. Try markdown headers (## or ###)
+    const headers = text.split(/(?=\n#{1,3}\s)/);
+    const hFiltered = headers.map(s => s.trim()).filter(s => s.length > 15);
+    if (hFiltered.length >= 2) return hFiltered.map(s => this.mdToHtml(s));
+
+    // 3. Try double newline paragraph breaks
+    const paras = text.split(/\n{2,}/).map(s => s.trim()).filter(s => s.length > 25);
+    if (paras.length >= 2) return paras.map(s => this.mdToHtml(s));
+
+    // 4. Fallback — single step
+    return [this.mdToHtml(text)];
+  }
+
+  /**
+   * Advances a step-message to the next step.
+   * Called when user taps the "التالي" button on a step card.
+   */
+  advanceStep(msgIndex: number): void {
+    const msg = this.messages[msgIndex];
+    if (!msg?.steps) return;
+    const current = msg.currentStep ?? 0;
+    if (current < msg.steps.length - 1) {
+      msg.currentStep = current + 1;
+      this.scrollToBottom();
+    }
+  }
+
+  // ===========================
+  // Cookie Helpers
+  // ===========================
+
+  private getCookie(name: string): string | null {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  private setCookie(name: string, value: string, days = 1): void {
+    const d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = `${name}=${value}; expires=${d.toUTCString()}; path=/`;
+  }
+
+  // ===========================
+  // API Fetching & Sessions
+  // ===========================
+
+  async ensureSession(): Promise<boolean> {
+    if (this.sessionGuid) return true;
+
+    // Try restoring session from cookies
+    const savedGuid = this.getCookie('sessionGuidId');
+    const savedId = this.getCookie('chatSessionId');
+
+    if (savedGuid) {
+      this.sessionGuid = savedGuid;
+      this.chatSessionId = savedId ? parseInt(savedId, 10) : null;
+      return true;
+    }
+
+    try {
+      const email = this.isLoggedIn
+        ? (this.getCookie('user_email') || 'guest@moamaltak.ai')
+        : 'guest@moamaltak.ai';
+
+      const res = await firstValueFrom(this.chatApiService.createSession(email));
+      
+      // Support both unwrapped (direct SessionResponse) and wrapped (ApiResponse<SessionResponse>)
+      let data = res;
+      if (res && res.success !== undefined && res.data !== undefined) {
+        data = res.data;
       }
+
+      if (data) {
+        if (typeof data === 'string') {
+          this.sessionGuid = data;
+          this.chatSessionId = null;
+        } else {
+          this.sessionGuid = data.sessionGuidId || data.guid || data.sessionId || (typeof data.id === 'string' ? data.id : null) || null;
+          this.chatSessionId = typeof data.id === 'number' ? data.id : (data.chatSessionId ? parseInt(data.chatSessionId, 10) : null);
+          
+          if (!this.chatSessionId && data.id) {
+            const parsed = parseInt(data.id, 10);
+            if (!isNaN(parsed)) {
+              this.chatSessionId = parsed;
+            }
+          }
+        }
+
+        if (this.sessionGuid) {
+          this.setCookie('sessionGuidId', this.sessionGuid, 1);
+          if (this.chatSessionId) {
+            this.setCookie('chatSessionId', this.chatSessionId.toString(), 1);
+          }
+        }
+      }
+      return !!this.sessionGuid;
+    } catch (err) {
+      console.error('Session creation failed:', err);
+      return false;
     }
   }
 
-  // ✅ FIX: closing brace was missing — block now closed correctly
-  ngAfterViewChecked(): void {
-    if (this.shouldScroll) {
-      this.scrollBottom();
-      this.shouldScroll = false;
+  private fetchRequiredDocuments(): void {
+    this.http.get<ApiResponse<ServiceDetailApi>>(`${environment.apiUrl}/GovServices/1`).subscribe({
+      next: (res) => {
+        if (res && res.success && res.data) {
+          const data = res.data;
+          // Populate service display info
+          this.serviceName    = data.srvName || 'خدمة حكومية';
+          this.serviceAgency  = (data as any).agencyName || (data as any).agency || 'هيئة حكومية';
+          this.serviceFee     = (data as any).fee ?? (data as any).totalFee ?? (data as any).cost ?? null;
+
+          if (data.requiredDocuments && data.requiredDocuments.length > 0) {
+            this.requiredDocuments = data.requiredDocuments;
+          } else {
+            this.requiredDocuments = this.fallbackDocuments;
+          }
+        } else {
+          this.serviceName = 'تجديد رخصة القيادة';
+          this.requiredDocuments = this.fallbackDocuments;
+        }
+        this.initSelectedDocumentId();
+      },
+      error: (err) => {
+        console.warn('Failed to fetch service data, using fallback.', err);
+        this.serviceName = 'تجديد رخصة القيادة';
+        this.requiredDocuments = this.fallbackDocuments;
+        this.initSelectedDocumentId();
+      }
+    });
+  }
+
+
+  private initSelectedDocumentId(): void {
+    if (this.requiredDocuments.length > 0) {
+      this.selectedDocumentIdForUpload = this.requiredDocuments[0].id;
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.service-selector')) {
-      this.modelMenuOpen = false;
+  // ===========================
+  // Send Message Logic
+  // ===========================
+
+  async sendMsg(customText?: string): Promise<void> {
+    if (this.isSending) return;
+
+    const text = (customText || this.msgText || '').trim();
+    if (!text) return;
+
+    // Check guest quota limits
+    if (!this.isLoggedIn) {
+      if (this.freeRemaining <= 0) {
+        this.openLoginPopup();
+        return;
+      }
+      this.guestMessageCount++;
+      this.freeRemaining = Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
+      localStorage.setItem('guest_msg_count', this.guestMessageCount.toString());
+    }
+
+    this.msgText = '';
+    this.isSending = true;
+
+    // Add user message
+    this.messages.push({ sender: 'user', text });
+    this.scrollToBottom();
+
+    // Add typing indicator
+    const typingIndicatorIndex = this.messages.push({ sender: 'bot', text: '', isTyping: true }) - 1;
+    this.scrollToBottom();
+
+    try {
+      const ok = await this.ensureSession();
+      if (!ok) {
+        throw new Error('فشل تهيئة جلسة المحادثة. يرجى التحقق من اتصالك بالإنترنت.');
+      }
+
+      // res is a plain text string
+      const res = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
+
+      // Remove typing indicator
+      this.messages.splice(typingIndicatorIndex, 1);
+
+      const replyText = (res || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
+      const steps = this.parseIntoSteps(replyText);
+
+      if (steps.length > 1) {
+        // Multi-step response — show step 0, user advances with "التالي"
+        this.messages.push({ sender: 'bot', text: '', steps, currentStep: 0 });
+      } else {
+        // Single-step response — show as normal bubble
+        this.messages.push({ sender: 'bot', text: steps[0] || this.mdToHtml(replyText), isHtml: true });
+      }
+    } catch (err: any) {
+      this.messages.splice(typingIndicatorIndex, 1);
+      this.messages.push({ 
+        sender: 'bot', 
+        text: `<span style="color:var(--red-dk)">حصل خطأ: ${this.escHtml(err?.error?.message || err?.message || 'خطأ غير معروف')}</span>`,
+        isHtml: true 
+      });
+
+      // Refund the message count on fail
+      if (!this.isLoggedIn && this.guestMessageCount > 0) {
+        this.guestMessageCount--;
+        this.freeRemaining = Math.min(this.MAX_FREE_MSGS, this.MAX_FREE_MSGS - this.guestMessageCount);
+        localStorage.setItem('guest_msg_count', this.guestMessageCount.toString());
+      }
+    } finally {
+      this.isSending = false;
+      this.scrollToBottom();
+    }
+
+    // Trigger popup after bot reply if guest quota reached
+    if (!this.isLoggedIn && this.freeRemaining <= 0) {
+      setTimeout(() => this.openLoginPopup(), 800);
     }
   }
 
-  // ─────────────────────────────────────────
-  // Drag & Drop
-  // ─────────────────────────────────────────
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!this.isGuestLimitReached) this.isDragging = true;
+  quickSend(text: string): void {
+    this.sendMsg(text);
   }
 
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging = false;
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging = false;
-    if (this.isGuestLimitReached) return;
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.processFiles(Array.from(files));
+  onKey(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMsg();
     }
   }
 
-  // ─────────────────────────────────────────
-  // Sidebar / Service
-  // ─────────────────────────────────────────
-  toggleSidebar(): void { this.sidebarCollapsed = !this.sidebarCollapsed; }
-  toggleModelMenu(): void { this.modelMenuOpen = !this.modelMenuOpen; }
+  // ===========================
+  // File Upload Operations
+  // ===========================
 
-  selectService(serviceId: string): void {
-    this.services.forEach(s => s.active = s.id === serviceId);
-    this.modelMenuOpen = false;
+  triggerFileUpload(docId?: number): void {
+    if (!this.isLoggedIn) {
+      this.openLoginPopup();
+      return;
+    }
+    if (docId !== undefined) {
+      this.selectedDocumentIdForUpload = docId;
+    } else if (this.requiredDocuments.length > 0 && this.selectedDocumentIdForUpload === null) {
+      this.selectedDocumentIdForUpload = this.requiredDocuments[0].id;
+    }
+    this.fileInputRef.nativeElement.click();
   }
 
-  get activeService(): Service {
-    return this.services.find(s => s.active) || this.services[0];
-  }
-
-  // ✅ FIX: removed duplicate lines inside startNewChat
-  startNewChat(): void {
-    this.messages = [];
-    this.uploadedFiles = [];
-    this.currentMessage = '';
-    this.activeChat = -1;
-    this.isTyping = false;
-    this.currentSessionGuid = null;
+  async onFileSelected(event: any): Promise<void> {
+    const file = event.target?.files?.[0];
+    if (!file) return;
 
     if (!this.isLoggedIn) {
-      this.guestMessageCount = 0;
-      localStorage.removeItem(this.GUEST_COUNT_KEY);
-      localStorage.removeItem(this.GUEST_SESSION_KEY);
-    }
-
-    if (this.genTimeout) { clearTimeout(this.genTimeout); this.genTimeout = null; }
-  }
-
-  // ✅ FIX: removed duplicate method definition
-  loadChat(index: number): void {
-    this.activeChat = index;
-    this.messages = [];
-    this.currentSessionGuid = null;
-  }
-
-  // ✅ FIX: removed duplicate method definition
-  sendSuggestion(text: string): void {
-    this.currentMessage = text;
-    this.sendMessage();
-  }
-
-  onEnterKey(event: KeyboardEvent): void {
-    if (!event.shiftKey) {
-      event.preventDefault();
-      if (this.currentMessage.trim() || this.uploadedFiles.length > 0) {
-        this.sendMessage();
-      }
-    }
-  }
-
-  // ─────────────────────────────────────────
-  // Send Message
-  // ─────────────────────────────────────────
-  sendMessage(): void {
-    const text = this.currentMessage.trim();
-    if (!text && this.uploadedFiles.length === 0) return;
-    if (this.isTyping) return;
-
-    if (!this.isLoggedIn && this.guestMessageCount >= this.guestMessageLimit) {
-      this.showLoginPopup = true;
+      this.openLoginPopup();
       return;
     }
 
-    const msgAttachments: UploadedFile[] = this.uploadedFiles.map(f => ({ ...f }));
+    const docId = this.selectedDocumentIdForUpload || 1;
+    const docName = this.requiredDocuments.find(d => d.id === Number(docId))?.documentName || 'مستند';
 
-    this.messages.push({
-      role: 'user',
-      content: text,
-      timestamp: new Date(),
-      attachments: msgAttachments.length > 0 ? msgAttachments : undefined,
-    });
-
-    if (!this.isLoggedIn) {
-      this.guestMessageCount++;
-      localStorage.setItem(this.GUEST_COUNT_KEY, this.guestMessageCount.toString());
+    const ok = await this.ensureSession();
+    if (!ok || (!this.chatSessionId && !this.sessionGuid)) {
+      this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
+      this.messages.push({ sender: 'bot', text: `<span style="color:var(--red-dk)">فشل الرفع: ${this.uploadErrorMessage}</span>`, isHtml: true });
+      this.scrollToBottom();
+      return;
     }
 
-    this.currentMessage = '';
-    this.uploadedFiles  = [];
-    this.shouldScroll   = true;
-    this.isTyping       = true;
+    this.uploadProgress = 0;
+    this.uploadSuccessMessage = '';
+    this.uploadErrorMessage = '';
+    this.appendBotMsg(`جاري رفع ملف: <strong>${file.name}</strong> كـ <strong>${docName}</strong>...`);
 
-    if (this.messageInput?.nativeElement) {
-      this.messageInput.nativeElement.style.height = 'auto';
-    }
-
-    this.generateAIResponse(text);
-  }
-
-  // ─────────────────────────────────────────
-  // AI Response
-  // ─────────────────────────────────────────
-  private getEmail(): string {
-    if (this.isLoggedIn && this.userEmail) {
-      return this.userEmail;
-    }
-    let guestId = localStorage.getItem(this.GUEST_ID_KEY);
-    if (!guestId) {
-      guestId = 'guest_' + this.generateUUID();
-      localStorage.setItem(this.GUEST_ID_KEY, guestId);
-    }
-    return `${guestId}@guest.khedmetak.eg`;
-  }
-
-  private generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0;
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-  }
-
-  private generateAIResponse(query: string): void {
-    if (!this.currentSessionGuid) {
-      const email = this.getEmail();
-      this.chatApiService.createSession(email).subscribe({
-        next: (res) => {
-          this.currentSessionGuid = res.data?.sessionGuidId || res.data?.id || res.data;
-          if (!this.isLoggedIn && this.currentSessionGuid) {
-            localStorage.setItem(this.GUEST_SESSION_KEY, this.currentSessionGuid);
-          }
-          this.sendChatMessage(query);
-        },
-        error: (err) => {
-          console.error('فشل إنشاء الجلسة:', err);
-          this.messages.push({
-            role: 'assistant',
-            content: 'عذراً، تعذّر الاتصال بالخادم. يرجى التأكد من تشغيل الخادم والمحاولة مجدداً.',
-            timestamp: new Date()
-          });
-          this.isTyping = false;
-          this.shouldScroll = true;
-        }
-      });
-    } else {
-      this.sendChatMessage(query);
-    }
-  }
-
-  private sendChatMessage(query: string): void {
-    if (!this.currentSessionGuid) return;
-
-    this.chatApiService.sendMessage(query, this.currentSessionGuid).subscribe({
+    const uploadSessionId = this.chatSessionId || this.sessionGuid || '';
+    this.chatApiService.uploadDocument(file, uploadSessionId, docId).subscribe({
       next: (res) => {
-        const reply = res.data?.message || (res as any).message || 'نعتذر، حدث خطأ أثناء الاتصال بالخادم.';
-        this.messages.push({ role: 'assistant', content: reply, timestamp: new Date() });
-        this.isTyping = false;
-        this.shouldScroll = true;
+        this.uploadProgress = null;
+        if (res && res.success) {
+          this.uploadSuccessMessage = `تم رفع الملف بنجاح! المعرف: ${res.data?.id || res.data || ''}`;
+          this.appendBotMsg(`تم رفع <strong>${docName}</strong> بنجاح! ✅ المعرف: ${res.data?.id || res.data || ''}`);
+          
+          // Check off step 1 items dynamically
+          if (docId === 1 || docName.includes('القومي') || docName.includes('بطاقة')) this.step1Checklist[0].checked = true;
+          if (docId === 2 || docName.includes('الرخصة') || docName.includes('الحالية')) this.step1Checklist[1].checked = true;
+          if (docId === 3 || docName.includes('صور') || docName.includes('شخصية')) this.step1Checklist[2].checked = true;
+          
+          this.uploadVerified = true;
+        } else {
+          this.uploadErrorMessage = res?.message || 'فشل رفع الملف.';
+          this.appendBotMsg(`فشل رفع الملف: ${this.uploadErrorMessage} ❌`);
+        }
+        this.scrollToBottom();
       },
       error: (err) => {
-        console.error('فشل إرسال الرسالة:', err);
-        if (err.status === 400 || err.status === 404) {
-          this.currentSessionGuid = null;
-          if (!this.isLoggedIn) localStorage.removeItem(this.GUEST_SESSION_KEY);
-        }
-        this.messages.push({
-          role: 'assistant',
-          content: 'عذراً، حدث خطأ في الاتصال بالخادم. يرجى المحاولة لاحقاً.',
-          timestamp: new Date()
-        });
-        this.isTyping = false;
-        this.shouldScroll = true;
+        this.uploadProgress = null;
+        this.uploadErrorMessage = err?.error?.message || err?.message || 'حدث خطأ غير متوقع أثناء الرفع.';
+        this.appendBotMsg(`حدث خطأ أثناء الرفع: ${this.uploadErrorMessage} ❌`);
+        this.scrollToBottom();
       }
     });
+
+    event.target.value = '';
   }
 
-  retryLastMessage(): void {
-    const lastUserMsg = [...this.messages].reverse().find(m => m.role === 'user');
-    if (!lastUserMsg || this.isTyping) return;
-
-    const lastMsg = this.messages[this.messages.length - 1];
-    if (lastMsg?.role === 'assistant') {
-      this.messages.pop();
-    }
-
-    this.isTyping = true;
-    this.shouldScroll = true;
-    this.generateAIResponse(lastUserMsg.content);
+  private appendBotMsg(html: string): void {
+    this.messages.push({ sender: 'bot', text: html, isHtml: true });
+    this.scrollToBottom();
   }
 
-  stopGeneration(): void {
-    if (this.genTimeout) { clearTimeout(this.genTimeout); this.genTimeout = null; }
-    this.isTyping = false;
+  // ===========================
+  // Login Popup Handling
+  // ===========================
+
+  openLoginPopup(): void {
+    this.loginError = '';
+    this.showLoginPopup = true;
+    this.loginEmail = '';
+    this.loginPassword = '';
   }
 
-  // ─────────────────────────────────────────
-  // Login Popup
-  // ─────────────────────────────────────────
-  closeLoginPopup(): void { this.showLoginPopup = false; }
-
-  goToLogin(): void {
+  closeLoginPopup(): void {
     this.showLoginPopup = false;
-    this.router.navigate(['/login']);
+    this.loginError = '';
   }
 
-  goToRegister(): void {
-    this.showLoginPopup = false;
-    this.router.navigate(['/signup']);
-  }
-
-  // ─────────────────────────────────────────
-  // Message Actions
-  // ─────────────────────────────────────────
-  copyMessage(content: string, index: number): void {
-    const plainText = content.replace(/<[^>]*>/g, '');
-    navigator.clipboard.writeText(plainText).then(() => {
-      this.copiedIndex = index;
-      setTimeout(() => { this.copiedIndex = -1; }, 2000);
-    }).catch(() => {});
-  }
-
-  likeMessage(index: number): void {
-    if (this.messages[index]) {
-      this.messages[index].liked = !this.messages[index].liked;
+  continueAsGuest(): void {
+    this.closeLoginPopup();
+    if (this.freeRemaining <= 0) {
+      this.appendBotMsg('عشان تكمل الأسئلة، هتحتاج تسجل دخولك. ممكن تكلمنا في أي وقت بعد التسجيل.');
     }
   }
 
-  formatTime(date: Date): string {
-    return date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  // ─────────────────────────────────────────
-  // File Upload
-  // ─────────────────────────────────────────
-  triggerUpload(): void { this.fileInput?.nativeElement.click(); }
-  triggerImageUpload(): void { this.imageInput?.nativeElement.click(); }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-    this.processFiles(Array.from(input.files));
-    input.value = '';
-  }
-
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-    const imageFiles = Array.from(input.files).filter(f => f.type.startsWith('image/'));
-    this.processFiles(imageFiles);
-    input.value = '';
-  }
-
-  processFiles(files: File[]): void {
-    files.forEach(file => {
-      if (this.uploadedFiles.some(f => f.name === file.name && f.size === file.size)) return;
-
-      const isImage = file.type.startsWith('image/');
-
-      if (isImage) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const uploadedFile: UploadedFile = {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            previewUrl: e.target?.result as string,
-            isImage: true,
-          };
-          this.uploadedFiles = [...this.uploadedFiles, uploadedFile];
-        };
-        reader.readAsDataURL(file);
-      } else {
-        const uploadedFile: UploadedFile = {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          isImage: false,
-        };
-        this.uploadedFiles = [...this.uploadedFiles, uploadedFile];
-      }
-    });
-  }
-
-  removeFile(index: number): void { this.uploadedFiles.splice(index, 1); }
-
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  }
-
-  openImagePreview(url: string): void {
-    this.previewImageUrl = url;
-    this.showImagePreview = true;
-  }
-
-  closeImagePreview(): void {
-    this.showImagePreview = false;
-    this.previewImageUrl = '';
-  }
-
-  // ─────────────────────────────────────────
-  // Input helpers
-  // ─────────────────────────────────────────
-  autoResize(event: Event): void {
-    const element = event.target as HTMLTextAreaElement;
-    element.style.height = 'auto';
-    element.style.height = Math.min(element.scrollHeight, 180) + 'px';
-  }
-
-  get remainingGuestMessages(): number {
-    return Math.max(0, this.guestMessageLimit - this.guestMessageCount);
-  }
-
-  get isGuestLimitReached(): boolean {
-    return !this.isLoggedIn && this.guestMessageCount >= this.guestMessageLimit;
-  }
-
-  get guestProgressPercent(): number {
-    return Math.min(100, (this.guestMessageCount / this.guestMessageLimit) * 100);
-  }
-
-  get userInitials(): string {
-    if (this.isLoggedIn && this.userDisplayName) {
-      return this.userDisplayName.charAt(0).toUpperCase();
+  async doLogin(): Promise<void> {
+    if (!this.loginEmail.trim() || !this.loginPassword) {
+      this.loginError = 'من فضلك ادخل البريد الإلكتروني وكلمة المرور';
+      return;
     }
-    return '؟';
-  }
 
-  private scrollBottom(): void {
+    this.loginLoading = true;
+    this.loginError = '';
+
     try {
-      const element = this.messagesContainer?.nativeElement;
-      if (element) { element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' }); }
-    } catch { /* silent */ }
+      const res = await firstValueFrom(
+        this.authService.login(this.loginEmail.trim(), this.loginPassword)
+      );
+
+      if (res && res.data && res.data.token) {
+        const expireDate = new Date(res.data.expiresAt || new Date().getTime() + 86400000);
+        document.cookie = `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
+        
+        // Save user email
+        const userEmail = res.data.userEmail || this.loginEmail.trim();
+        document.cookie = `user_email=${userEmail}; expires=${expireDate.toUTCString()}; path=/`;
+
+        this.isLoggedIn = true;
+        this.freeRemaining = 0;
+
+        // Reset session on login so we start an authenticated chat session
+        this.sessionGuid = null;
+        this.chatSessionId = null;
+        document.cookie = 'sessionGuidId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'chatSessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+        await this.ensureSession();
+
+        this.closeLoginPopup();
+        this.appendBotMsg('تم تسجيل دخولك بنجاح ✅ يمكنك استكمال المحادثة الآن.');
+      } else {
+        throw new Error('فشل استلام التوكن');
+      }
+    } catch (err: any) {
+      this.loginError = err?.error?.message || err?.message || 'بيانات الدخول غلط، حاول تاني';
+    } finally {
+      this.loginLoading = false;
+    }
+  }
+
+  // ===========================
+  // Steps / Navigation Handlers
+  // ===========================
+
+  showOnline(): void { 
+    this.onlineMode = true; 
+    this.officeMode = false;
+    this.scrollToBottom();
+  }
+  
+  showOffice(): void { 
+    this.officeMode = true; 
+    this.onlineMode = false;
+    this.scrollToBottom();
+  }
+  
+  showUpload(): void { 
+    if (!this.isLoggedIn) {
+      this.openLoginPopup();
+      return;
+    }
+    this.showUploadZone = true; 
+    this.scrollToBottom();
+  }
+
+  showStep3(): void { 
+    this.step3Completed = true; 
+    this.activeStep = 3; 
+    this.scrollToBottom();
+  }
+  
+  showStep4(): void { 
+    this.step4Completed = true; 
+    this.activeStep = 4; 
+    this.scrollToBottom();
+  }
+  
+  showDone(): void { 
+    this.chatDone = true; 
+    this.activeStep = 5; 
+    this.scrollToBottom();
+  }
+
+  // ===========================
+  // Formatting & DOM
+  // ===========================
+
+  scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.msgsContainer && this.msgsContainer.nativeElement) {
+        this.msgsContainer.nativeElement.scrollTop = this.msgsContainer.nativeElement.scrollHeight;
+      }
+    }, 100);
+  }
+
+  private escHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  private mdToHtml(text: string): string {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/\n/g, '<br>');
+  }
+
+  getProgressDotClass(step: number): string {
+    if (step < this.activeStep) return 'ps-dot done';
+    if (step === this.activeStep) return 'ps-dot curr';
+    return 'ps-dot next';
+  }
+
+  getProgressDotContent(step: number): string {
+    return step < this.activeStep ? '✓' : step.toString();
+  }
+
+  getSidebarDotClass(step: number): string {
+    if (step < this.activeStep) return 's-dot done';
+    if (step === this.activeStep) return 's-dot active';
+    return 's-dot idle';
+  }
+
+  getSidebarDotContent(step: number): string {
+    return step < this.activeStep ? '✓' : step.toString();
   }
 }

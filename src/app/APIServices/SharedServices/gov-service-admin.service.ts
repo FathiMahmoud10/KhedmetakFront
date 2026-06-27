@@ -73,4 +73,5 @@ export class GovServiceAdminService {
   deleteService(id: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.apiUrl}/${id}`);
   }
+  
 }
