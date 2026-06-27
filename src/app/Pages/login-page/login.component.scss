@@ -17,20 +17,20 @@ $err:    #d14343;
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100vh;
-  padding-top: 70px;
+  padding-top: 0;
   font-family: 'Cairo', sans-serif;
   background: $bg;
   position: relative;
 
   @media (min-width: 1024px) {
     grid-template-columns: 1fr 1.1fr;
-    padding-top: 70px;
+    padding-top: 0;
   }
 }
 
 .login-stripe {
   position: fixed;
-  top: 70px;
+  top: 0;
   left: 0;
   right: 0;
   height: 4px;
@@ -52,7 +52,7 @@ $err:    #d14343;
   @media (min-width: 1024px) {
     display: flex;
     align-items: center;
-    min-height: calc(100vh - 70px);
+    min-height: 100vh;
   }
 
   &__bg {
@@ -168,11 +168,11 @@ $err:    #d14343;
   align-items: center;
   justify-content: center;
   padding: 32px 20px 48px;
-  min-height: calc(100vh - 74px);
+  min-height: 100vh;
 
   @media (min-width: 1024px) {
     padding: 48px 56px;
-    min-height: calc(100vh - 74px);
+    min-height: 100vh;
   }
 }
 

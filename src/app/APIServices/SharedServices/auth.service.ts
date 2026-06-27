@@ -55,4 +55,36 @@ export class AuthService {
       return null;
     }
   }
+
+  isLoggedIn(): boolean {
+    const token = this.getTokenFromCookie();
+    if (!token) return false;
+    const payload = this.decodeJwt(token);
+    return !!payload;
+  }
+
+  getRole(): string | null {
+    const token = this.getTokenFromCookie();
+    if (!token) return null;
+    const payload = this.decodeJwt(token);
+    if (!payload) return null;
+
+    // الـ Backend بيستخدم ClaimTypes.Role اللي بيتحول لـ URI ده في الـ JWT
+    const roleClaim =
+      payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+      ?? payload?.role
+      ?? payload?.Role
+      ?? null;
+
+    // لو الـ roles جت كـ array (لو User معاه أكتر من role)، خد الأولى
+    if (Array.isArray(roleClaim)) {
+      return roleClaim[0] ?? null;
+    }
+
+    return roleClaim;
+  }
+
+  logout(): void {
+    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+  }
 }

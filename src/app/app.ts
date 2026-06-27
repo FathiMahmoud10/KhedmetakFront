@@ -15,6 +15,7 @@ import { UserSidebar } from "./Components/user-sidebar/sidebar";
 })
 export class App implements OnInit {
   showFooter: boolean = true;
+  showNavbar: boolean = true;
 
   constructor(private router: Router) {}
 
@@ -24,6 +25,10 @@ export class App implements OnInit {
     ).subscribe((event: any) => {
       const currentUrl = event.url;
 
+      const authPages =
+        currentUrl.includes('/login') ||
+        currentUrl.includes('/signup');
+
       const adminPages =
         currentUrl.includes('admin-profile') ||
         currentUrl.includes('admin-dashboard') ||
@@ -32,10 +37,11 @@ export class App implements OnInit {
       const noFooterPages =
         adminPages ||
         currentUrl.includes('/chat') ||
-        currentUrl.includes('/login') ||
-        currentUrl.includes('/signup');
+        authPages;
 
       this.showFooter = !noFooterPages;
+      // الـ navbar يتخبى على صفحات اللوجن والسيجنأب بس
+      this.showNavbar = !authPages;
     });
   }
 }

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../APIServices/SharedServices/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -26,7 +27,11 @@ export class LoginComponent {
 
   year = new Date().getFullYear();
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
   validateEmail() { this.emailError = !this.email.trim(); }
   validatePassword() { this.passwordError = this.password.length < 6; }
@@ -35,7 +40,7 @@ export class LoginComponent {
     console.log('Google sign in');
   }
 
- onSubmit() {
+  onSubmit() {
     this.validateEmail();
     this.validatePassword();
 
@@ -52,33 +57,32 @@ export class LoginComponent {
       }
     ).subscribe({
       next: (res) => {
-  this.isLoading = false;
+        this.isLoading = false;
 
-  if (res?.data?.token) {
+        if (res?.data?.token) {
+          const expireDate = new Date(res.data.expiresAt);
+          document.cookie =
+            `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
+        }
 
-    const expireDate = new Date(res.data.expiresAt);
-
-    document.cookie =
-      `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
-  }
-
-  this.router.navigate(['/home']);
-},
+        // توجيه حسب الـ Role
+        const role = this.authService.getRole();
+        if (role === 'Admin') {
+          this.router.navigate(['/admin-dashboard']);
+        } else {
+          this.router.navigate(['/user-dashboard']);
+        }
+      },
 
       error: (err) => {
         this.isLoading = false;
 
         if (err.status === 401) {
-          this.serverError =
-            'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+          this.serverError = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
         } else {
-          this.serverError =
-            'حدث خطأ، يرجى المحاولة مرة أخرى';
+          this.serverError = 'حدث خطأ، يرجى المحاولة مرة أخرى';
         }
       }
     });
   }
 }
-
-
-
