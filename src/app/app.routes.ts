@@ -53,8 +53,8 @@ export const routes: Routes = [
   { path: 'user-dashboard', component: UserDashboard, canActivate: [userGuard] },
   { path: 'my-requests',    component: MyRequests,    canActivate: [userGuard] },
   { path: 'my-files',       component: MyFiles,       canActivate: [userGuard] },
-  // صفحة الشات للمستخدم العادي فقط
-  { path: 'chat', component: ChatPageComponent, canActivate: [userGuard] },
+  // صفحة الشات للمستخدمين والزوار
+  { path: 'chat', component: ChatPageComponent },
 
   // ==============================
   // صفحات مشتركة وعامة (متاحة للجميع)

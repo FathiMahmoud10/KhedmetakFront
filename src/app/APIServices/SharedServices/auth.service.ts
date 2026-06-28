@@ -84,7 +84,26 @@ export class AuthService {
     return roleClaim;
   }
 
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+
+  clearStaleSession(): void {
+    const token = this.getTokenFromCookie();
+    if (token && this.isTokenExpired(token)) {
+      this.logout();
+    }
+  }
+
   logout(): void {
-    document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+    const cookies = ['token', 'user_email', 'sessionGuidId', 'role'];
+    cookies.forEach((name) => {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
+    });
   }
 }

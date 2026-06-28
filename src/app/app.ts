@@ -7,6 +7,7 @@ import { NavbarCom } from "./Components/SharedComponents/navbar-com/navbar-com";
 import { AdminSidebar } from "./Components/admin-sidebar/admin-sidebar";
 import { UserSidebar } from "./Components/user-sidebar/sidebar";
 import { ThemeService } from './Services/theme.service';
+import { AuthService } from './APIServices/SharedServices/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -18,9 +19,14 @@ export class App implements OnInit {
   showFooter: boolean = true;
   showNavbar: boolean = true;
 
-  constructor(private router: Router, private themeService: ThemeService) {}
+  constructor(
+    private router: Router,
+    private themeService: ThemeService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    this.authService.clearStaleSession();
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
