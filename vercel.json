@@ -1,5 +1,5 @@
 {
-  "outputDirectory": "dist/KhedmetakFront",
+  "outputDirectory": "dist/KhedmetakFront/browser",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
