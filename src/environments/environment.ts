@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://iticon.runasp.net'
+  apiUrl: 'https://iticon.runasp.net/api'
 };
