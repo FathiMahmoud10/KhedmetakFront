@@ -134,6 +134,61 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
 
+    <!-- ── المحادثات السابقة (للمستخدمين المسجلين) ── -->
+    <div class="sb-history" *ngIf="isLoggedIn">
+
+      <!-- Header + New Chat -->
+      <div class="sbh-top">
+        <div class="sb-label">المحادثات</div>
+        <button class="new-chat-btn" (click)="startNewChat()" title="محادثة جديدة">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          جديدة
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="sessions-loading" *ngIf="sessionsLoading">
+        <div class="spin-ring"></div>
+        <span>جاري التحميل...</span>
+      </div>
+
+      <!-- Session List -->
+      <div class="sessions-list" *ngIf="!sessionsLoading">
+
+        <!-- Empty state -->
+        <div class="sessions-empty" *ngIf="userSessions.length === 0">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--hint)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <p>لا توجد محادثات سابقة</p>
+        </div>
+
+        <!-- Each session -->
+        <button
+          class="session-item"
+          *ngFor="let s of userSessions"
+          [class.active]="s.id === activeSessionId"
+          (click)="loadSession(s)"
+        >
+          <div class="si-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="si-body">
+            <div class="si-preview">{{ s.preview || 'محادثة جديدة' }}</div>
+            <div class="si-meta">
+              <span class="si-date">{{ formatSessionDate(s.startedAt) }}</span>
+              <span class="si-count" *ngIf="s.messageCount > 0">
+                {{ s.messageCount }} رسائل
+              </span>
+            </div>
+          </div>
+          <div class="si-active-bar" *ngIf="s.id === activeSessionId"></div>
+        </button>
+
+      </div>
+    </div><!-- /sb-history -->
+
+    <!-- Divider if logged in -->
+    <div class="sb-divider" *ngIf="isLoggedIn"></div>
+
     <!-- ── الخدمة الحالية ── -->
     <div class="sb-header">
       <div class="sb-label">الخدمة الحالية</div>

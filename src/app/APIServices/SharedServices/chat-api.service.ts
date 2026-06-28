@@ -30,10 +30,8 @@ export class ChatApiService {
 
   createSession(email: string): Observable<any> {
     const payload = {
-      dto: {
-        userEmail: email,
-        createdAt: new Date().toISOString()
-      }
+      userEmail: email,
+      createdAt: new Date().toISOString()
     };
     return this.http.post<any>(`${this.apiUrl}/Session/newSession`, payload);
   }
@@ -52,5 +50,9 @@ export class ChatApiService {
     formData.append('ChatSessionId', chatSessionId.toString());
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
     return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
+  }
+
+  getUserSessions(userEmail: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Session/UserSessions/${encodeURIComponent(userEmail)}`);
   }
 }

@@ -15,6 +15,15 @@ interface RequiredDocument {
   isMandatory: boolean;
 }
 
+interface UserSessionSummary {
+  id: number;
+  sessionGuidId: string;
+  startedAt: string;
+  endedAt?: string | null;
+  preview: string;
+  messageCount: number;
+}
+
 interface ServiceDetailApi {
   id: number;
   srvName: string;
@@ -60,6 +69,11 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   serviceAlertActive = true;
   // Track whether sidebar info has been overridden by AI
   sidebarUpdatedByAI = false;
+
+  // User chat history sessions
+  userSessions: UserSessionSummary[] = [];
+  sessionsLoading = false;
+  activeSessionId: number | null = null;
 
   // Chat message history
   messages: Array<{
@@ -118,6 +132,9 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.initGuestLimits();
     this.ensureSession();
     this.fetchRequiredDocuments();
+    if (this.isLoggedIn) {
+      this.fetchUserSessions();
+    }
     // Chat starts empty — messages appear only after user sends first message
   }
 
@@ -387,6 +404,68 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   }
 
   // ===========================
+  // User Sessions History
+  // ===========================
+
+  fetchUserSessions(): void {
+    const email = this.getCookie('user_email');
+    if (!email) return;
+
+    this.sessionsLoading = true;
+    this.chatApiService.getUserSessions(email).subscribe({
+      next: (res: any) => {
+        this.sessionsLoading = false;
+        // Handle both direct array and wrapped ApiResponse
+        if (Array.isArray(res)) {
+          this.userSessions = res;
+        } else if (res?.data && Array.isArray(res.data)) {
+          this.userSessions = res.data;
+        } else {
+          this.userSessions = [];
+        }
+      },
+      error: (err: any) => {
+        this.sessionsLoading = false;
+        console.warn('Failed to load user sessions:', err);
+        this.userSessions = [];
+      }
+    });
+  }
+
+  loadSession(session: UserSessionSummary): void {
+    this.activeSessionId = session.id;
+    this.sessionGuid = session.sessionGuidId;
+    this.chatSessionId = session.id;
+    // Save to cookies
+    this.setCookie('sessionGuidId', session.sessionGuidId, 1);
+    this.setCookie('chatSessionId', session.id.toString(), 1);
+    // Clear current messages and start fresh with session context
+    this.messages = [];
+    this.appendBotMsg(`تم تحميل المحادثة السابقة. يمكنك الاستمرار من حيث توقفت.`);
+  }
+
+  startNewChat(): void {
+    this.activeSessionId = null;
+    this.sessionGuid = null;
+    this.chatSessionId = null;
+    document.cookie = 'sessionGuidId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'chatSessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    this.messages = [];
+    this.ensureSession();
+  }
+
+  formatSessionDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - d.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'اليوم';
+    if (diffDays === 1) return 'أمس';
+    if (diffDays < 7) return `منذ ${diffDays} أيام`;
+    return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+  }
+
+  // ===========================
   // Send Message Logic
   // ===========================
 
@@ -605,6 +684,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         document.cookie = 'chatSessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
         await this.ensureSession();
+        // Fetch sessions after login
+        this.fetchUserSessions();
 
         this.closeLoginPopup();
         this.appendBotMsg('تم تسجيل دخولك بنجاح ✅ يمكنك استكمال المحادثة الآن.');
