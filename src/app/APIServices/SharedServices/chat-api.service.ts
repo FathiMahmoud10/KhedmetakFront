@@ -30,34 +30,39 @@ export class ChatApiService {
 
   createSession(email: string): Observable<any> {
     const payload = {
-      userEmail: email,
-      createdAt: new Date().toISOString()
+      dto: {
+        userEmail: email,
+        createdAt: new Date().toISOString()
+      }
     };
     return this.http.post<any>(`${this.apiUrl}/Session/newSession`, payload);
   }
 
-  sendMessage(message: string, sessionGuidId: string): Observable<any> {
+  sendMessage(message: string, sessionGuidId: string): Observable<string> {
     const payload: ChatRequest = {
       message,
       sessionGuidId
     };
-    return this.http.post<any>(`${this.apiUrl}/AI/chat`, payload);
+    return this.http.post(`${this.apiUrl}/AI/chat`, payload, { responseType: 'text' });
   }
 
-  uploadDocument(file: File, chatSessionId: string | number, requiredDocumentId: number): Observable<any> {
+  // FIX: matches the real backend route — SessionController exposes
+  // GET api/Session/SessionMsgs/{sessionGuidId}, returning
+  // ApiResponse<List<ChatSessionMessageDTO>> (messageId/role/content) directly as `data`.
+  getSessionHistory(sessionGuidId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
+  }
+
+  // FIX: chat sessions are identified by Guid everywhere in the backend (SessionGuidId).
+  // There is no numeric "chatSessionId" available on the frontend - the "newSession"
+  // endpoint only ever returns the Guid. Sending a fabricated/derived number here meant
+  // the file never linked to the right session (or any session) on the backend.
+  // Always send the Guid under the field name the backend expects: sessionGuidId.
+  uploadDocument(file: File, sessionGuidId: string, requiredDocumentId: number): Observable<any> {
     const formData = new FormData();
     formData.append('File', file);
-    formData.append('ChatSessionId', chatSessionId.toString());
+    formData.append('SessionGuidId', sessionGuidId);
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
     return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
   }
-
-  getUserSessions(userEmail: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/Session/UserSessions/${encodeURIComponent(userEmail)}`);
-  }
-
-  getSessionMessages(sessionGuidId: string): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
-  }
 }
-

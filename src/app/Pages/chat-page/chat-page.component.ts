@@ -1,11 +1,12 @@
 import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ChatApiService, ChatResponse } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { UserDashboardService } from '../../APIServices/SharedServices/user-dashboard.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
@@ -15,18 +16,10 @@ interface RequiredDocument {
   isMandatory: boolean;
 }
 
-interface UserSessionSummary {
-  id: number;
-  sessionGuidId: string;
-  startedAt: string;
-  endedAt?: string | null;
-  preview: string;
-  messageCount: number;
-}
-
 interface ServiceDetailApi {
   id: number;
   srvName: string;
+  srvTime?: string;
   requiredDocuments: RequiredDocument[];
 }
 
@@ -48,7 +41,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   readonly MAX_FREE_MSGS = 3;
   freeRemaining = this.MAX_FREE_MSGS;
   guestMessageCount = 0;
-  
+
   sessionGuid: string | null = null;
   chatSessionId: number | null = null;
   isLoggedIn = false;
@@ -57,23 +50,31 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   loginLoading = false;
   loginError = '';
 
+  // FIX: this page always talks to GovService #1 (see fetchRequiredDocuments below).
+  // We keep the id here so we can link the chat session to this exact service for the
+  // logged-in user — that's what makes the session show up under "طلباتي" / dashboard stats.
+  readonly govServiceId = 1;
+  sessionLinked = false;
+
   loginEmail = '';
   loginPassword = '';
   msgText = '';
 
-  // Service info (populated from API or AI response)
+  // Service info (populated from API)
   serviceName = 'جاري التحميل...';
   serviceAgency = '';
   serviceFee: number | null = null;
-  serviceTime = '3–5 أيام';
-  serviceAlertActive = true;
-  // Track whether sidebar info has been overridden by AI
-  sidebarUpdatedByAI = false;
+  serviceTime = '30 دقيقة';
 
-  // User chat history sessions
-  userSessions: UserSessionSummary[] = [];
+  // Session list sidebar state
   sessionsLoading = false;
-  activeSessionId: number | null = null;
+  userSessions: Array<{
+    id: string;
+    preview: string;
+    startedAt: string;
+    messageCount: number;
+  }> = [];
+  activeSessionId: string | null = null;
 
   // Chat message history
   messages: Array<{
@@ -86,8 +87,22 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     currentStep?: number;
   }> = [];
 
-  copiedMap: { [key: number]: boolean } = {};
-
+  // ===========================
+  // Step wizard / checklist state
+  // ===========================
+  step1Checklist: { label: string; checked: boolean }[] = [
+    { label: 'بطاقة الرقم القومي', checked: false },
+    { label: 'الرخصة الحالية', checked: false },
+    { label: '6 صور شخصية', checked: false }
+  ];
+  uploadVerified = false;
+  onlineMode = false;
+  officeMode = false;
+  showUploadZone = false;
+  step3Completed = false;
+  step4Completed = false;
+  chatDone = false;
+  activeStep = 1;
 
   // File Upload State
   requiredDocuments: RequiredDocument[] = [];
@@ -102,27 +117,13 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     { id: 3, documentName: '6 صور شخصية', isMandatory: true }
   ];
 
-  // Step-by-step assistant variables
-  activeStep = 1;
-  onlineMode = false;
-  officeMode = false;
-  showUploadZone = false;
-  uploadVerified = false;
-  step3Completed = false;
-  step4Completed = false;
-  chatDone = false;
-
-  step1Checklist = [
-    { label: 'بطاقة الرقم القومي', checked: false },
-    { label: 'الرخصة الحالية', checked: false },
-    { label: '6 صور شخصية', checked: false }
-  ];
-
 
   constructor(
     private http: HttpClient,
+    private route: ActivatedRoute,
     private chatApiService: ChatApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dashboardService: UserDashboardService
   ) {}
 
   // ===========================
@@ -132,12 +133,53 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.isLoggedIn = this.checkLoggedInStatus();
     this.initGuestLimits();
-    this.ensureSession();
     this.fetchRequiredDocuments();
     if (this.isLoggedIn) {
-      this.fetchUserSessions();
+      this.loadUserSessions();
     }
-    // Chat starts empty — messages appear only after user sends first message
+
+    // FIX: "متابعة المحادثة" (resume conversation) links here with ?session=<guid>.
+    // If present, resume that exact session (and load its message history) instead
+    // of falling back to whatever session happens to be saved in the cookie / creating
+    // a brand-new one — otherwise clicking "resume" never actually showed the old chat.
+    const resumeGuid = this.route.snapshot.queryParamMap.get('session');
+    if (resumeGuid) {
+      this.sessionGuid = resumeGuid;
+      this.activeSessionId = resumeGuid;
+      this.setCookie('sessionGuidId', resumeGuid, 1);
+      this.loadSessionHistory(resumeGuid);
+      this.ensureSession();
+    } else {
+      this.ensureSession();
+      // Chat starts empty — messages appear only after user sends first message
+    }
+  }
+
+  /**
+   * Fetches and renders the previous messages of a session so resuming a
+   * conversation shows what was already said, not a blank chat.
+   */
+  private loadSessionHistory(sessionGuidId: string): void {
+    this.chatApiService.getSessionHistory(sessionGuidId).subscribe({
+      next: (res) => {
+        // FIX: backend wraps the result as ApiResponse<List<ChatSessionMessageDTO>>,
+        // so `data` IS the messages array itself — not an object with a nested
+        // ChatSession_ChatHistory property (that shape only exists internally in the
+        // AI service layer, never on the wire from SessionController).
+        const history = (res && res.success !== undefined) ? res.data : res;
+        if (Array.isArray(history) && history.length > 0) {
+          this.messages = history.map((m: any) => ({
+            sender: (m.role || m.Role) === 'user' ? 'user' : 'bot',
+            text: this.mdToHtml(m.content || m.Content || ''),
+            isHtml: true
+          }));
+          this.scrollToBottom();
+        }
+      },
+      error: (err) => {
+        console.warn('فشل تحميل سجل المحادثة السابقة:', err);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -225,7 +267,11 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // ===========================
 
   async ensureSession(): Promise<boolean> {
-    if (this.sessionGuid) return true;
+    if (this.sessionGuid) {
+      this.activeSessionId = this.sessionGuid;
+      this.linkSessionIfNeeded();
+      return true;
+    }
 
     // Try restoring session from cookies
     const savedGuid = this.getCookie('sessionGuidId');
@@ -233,7 +279,9 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
     if (savedGuid) {
       this.sessionGuid = savedGuid;
+      this.activeSessionId = savedGuid;
       this.chatSessionId = savedId ? parseInt(savedId, 10) : null;
+      this.linkSessionIfNeeded();
       return true;
     }
 
@@ -243,21 +291,23 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         : 'guest@moamaltak.ai';
 
       const res = await firstValueFrom(this.chatApiService.createSession(email));
-      
+
       // Support both unwrapped (direct SessionResponse) and wrapped (ApiResponse<SessionResponse>)
-      let data = res;
-      if (res && res.success !== undefined && res.data !== undefined) {
-        data = res.data;
+      let data: any = res;
+      if (res && (res as any).success !== undefined && (res as any).data !== undefined) {
+        data = (res as any).data;
       }
 
       if (data) {
         if (typeof data === 'string') {
           this.sessionGuid = data;
+          this.activeSessionId = data;
           this.chatSessionId = null;
         } else {
           this.sessionGuid = data.sessionGuidId || data.guid || data.sessionId || (typeof data.id === 'string' ? data.id : null) || null;
+          this.activeSessionId = this.sessionGuid;
           this.chatSessionId = typeof data.id === 'number' ? data.id : (data.chatSessionId ? parseInt(data.chatSessionId, 10) : null);
-          
+
           if (!this.chatSessionId && data.id) {
             const parsed = parseInt(data.id, 10);
             if (!isNaN(parsed)) {
@@ -273,6 +323,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
           }
         }
       }
+
+      // FIX: link the brand-new session to the logged-in user's account right away,
+      // so it's tracked as a real request (visible in "طلباتي" / dashboard stats)
+      // from the moment the chat starts — not only if the user happens to upload a file.
+      this.linkSessionIfNeeded();
+
       return !!this.sessionGuid;
     } catch (err) {
       console.error('Session creation failed:', err);
@@ -280,17 +336,39 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     }
   }
 
+  /**
+   * Links the current chat session to the logged-in user's account and to this
+   * page's gov service, marking it as a "Pending" request. Safe to call repeatedly —
+   * it's a no-op once sessionLinked is true or there's no session/login yet.
+   */
+  private linkSessionIfNeeded(): void {
+    if (this.sessionLinked || !this.isLoggedIn || !this.sessionGuid) return;
+
+    this.dashboardService
+      .linkSessionToService(this.sessionGuid, this.govServiceId, 'Pending')
+      .subscribe({
+        next: () => {
+          this.sessionLinked = true;
+          this.loadUserSessions();
+        },
+        error: (err) => {
+          // Non-fatal — the chat itself still works even if linking fails (e.g. session
+          // not saved yet on the backend). We'll just retry next time ensureSession runs.
+          console.warn('فشل ربط الجلسة بحساب المستخدم:', err);
+        }
+      });
+  }
+
   private fetchRequiredDocuments(): void {
     this.http.get<ApiResponse<ServiceDetailApi>>(`${environment.apiUrl}/GovServices/1`).subscribe({
       next: (res) => {
         if (res && res.success && res.data) {
           const data = res.data;
-          // Populate service display info only if AI hasn't overridden yet
-          if (!this.sidebarUpdatedByAI) {
-            this.serviceName    = data.srvName || 'خدمة حكومية';
-            this.serviceAgency  = (data as any).agencyName || (data as any).agency || 'هيئة حكومية';
-            this.serviceFee     = (data as any).fee ?? (data as any).totalFee ?? (data as any).cost ?? null;
-          }
+          // Populate service display info
+          this.serviceName    = data.srvName || 'خدمة حكومية';
+          this.serviceAgency  = (data as any).agencyName || (data as any).agency || 'هيئة حكومية';
+          this.serviceFee     = (data as any).fee ?? (data as any).totalFee ?? (data as any).cost ?? null;
+          this.serviceTime    = data.srvTime || (data as any).srvTime || '30 دقيقة';
 
           if (data.requiredDocuments && data.requiredDocuments.length > 0) {
             this.requiredDocuments = data.requiredDocuments;
@@ -298,104 +376,20 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
             this.requiredDocuments = this.fallbackDocuments;
           }
         } else {
-          if (!this.sidebarUpdatedByAI) {
-            this.serviceName = 'تجديد رخصة القيادة';
-          }
+          this.serviceName = 'تجديد رخصة القيادة';
+          this.serviceTime = '30 دقيقة';
           this.requiredDocuments = this.fallbackDocuments;
         }
         this.initSelectedDocumentId();
       },
       error: (err) => {
         console.warn('Failed to fetch service data, using fallback.', err);
-        if (!this.sidebarUpdatedByAI) {
-          this.serviceName = 'تجديد رخصة القيادة';
-        }
+        this.serviceName = 'تجديد رخصة القيادة';
+        this.serviceTime = '30 دقيقة';
         this.requiredDocuments = this.fallbackDocuments;
         this.initSelectedDocumentId();
       }
     });
-  }
-
-  /**
-   * Extracts structured service info from an AI reply text and updates
-   * the sidebar info-cards dynamically.
-   */
-  private extractServiceInfoFromReply(text: string): void {
-    if (!text || text.trim().length === 0) return;
-
-    // ── 1. Service Name ──────────────────────────────────────
-    // Look for patterns like: "خدمة: ...", "اسم الخدمة ...", or quoted names
-    const namePatterns = [
-      /(?:اسم الخدمة|الخدمة)[:\s]+([^\n،,]{4,60})/i,
-      /(?:معاملة|تجديد|استخراج|إصدار)[\s]+([^\n،,]{4,50})/i,
-    ];
-    for (const pat of namePatterns) {
-      const m = text.match(pat);
-      if (m && m[1]) {
-        this.serviceName = m[1].trim().replace(/[*#_]/g, '');
-        this.sidebarUpdatedByAI = true;
-        break;
-      }
-    }
-
-    // ── 2. Fee / Cost ─────────────────────────────────────────
-    // e.g. "370 جنيه", "الرسوم: 250", "تكلفة 500 ج"
-    const feePatterns = [
-      /(?:الرسوم|رسوم|التكلفة|تكلفة|إجمالي|المبلغ)[:\s]*(\d+(?:\.\d+)?)/i,
-      /(\d+(?:\.\d+)?)\s*(?:جنيه|ج\.م|EGP|LE)/i,
-    ];
-    for (const pat of feePatterns) {
-      const m = text.match(pat);
-      if (m && m[1]) {
-        const parsed = parseFloat(m[1]);
-        if (!isNaN(parsed) && parsed > 0) {
-          this.serviceFee = parsed;
-          this.sidebarUpdatedByAI = true;
-          break;
-        }
-      }
-    }
-
-    // ── 3. Time ──────────────────────────────────────────────
-    // e.g. "3-5 أيام", "من 7 إلى 10 أيام عمل", "أسبوع"
-    const timePatterns = [
-      /(?:الوقت|وقت|مدة|يستغرق|تستغرق|خلال)[:\s]*([\d٠-٩\-–]+(?:\s*(?:إلى|to|–|-)\s*[\d٠-٩]+)?\s*(?:يوم|أيام|يوماً|ساعة|ساعات|أسبوع|أسابيع|شهر|شهور))/i,
-      /([\d٠-٩]+\s*(?:–|-|إلى)\s*[\d٠-٩]+\s*(?:أيام|يوم|يوماً|أسبوع|ساعة))/i,
-    ];
-    for (const pat of timePatterns) {
-      const m = text.match(pat);
-      if (m && m[1]) {
-        this.serviceTime = m[1].trim();
-        this.sidebarUpdatedByAI = true;
-        break;
-      }
-    }
-
-    // ── 4. Required Documents ─────────────────────────────────
-    // Look for lists of documents in the AI reply
-    const docListPatterns = [
-      /(?:الأوراق|المستندات|الوثائق|متطلبات)[:\s\n]+([\s\S]{10,400}?)(?=\n\n|\n#|$)/i,
-    ];
-    for (const pat of docListPatterns) {
-      const m = text.match(pat);
-      if (m && m[1]) {
-        // Extract individual document items (numbered or bulleted)
-        const items = m[1]
-          .split(/\n/)
-          .map(l => l.replace(/^[\s\d١٢٣٤٥٦٧٨٩\-.*•\[\]]+/, '').trim())
-          .filter(l => l.length > 3 && l.length < 100);
-        if (items.length >= 2) {
-          this.requiredDocuments = items.map((name, idx) => ({
-            id: idx + 1,
-            documentName: name,
-            isMandatory: true
-          }));
-          this.initSelectedDocumentId();
-          this.sidebarUpdatedByAI = true;
-          break;
-        }
-      }
-    }
   }
 
 
@@ -404,126 +398,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       this.selectedDocumentIdForUpload = this.requiredDocuments[0].id;
     }
   }
-
-  // ===========================
-  // User Sessions History
-  // ===========================
-
-  fetchUserSessions(): void {
-    // Try cookie first, then fall back to JWT token claim
-    let email = this.getCookie('user_email');
-    if (!email) {
-      const token = this.authService.getTokenFromCookie();
-      if (token) {
-        const payload = this.authService.decodeJwt(token);
-        email = payload?.email
-          ?? payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
-          ?? payload?.Email
-          ?? null;
-      }
-    }
-    if (!email) return;
-
-    this.sessionsLoading = true;
-    this.chatApiService.getUserSessions(email).subscribe({
-      next: (res: any) => {
-        this.sessionsLoading = false;
-        // Handle both direct array and wrapped ApiResponse
-        if (Array.isArray(res)) {
-          this.userSessions = res;
-        } else if (res?.data && Array.isArray(res.data)) {
-          this.userSessions = res.data;
-        } else {
-          this.userSessions = [];
-        }
-      },
-      error: (err: any) => {
-        this.sessionsLoading = false;
-        console.warn('Failed to load user sessions:', err);
-        this.userSessions = [];
-      }
-    });
-  }
-
-  loadSession(session: UserSessionSummary): void {
-    this.activeSessionId = session.id;
-    this.sessionGuid = session.sessionGuidId;
-    this.chatSessionId = session.id;
-    // Save to cookies
-    this.setCookie('sessionGuidId', session.sessionGuidId, 1);
-    this.setCookie('chatSessionId', session.id.toString(), 1);
-    // Clear current messages and start loading from the API
-    this.messages = [];
-    
-    this.chatApiService.getSessionMessages(session.sessionGuidId).subscribe({
-      next: (res: any) => {
-        let msgList = [];
-        if (res && res.success && Array.isArray(res.data)) {
-          msgList = res.data;
-        } else if (Array.isArray(res)) {
-          msgList = res;
-        }
-
-        this.messages = msgList.map((m: any) => {
-          const sender = m.role === 'user' ? 'user' : 'bot';
-          return {
-            sender,
-            text: sender === 'bot' ? this.mdToHtml(m.content) : m.content,
-            isHtml: sender === 'bot'
-          };
-        });
-
-        if (this.messages.length === 0) {
-          this.appendBotMsg(`بدأت المحادثة الجديدة. كيف يمكنني مساعدتك اليوم؟`);
-        } else {
-          this.scrollToBottom();
-        }
-      },
-      error: (err: any) => {
-        console.error('Failed to load session messages:', err);
-        this.appendBotMsg(`<span style="color:var(--red-dk)">عذراً، فشل تحميل رسائل المحادثة السابقة.</span>`);
-      }
-    });
-  }
-
-  startNewChat(): void {
-    this.activeSessionId = null;
-    this.sessionGuid = null;
-    this.chatSessionId = null;
-    document.cookie = 'sessionGuidId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'chatSessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    this.messages = [];
-    this.ensureSession();
-  }
-
-  formatSessionDate(dateStr: string): string {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-
-    const now = new Date();
-    const diffMs = now.getTime() - d.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    // Format time: hh:mm AM/PM in Arabic
-    const timeOptions: Intl.DateTimeFormatOptions = {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    };
-    const timeStr = d.toLocaleTimeString('ar-EG', timeOptions);
-
-    if (diffDays === 0) {
-      return `اليوم، ${timeStr}`;
-    } else if (diffDays === 1) {
-      return `أمس، ${timeStr}`;
-    } else if (diffDays < 7) {
-      return `منذ ${diffDays} أيام`;
-    } else {
-      return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }) + `، ${timeStr}`;
-    }
-  }
-
 
   // ===========================
   // Send Message Logic
@@ -563,64 +437,28 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         throw new Error('فشل تهيئة جلسة المحادثة. يرجى التحقق من اتصالك بالإنترنت.');
       }
 
-      // res is a JSON response
+      // res is a plain text string
       const res = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
 
       // Remove typing indicator
       this.messages.splice(typingIndicatorIndex, 1);
 
-      let replyText = 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
-      let serviceDetails: any = null;
+      const replyText = (res || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
+      const steps = this.parseIntoSteps(replyText);
 
-      if (res) {
-        if (typeof res === 'object') {
-          replyText = res.response || res.reply || res.message || replyText;
-          serviceDetails = res.currentServiceDetails || null;
-        } else if (typeof res === 'string') {
-          try {
-            const parsed = JSON.parse(res);
-            replyText = parsed.response || parsed.reply || parsed.message || replyText;
-            serviceDetails = parsed.currentServiceDetails || null;
-          } catch {
-            replyText = res;
-          }
-        }
-      }
-
-      // Update sidebar info based on JSON currentServiceDetails
-      if (serviceDetails) {
-        if (serviceDetails.serviceName && serviceDetails.serviceName !== 'لم تحدد بعد') {
-          this.serviceName = serviceDetails.serviceName;
-          this.sidebarUpdatedByAI = true;
-        } else if (serviceDetails.serviceName === 'لم تحدد بعد') {
-          this.serviceName = 'مساعد معاملاتك';
-        }
-
-        if (serviceDetails.categoryName && serviceDetails.categoryName !== '----') {
-          this.serviceAgency = serviceDetails.categoryName;
-        } else {
-          this.serviceAgency = '';
-        }
-
-        if (serviceDetails.fees !== undefined) {
-          this.serviceFee = serviceDetails.fees > 0 ? serviceDetails.fees : null;
-        }
-
-        if (serviceDetails.takenTime && serviceDetails.takenTime !== '0') {
-          this.serviceTime = serviceDetails.takenTime;
-        }
+      if (steps.length > 1) {
+        // Multi-step response — show step 0, user advances with "التالي"
+        this.messages.push({ sender: 'bot', text: '', steps, currentStep: 0 });
       } else {
-        // Fallback to regex extraction from text
-        this.extractServiceInfoFromReply(replyText);
+        // Single-step response — show as normal bubble
+        this.messages.push({ sender: 'bot', text: steps[0] || this.mdToHtml(replyText), isHtml: true });
       }
-
-      this.messages.push({ sender: 'bot', text: this.mdToHtml(replyText), isHtml: true });
     } catch (err: any) {
       this.messages.splice(typingIndicatorIndex, 1);
-      this.messages.push({ 
-        sender: 'bot', 
+      this.messages.push({
+        sender: 'bot',
         text: `<span style="color:var(--red-dk)">حصل خطأ: ${this.escHtml(err?.error?.message || err?.message || 'خطأ غير معروف')}</span>`,
-        isHtml: true 
+        isHtml: true
       });
 
       // Refund the message count on fail
@@ -681,7 +519,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     const docName = this.requiredDocuments.find(d => d.id === Number(docId))?.documentName || 'مستند';
 
     const ok = await this.ensureSession();
-    if (!ok || (!this.chatSessionId && !this.sessionGuid)) {
+    if (!ok || !this.sessionGuid) {
       this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
       this.messages.push({ sender: 'bot', text: `<span style="color:var(--red-dk)">فشل الرفع: ${this.uploadErrorMessage}</span>`, isHtml: true });
       this.scrollToBottom();
@@ -693,20 +531,39 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.uploadErrorMessage = '';
     this.appendBotMsg(`جاري رفع ملف: <strong>${file.name}</strong> كـ <strong>${docName}</strong>...`);
 
-    const uploadSessionId = this.chatSessionId || this.sessionGuid || '';
-    this.chatApiService.uploadDocument(file, uploadSessionId, docId).subscribe({
+    // FIX: uploadDocument's 2nd param is sent to the backend as SessionGuidId (a Guid),
+    // so it must always be the actual session GUID — never the numeric chatSessionId,
+    // which previously took priority here and would fail to parse as a Guid server-side.
+    if (!this.sessionGuid) {
+      this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
+      this.appendBotMsg(`فشل الرفع: ${this.uploadErrorMessage}`);
+      return;
+    }
+
+    this.chatApiService.uploadDocument(file, this.sessionGuid, docId).subscribe({
       next: (res) => {
         this.uploadProgress = null;
         if (res && res.success) {
           this.uploadSuccessMessage = `تم رفع الملف بنجاح! المعرف: ${res.data?.id || res.data || ''}`;
           this.appendBotMsg(`تم رفع <strong>${docName}</strong> بنجاح! ✅ المعرف: ${res.data?.id || res.data || ''}`);
-          
+
           // Check off step 1 items dynamically
           if (docId === 1 || docName.includes('القومي') || docName.includes('بطاقة')) this.step1Checklist[0].checked = true;
           if (docId === 2 || docName.includes('الرخصة') || docName.includes('الحالية')) this.step1Checklist[1].checked = true;
           if (docId === 3 || docName.includes('صور') || docName.includes('شخصية')) this.step1Checklist[2].checked = true;
-          
+
           this.uploadVerified = true;
+
+          // The user is now actively progressing through the request (uploaded a doc),
+          // so reflect that in their "طلباتي" status instead of leaving it as Pending.
+          if (this.isLoggedIn && this.sessionGuid) {
+            this.dashboardService
+              .linkSessionToService(this.sessionGuid, this.govServiceId, 'InProgress')
+              .subscribe({
+                next: () => this.loadUserSessions(),
+                error: (err) => console.warn('فشل تحديث حالة الطلب إلى قيد التنفيذ:', err)
+              });
+          }
         } else {
           this.uploadErrorMessage = res?.message || 'فشل رفع الملف.';
           this.appendBotMsg(`فشل رفع الملف: ${this.uploadErrorMessage} ❌`);
@@ -769,7 +626,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       if (res && res.data && res.data.token) {
         const expireDate = new Date(res.data.expiresAt || new Date().getTime() + 86400000);
         document.cookie = `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
-        
+
         // Save user email
         const userEmail = res.data.userEmail || this.loginEmail.trim();
         document.cookie = `user_email=${userEmail}; expires=${expireDate.toUTCString()}; path=/`;
@@ -780,12 +637,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         // Reset session on login so we start an authenticated chat session
         this.sessionGuid = null;
         this.chatSessionId = null;
+        this.sessionLinked = false;
         document.cookie = 'sessionGuidId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'chatSessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
         await this.ensureSession();
-        // Fetch sessions after login
-        this.fetchUserSessions();
+        this.loadUserSessions();
 
         this.closeLoginPopup();
         this.appendBotMsg('تم تسجيل دخولك بنجاح ✅ يمكنك استكمال المحادثة الآن.');
@@ -803,43 +660,52 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // Steps / Navigation Handlers
   // ===========================
 
-  showOnline(): void { 
-    this.onlineMode = true; 
+  showOnline(): void {
+    this.onlineMode = true;
     this.officeMode = false;
     this.scrollToBottom();
   }
-  
-  showOffice(): void { 
-    this.officeMode = true; 
+
+  showOffice(): void {
+    this.officeMode = true;
     this.onlineMode = false;
     this.scrollToBottom();
   }
-  
-  showUpload(): void { 
+
+  showUpload(): void {
     if (!this.isLoggedIn) {
       this.openLoginPopup();
       return;
     }
-    this.showUploadZone = true; 
+    this.showUploadZone = true;
     this.scrollToBottom();
   }
 
-  showStep3(): void { 
-    this.step3Completed = true; 
-    this.activeStep = 3; 
+  showStep3(): void {
+    this.step3Completed = true;
+    this.activeStep = 3;
     this.scrollToBottom();
   }
-  
-  showStep4(): void { 
-    this.step4Completed = true; 
-    this.activeStep = 4; 
+
+  showStep4(): void {
+    this.step4Completed = true;
+    this.activeStep = 4;
     this.scrollToBottom();
   }
-  
-  showDone(): void { 
-    this.chatDone = true; 
-    this.activeStep = 5; 
+
+  showDone(): void {
+    this.chatDone = true;
+    this.activeStep = 5;
     this.scrollToBottom();
+
+    if (this.isLoggedIn && this.sessionGuid) {
+      this.dashboardService
+        .linkSessionToService(this.sessionGuid, this.govServiceId, 'Completed')
+        .subscribe({
+          next: () => this.loadUserSessions(),
+          error: (err) => console.warn('فشل تحديث حالة الطلب إلى مكتمل:', err)
+        });
+    }
   }
 
   // ===========================
@@ -974,5 +840,90 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
   getSidebarDotContent(step: number): string {
     return step < this.activeStep ? '✓' : step.toString();
+  }
+
+  // ===========================
+  // Past Chat Sessions Helpers
+  // ===========================
+
+  loadUserSessions(): void {
+    if (!this.isLoggedIn) return;
+    this.sessionsLoading = true;
+    this.dashboardService.getMyRequests().subscribe({
+      next: (res) => {
+        this.sessionsLoading = false;
+        if (res && res.success && Array.isArray(res.data)) {
+          this.userSessions = res.data.map(req => ({
+            id: req.sessionGuidId,
+            preview: req.serviceName || 'محادثة',
+            startedAt: req.startedAt,
+            messageCount: req.messagesCount
+          }));
+        }
+      },
+      error: (err) => {
+        this.sessionsLoading = false;
+        console.warn('Failed to load user sessions:', err);
+      }
+    });
+  }
+
+  loadSession(session: any): void {
+    if (!session || !session.id) return;
+    this.sessionGuid = session.id;
+    this.activeSessionId = session.id;
+    this.setCookie('sessionGuidId', session.id, 1);
+    
+    // Reset steps
+    this.uploadVerified = false;
+    this.onlineMode = false;
+    this.officeMode = false;
+    this.showUploadZone = false;
+    this.step3Completed = false;
+    this.step4Completed = false;
+    this.chatDone = false;
+    this.activeStep = 1;
+    this.step1Checklist.forEach(item => item.checked = false);
+
+    this.loadSessionHistory(session.id);
+  }
+
+  async startNewChat(): Promise<void> {
+    this.messages = [];
+    this.sessionGuid = null;
+    this.chatSessionId = null;
+    this.sessionLinked = false;
+    this.activeSessionId = null;
+    
+    // Reset wizard / checklist state
+    this.uploadVerified = false;
+    this.onlineMode = false;
+    this.officeMode = false;
+    this.showUploadZone = false;
+    this.step3Completed = false;
+    this.step4Completed = false;
+    this.chatDone = false;
+    this.activeStep = 1;
+    this.step1Checklist.forEach(item => item.checked = false);
+
+    // Delete cookies
+    this.setCookie('sessionGuidId', '', -1);
+    this.setCookie('chatSessionId', '', -1);
+
+    await this.ensureSession();
+    this.loadUserSessions();
+  }
+
+  formatSessionDate(dateString: string): string {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch (e) {
+      return dateString;
+    }
   }
 }

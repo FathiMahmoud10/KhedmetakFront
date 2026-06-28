@@ -67,7 +67,7 @@
           <span><i class="fas fa-paperclip"></i> {{ req.uploadedDocumentsCount }} مستند</span>
         </div>
 
-        <a routerLink="/chat" class="ureq-card__action">
+        <a [routerLink]="['/chat']" [queryParams]="{ session: req.sessionGuidId }" class="ureq-card__action">
           متابعة المحادثة <i class="fas fa-arrow-left"></i>
         </a>
       </article>
