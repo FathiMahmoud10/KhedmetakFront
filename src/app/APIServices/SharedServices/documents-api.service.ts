@@ -36,8 +36,14 @@ export class DocumentsApiService {
   }
 
   // الباك إند بيرجع المسارات كـ /uploads/documents/xxx، نضيف الدومين عشان نقدر نفتح/نزل الملف
+  // FIX: the backend builds FilePath with Path.Combine on Windows, which produces
+  // backslashes (e.g. "uploads\3\file.png") and no leading slash. Concatenating that
+  // straight onto the API origin gave broken URLs like "https://hostuploads\3\file.png",
+  // so the preview ("عين") never actually loaded the image. We normalize the slashes
+  // and guarantee exactly one "/" between the origin and the path.
   fileUrl(filePath: string): string {
     const base = this.apiUrl.replace(/\/api\/?$/, '');
-    return `${base}${filePath}`;
+    const normalizedPath = (filePath || '').replace(/\\/g, '/').replace(/^\/?/, '/');
+    return `${base}${normalizedPath}`;
   }
 }

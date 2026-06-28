@@ -1,11 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Router, NavigationEnd, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AdminSidebarService } from '../../../Services/admin-sidebar.service';
 import { UserSidebarService } from '../../../Services/user-sidebar.service';
 import { AuthService } from '../../../APIServices/SharedServices/auth.service';
-import { ThemeService } from '../../../Services/theme.service';
 
 @Component({
   selector: 'app-navbar-com',
@@ -21,21 +20,22 @@ export class NavbarCom implements OnInit, OnDestroy {
   isAdmin = false;
   isLoggedIn = false;
   private routeSub?: Subscription;
-  private themeSub?: Subscription;
+  // FIX: counts how many in-app navigations happened so "العودة للموقع" can go back
+  // to the page the user actually came from instead of always jumping to /home.
+  private navigationCount = 0;
 
   constructor(
     private router: Router,
+    private location: Location,
     private adminSidebarService: AdminSidebarService,
     private userSidebarService: UserSidebarService,
-    private authService: AuthService,
-    private themeService: ThemeService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.isDarkMode = this.themeService.isDarkMode;
-    this.themeSub = this.themeService.isDarkMode$.subscribe(dark => {
-      this.isDarkMode = dark;
-    });
+    const saved = localStorage.getItem('theme');
+    this.isDarkMode = saved === 'dark';
+    document.body.classList.toggle('dark-theme', this.isDarkMode);
 
     this.checkUrl(this.router.url);
     this.updateAuthState();
@@ -43,6 +43,7 @@ export class NavbarCom implements OnInit, OnDestroy {
     this.routeSub = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
+        this.navigationCount++;
         this.checkUrl(event.url);
         this.updateAuthState();
         this.adminSidebarService.close();
@@ -72,7 +73,6 @@ export class NavbarCom implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
-    this.themeSub?.unsubscribe();
   }
 
   toggleSidebar(): void {
@@ -83,8 +83,24 @@ export class NavbarCom implements OnInit, OnDestroy {
     }
   }
 
+  // FIX: "العودة للموقع" used to be a hardcoded routerLink="/home", so it always
+  // dropped the user on the homepage instead of the page they came from.
+  // We now go back in the app's own navigation history (Location.back), and only
+  // fall back to /home when there's nowhere to go back to (e.g. direct page load).
+  goBack(): void {
+    if (this.navigationCount > 0) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
+
   toggleDarkMode(): void {
-    this.themeService.toggleTheme();
+    this.isDarkMode = !this.isDarkMode;
+    document.body.classList.toggle('dark-theme', this.isDarkMode);
+    try {
+      localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+    } catch (e) {}
   }
 
   logout(): void {

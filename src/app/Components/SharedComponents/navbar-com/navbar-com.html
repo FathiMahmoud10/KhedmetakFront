@@ -48,10 +48,10 @@
         <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
       </button>
 
-      <a *ngIf="isDashboardPage" class="app-navbar__return-btn" routerLink="/home">
+      <button *ngIf="isDashboardPage" class="app-navbar__return-btn" type="button" (click)="goBack()">
         <i class="fas fa-arrow-right"></i>
         العودة للموقع
-      </a>
+      </button>
 
       <ul class="app-navbar__auth" *ngIf="!isDashboardPage">
 
