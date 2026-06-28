@@ -1,0 +1,409 @@
+<div class="rd-page container-fluid py-4">
+  <div class="rd-shell">
+
+    <!-- Hero Header -->
+    <header class="rd-hero">
+      <div class="rd-hero__bg"></div>
+      <div class="rd-hero__inner">
+        <div class="rd-hero__text">
+          <span class="rd-hero__tag">
+            <i class="fas fa-file-alt"></i>
+            لوحة الإدارة
+          </span>
+          <h1 class="rd-hero__title">إدارة المستندات المطلوبة</h1>
+          <p class="rd-hero__sub">اختر خدمة حكومية لعرض وإضافة وتعديل وحذف المستندات المطلوبة لها</p>
+        </div>
+        <div class="rd-hero__stat" *ngIf="selectedServiceId">
+          <div class="rd-hero__stat-icon">
+            <i class="fas fa-file-check"></i>
+          </div>
+          <div class="rd-hero__stat-info">
+            <span class="rd-hero__stat-num">{{ documents.length }}</span>
+            <span class="rd-hero__stat-lbl">مستند مسجّل</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Global load error -->
+    <div class="rd-alert rd-alert--error" *ngIf="loadErrorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ loadErrorMessage }}</span>
+      <button type="button" class="rd-retry-btn" (click)="loadServices()">
+        <i class="fas fa-rotate-right"></i> إعادة المحاولة
+      </button>
+    </div>
+
+    <!-- Service Selector Panel -->
+    <section class="rd-selector-panel">
+      <div class="rd-selector-panel__head">
+        <span class="rd-step-badge">١</span>
+        <div class="rd-selector-panel__icon">
+          <i class="fas fa-concierge-bell"></i>
+        </div>
+        <div>
+          <h2 class="rd-selector-panel__title">اختيار الخدمة</h2>
+          <p class="rd-selector-panel__hint">اختر الخدمة الحكومية التي تريد إدارة مستنداتها</p>
+        </div>
+      </div>
+
+      <div class="rd-selector-body">
+        <div class="rd-select-wrap rd-select-wrap--lg" *ngIf="!isLoadingServices">
+          <select
+            class="rd-select"
+            [(ngModel)]="selectedServiceId"
+            (ngModelChange)="onServiceChange($event)"
+            [disabled]="services.length === 0"
+          >
+            <option [ngValue]="null">-- اختر خدمة --</option>
+            <option *ngFor="let svc of services" [ngValue]="svc.id">
+              {{ svc.srvName }} — {{ svc.categoryName }}
+            </option>
+          </select>
+          <i class="fas fa-chevron-down rd-select-wrap__arrow"></i>
+        </div>
+
+        <div class="rd-loading rd-loading--inline" *ngIf="isLoadingServices">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>جاري تحميل الخدمات...</span>
+        </div>
+
+        <!-- Selected service info chip -->
+        <div class="rd-service-chip" *ngIf="selectedService">
+          <span class="rd-service-chip__cat">
+            <i class="fas" [ngClass]="getCategoryIcon(selectedService.categoryId)"></i>
+            {{ selectedService.categoryName }}
+          </span>
+          <span class="rd-service-chip__sep">·</span>
+          <span class="rd-service-chip__fees">
+            <i class="fas fa-coins"></i>
+            {{ selectedService.srvFees }} ج.م
+          </span>
+          <span class="rd-service-chip__sep">·</span>
+          <span class="rd-service-chip__time">
+            <i class="fas fa-clock"></i>
+            {{ selectedService.srvTime }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Documents Layout -->
+    <div class="rd-layout" *ngIf="selectedServiceId">
+
+      <!-- Add Form Panel -->
+      <aside class="rd-form-panel">
+        <div class="rd-form-panel__accent"></div>
+        <div class="rd-form-panel__body">
+          <div class="rd-form-panel__head">
+            <span class="rd-step-badge">٢</span>
+            <div class="rd-form-panel__icon">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div>
+              <h2 class="rd-form-panel__title">إضافة مستند</h2>
+              <p class="rd-form-panel__hint">أضف مستندًا جديدًا لهذه الخدمة</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="saveDocument()" class="rd-form">
+
+            <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-file-alt"></i>
+                اسم المستند
+              </label>
+              <input
+                class="rd-field__input"
+                type="text"
+                [(ngModel)]="newDoc.documentName"
+                name="documentName"
+                placeholder="مثال: صورة البطاقة الشخصية"
+                required
+              />
+            </div>
+
+            <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-layer-group"></i>
+                نوع المستند
+              </label>
+              <div class="rd-select-wrap">
+                <select
+                  class="rd-field__input rd-field__input--select"
+                  [(ngModel)]="newDoc.documentType"
+                  name="documentType"
+                >
+                  <option [ngValue]="1">نوع ١</option>
+                  <option [ngValue]="2">نوع ٢</option>
+                  <option [ngValue]="3">نوع ٣</option>
+                </select>
+                <i class="fas fa-chevron-down rd-select-wrap__arrow"></i>
+              </div>
+            </div>
+
+            <div class="rd-field">
+              <label class="rd-field__label rd-field__label--toggle">
+                <span>
+                  <i class="fas fa-star"></i>
+                  إلزامي
+                </span>
+                <label class="rd-toggle">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="newDoc.isMandatory"
+                    name="isMandatory"
+                  />
+                  <span class="rd-toggle__track">
+                    <span class="rd-toggle__thumb"></span>
+                  </span>
+                </label>
+              </label>
+              <p class="rd-field__hint">
+                {{ newDoc.isMandatory ? 'مستند إلزامي — لا يمكن إتمام الخدمة بدونه' : 'مستند اختياري' }}
+              </p>
+            </div>
+
+            <!-- Inline feedback -->
+            <div class="rd-alert rd-alert--success" *ngIf="formSuccessMessage">
+              <i class="fas fa-check-circle"></i>
+              <span>{{ formSuccessMessage }}</span>
+            </div>
+            <div class="rd-alert rd-alert--error" *ngIf="formErrorMessage">
+              <i class="fas fa-exclamation-circle"></i>
+              <span>{{ formErrorMessage }}</span>
+            </div>
+
+            <div class="rd-form-actions">
+              <button type="submit" class="rd-btn-submit" [disabled]="isSaving">
+                <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+                <i class="fas fa-save" *ngIf="!isSaving"></i>
+                {{ isSaving ? 'جاري الحفظ...' : 'إضافة المستند' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </aside>
+
+      <!-- Documents List Panel -->
+      <main class="rd-list-panel">
+
+        <div class="rd-list-panel__head">
+          <div class="rd-list-panel__head-text">
+            <span class="rd-step-badge rd-step-badge--inline">٣</span>
+            <h2 class="rd-list-panel__title">المستندات المطلوبة</h2>
+            <p class="rd-list-panel__sub">جميع المستندات المرتبطة بالخدمة المختارة</p>
+          </div>
+          <span class="rd-list-panel__count">{{ documents.length }} مستند</span>
+        </div>
+
+        <!-- Loading state -->
+        <div class="rd-loading" *ngIf="isLoadingDocs">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>جاري تحميل المستندات...</p>
+        </div>
+
+        <!-- Doc load error -->
+        <div class="rd-alert rd-alert--error" *ngIf="docsErrorMessage && !isLoadingDocs">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ docsErrorMessage }}</span>
+          <button type="button" class="rd-retry-btn" (click)="loadDocuments()">
+            <i class="fas fa-rotate-right"></i> إعادة المحاولة
+          </button>
+        </div>
+
+        <!-- Empty state -->
+        <div class="rd-empty" *ngIf="!isLoadingDocs && !docsErrorMessage && documents.length === 0">
+          <div class="rd-empty__circle">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <p class="rd-empty__text">لا توجد مستندات بعد</p>
+          <p class="rd-empty__hint">استخدم النموذج على اليمين لإضافة أول مستند</p>
+        </div>
+
+        <!-- Documents Grid -->
+        <div class="rd-docs-grid" *ngIf="!isLoadingDocs && !docsErrorMessage && documents.length > 0">
+          <article
+            class="rd-doc-card"
+            *ngFor="let doc of documents; let i = index"
+            [class.rd-doc-card--mandatory]="doc.isMandatory"
+            [style.animation-delay]="(i * 0.06) + 's'"
+          >
+            <div class="rd-doc-card__accent"></div>
+
+            <div class="rd-doc-card__header">
+              <div class="rd-doc-card__ico">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <span class="rd-doc-card__badge" [class.rd-doc-card__badge--mandatory]="doc.isMandatory">
+                <i class="fas" [ngClass]="doc.isMandatory ? 'fa-star' : 'fa-circle-dot'"></i>
+                {{ doc.isMandatory ? 'إلزامي' : 'اختياري' }}
+              </span>
+            </div>
+
+            <h3 class="rd-doc-card__name">{{ doc.documentName }}</h3>
+
+            <div class="rd-doc-card__meta">
+              <span class="rd-doc-card__type">
+                <i class="fas fa-tag"></i>
+                نوع {{ doc.documentType }}
+              </span>
+            </div>
+
+            <div class="rd-doc-card__footer">
+              <button class="rd-btn-edit" (click)="openEdit(doc)" type="button">
+                <i class="fas fa-pen"></i>
+                تعديل
+              </button>
+              <button class="rd-btn-delete" (click)="openDelete(doc)" type="button">
+                <i class="fas fa-trash-alt"></i>
+                حذف
+              </button>
+            </div>
+          </article>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Placeholder when no service selected -->
+    <div class="rd-no-service" *ngIf="!selectedServiceId && !isLoadingServices">
+      <div class="rd-no-service__circle">
+        <i class="fas fa-hand-point-up"></i>
+      </div>
+      <p class="rd-no-service__text">اختر خدمة أولاً</p>
+      <p class="rd-no-service__hint">اختر خدمة من القائمة أعلاه لعرض وإدارة مستنداتها</p>
+    </div>
+
+  </div>
+
+  <!-- ===== Edit Modal ===== -->
+  <div class="rd-modal" *ngIf="showEditModal">
+    <div class="rd-modal__backdrop" (click)="closeEdit()"></div>
+    <div class="rd-modal__dialog">
+      <button class="rd-modal__close" (click)="closeEdit()" type="button" [disabled]="isSavingEdit">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="rd-modal__icon rd-modal__icon--edit">
+        <i class="fas fa-pen"></i>
+      </div>
+
+      <h3 class="rd-modal__title">تعديل المستند</h3>
+      <p class="rd-modal__sub">عدّل البيانات ثم اضغط حفظ</p>
+
+      <form class="rd-form rd-modal__form" (ngSubmit)="saveEdit()">
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-file-alt"></i>
+            اسم المستند
+          </label>
+          <input
+            class="rd-field__input"
+            type="text"
+            [(ngModel)]="editDocForm.documentName"
+            name="editDocumentName"
+            required
+          />
+        </div>
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-layer-group"></i>
+            نوع المستند
+          </label>
+          <div class="rd-select-wrap">
+            <select
+              class="rd-field__input rd-field__input--select"
+              [(ngModel)]="editDocForm.documentType"
+              name="editDocumentType"
+            >
+              <option [ngValue]="1">نوع ١</option>
+              <option [ngValue]="2">نوع ٢</option>
+              <option [ngValue]="3">نوع ٣</option>
+            </select>
+            <i class="fas fa-chevron-down rd-select-wrap__arrow"></i>
+          </div>
+        </div>
+
+        <div class="rd-field">
+          <label class="rd-field__label rd-field__label--toggle">
+            <span>
+              <i class="fas fa-star"></i>
+              إلزامي
+            </span>
+            <label class="rd-toggle">
+              <input
+                type="checkbox"
+                [(ngModel)]="editDocForm.isMandatory"
+                name="editIsMandatory"
+              />
+              <span class="rd-toggle__track">
+                <span class="rd-toggle__thumb"></span>
+              </span>
+            </label>
+          </label>
+        </div>
+
+        <div class="rd-alert rd-alert--error" *ngIf="editErrorMessage">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ editErrorMessage }}</span>
+        </div>
+
+        <div class="rd-modal__actions">
+          <button class="rd-modal-btn rd-modal-btn--ghost" (click)="closeEdit()" type="button" [disabled]="isSavingEdit">إلغاء</button>
+          <button class="rd-modal-btn rd-modal-btn--primary" type="submit" [disabled]="isSavingEdit">
+            <i class="fas" [ngClass]="isSavingEdit ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+            {{ isSavingEdit ? 'جارٍ الحفظ...' : 'حفظ التعديلات' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Delete Modal ===== -->
+  <div class="rd-modal" *ngIf="showDeleteModal">
+    <div class="rd-modal__backdrop" (click)="closeDelete()"></div>
+    <div class="rd-modal__dialog">
+      <button class="rd-modal__close" (click)="closeDelete()" type="button" [disabled]="isDeleting">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="rd-modal__icon rd-modal__icon--danger">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+
+      <h3 class="rd-modal__title">تأكيد حذف المستند</h3>
+      <p class="rd-modal__sub">
+        هل أنت متأكد من حذف مستند "<strong>{{ selectedDoc?.documentName }}</strong>"؟ لا يمكن التراجع عن هذا الإجراء.
+      </p>
+
+      <div class="rd-modal__preview" *ngIf="selectedDoc">
+        <span class="rd-modal__preview-item">
+          <i class="fas fa-tag"></i>
+          نوع {{ selectedDoc.documentType }}
+        </span>
+        <span class="rd-modal__preview-item" [class.rd-modal__preview-item--mandatory]="selectedDoc.isMandatory">
+          <i class="fas" [ngClass]="selectedDoc.isMandatory ? 'fa-star' : 'fa-circle-dot'"></i>
+          {{ selectedDoc.isMandatory ? 'إلزامي' : 'اختياري' }}
+        </span>
+      </div>
+
+      <div class="rd-alert rd-alert--error" *ngIf="deleteErrorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ deleteErrorMessage }}</span>
+      </div>
+
+      <div class="rd-modal__actions">
+        <button class="rd-modal-btn rd-modal-btn--ghost" (click)="closeDelete()" type="button" [disabled]="isDeleting">إلغاء</button>
+        <button class="rd-modal-btn rd-modal-btn--danger" (click)="confirmDelete()" type="button" [disabled]="isDeleting">
+          <i class="fas" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash-alt'"></i>
+          {{ isDeleting ? 'جارٍ الحذف...' : 'حذف المستند' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

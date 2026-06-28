@@ -1,500 +1,4 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>معاملاتك AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
-body {
-  font-family: 'Cairo', sans-serif;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: #f2f1ed;
-  color: #1a1a18;
-  overflow: hidden;
-}
-
-:root {
-  --surface:   #ffffff;
-  --surface2:  #f8f7f3;
-  --border:    rgba(0,0,0,0.09);
-  --border2:   rgba(0,0,0,0.15);
-  --muted:     #6b6a64;
-  --hint:      #a09f99;
-  --blue:      #1a6ef5;
-  --blue-lt:   #eaf1fe;
-  --blue-dk:   #0e3fa0;
-  --green:     #0e8a5e;
-  --green-lt:  #e2f5ec;
-  --green-dk:  #075c3d;
-  --amber:     #c07b00;
-  --amber-lt:  #fef2d8;
-  --amber-dk:  #7a4d00;
-  --red:       #d43c3c;
-  --red-lt:    #feeaea;
-  --red-dk:    #891e1e;
-  --r:         10px;
-  --r-lg:      14px;
-}
-
-/* NAV */
-.nav {
-  height: 52px; min-height: 52px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 20px; gap: 8px; flex-shrink: 0;
-}
-.logo { font-size: 16px; font-weight: 700; color: var(--blue); }
-.logo em { color: #1a1a18; font-style: normal; font-weight: 400; }
-.nav-gap { flex: 1; }
-.nav-btn {
-  font-family: 'Cairo', sans-serif;
-  font-size: 13px; color: var(--muted);
-  background: none; border: none;
-  padding: 6px 12px; border-radius: 8px; cursor: pointer;
-}
-.nav-btn:hover { background: var(--surface2); color: #1a1a18; }
-.nav-btn.on { background: var(--blue-lt); color: var(--blue-dk); font-weight: 600; }
-.nav-av {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--blue-lt); color: var(--blue-dk);
-  font-size: 11px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; margin-right: 4px;
-}
-
-/* MAIN */
-.main { flex: 1; display: flex; min-height: 0; overflow: hidden; }
-
-/* SIDEBAR */
-.sidebar {
-  width: 256px; min-width: 256px;
-  background: var(--surface);
-  border-left: 1px solid var(--border);
-  display: flex; flex-direction: column; overflow: hidden;
-}
-.sb-header { padding: 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-.sb-label {
-  font-size: 10px; font-weight: 700;
-  color: var(--hint); letter-spacing: .06em;
-  margin-bottom: 8px; text-transform: uppercase;
-}
-.svc-card { background: var(--blue-lt); border-radius: var(--r); padding: 11px 12px; }
-.svc-name { font-size: 13px; font-weight: 700; color: var(--blue-dk); margin-bottom: 2px; }
-.svc-sub  { font-size: 11px; color: var(--blue); }
-.svc-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-.pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px; }
-.p-blue  { background: rgba(26,110,245,.18); color: var(--blue-dk); }
-.p-green { background: var(--green-lt); color: var(--green-dk); }
-.p-amber { background: var(--amber-lt); color: var(--amber-dk); }
-
-.sb-steps { flex: 1; overflow-y: auto; padding: 14px; }
-.sb-steps::-webkit-scrollbar { width: 3px; }
-.sb-steps::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-.step-row { display: flex; gap: 10px; }
-.step-col { display: flex; flex-direction: column; align-items: center; }
-.s-dot {
-  width: 26px; height: 26px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0; transition: all .25s;
-}
-.s-dot.done   { background: var(--green-lt); color: var(--green-dk); }
-.s-dot.active { background: var(--blue); color: #fff; }
-.s-dot.idle   { background: var(--surface2); color: var(--hint); border: 1px solid var(--border2); }
-.s-line { width: 2px; flex: 1; min-height: 16px; background: var(--border2); margin: 3px auto; border-radius: 99px; }
-.s-line.done { background: var(--green); }
-.s-body { padding-bottom: 14px; padding-top: 4px; }
-.s-name { font-size: 12px; font-weight: 600; color: #1a1a18; }
-.s-name.idle { color: var(--hint); font-weight: 400; }
-.s-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-.sb-info {
-  padding: 12px 14px 14px;
-  flex-shrink: 0; border-top: 1px solid var(--border);
-}
-.info-item {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface2); border-radius: var(--r);
-  padding: 9px 11px; margin-bottom: 6px;
-}
-.info-item:last-child { margin-bottom: 0; }
-.info-ic {
-  width: 28px; height: 28px; border-radius: 7px;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.info-lbl { font-size: 10px; color: var(--muted); }
-.info-val { font-size: 13px; font-weight: 600; color: #1a1a18; }
-
-/* CHAT PANEL */
-.chat { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
-.chat-top {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 18px;
-  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-}
-.bot-ic {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: var(--blue-lt);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.ct-name { font-size: 14px; font-weight: 700; }
-.ct-sub  { font-size: 11px; color: var(--muted); }
-.ct-gap  { flex: 1; }
-.badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
-.badge-green { background: var(--green-lt); color: var(--green-dk); }
-.ct-icbtn {
-  width: 30px; height: 30px; border-radius: 7px;
-  background: none; border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--muted); margin-right: 4px;
-}
-.ct-icbtn:hover { background: var(--surface2); }
-
-/* progress strip */
-.prog-strip {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 8px 18px;
-  display: flex; align-items: center; flex-shrink: 0;
-}
-.ps-dot {
-  width: 22px; height: 22px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; flex-shrink: 0; transition: all .25s;
-}
-.ps-dot.done { background: var(--green-lt); color: var(--green-dk); }
-.ps-dot.curr { background: var(--blue); color: #fff; }
-.ps-dot.next { background: var(--surface2); color: var(--hint); border: 1px solid var(--border2); }
-.ps-line { flex: 1; height: 2px; background: var(--border2); margin: 0 4px; border-radius: 99px; }
-.ps-line.done { background: var(--green); }
-.ps-txt { font-size: 11px; color: var(--muted); margin-right: auto; margin-left: 8px; }
-
-/* messages */
-.msgs {
-  flex: 1; overflow-y: auto;
-  padding: 20px 18px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-.msgs::-webkit-scrollbar { width: 4px; }
-.msgs::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
-.msg { display: flex; gap: 9px; align-items: flex-start; animation: fadeUp .2s ease; }
-.msg.u { flex-direction: row-reverse; }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.av {
-  width: 30px; height: 30px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; flex-shrink: 0;
-}
-.av.bot { background: var(--blue-lt); color: var(--blue-dk); }
-.av.usr { background: #eeedfe; color: #3c3489; }
-.bub {
-  max-width: 74%; padding: 11px 14px;
-  border-radius: var(--r-lg);
-  font-size: 13px; line-height: 1.65;
-}
-.bub.bot {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-top-right-radius: 3px;
-}
-.bub.usr {
-  background: var(--blue); color: #fff;
-  border-top-left-radius: 3px;
-}
-.bub-title {
-  font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; gap: 6px;
-  margin-bottom: 10px; color: #1a1a18;
-}
-
-/* checklist */
-.cklist { display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
-.ck-row { display: flex; align-items: flex-start; gap: 8px; }
-.ck-box {
-  width: 18px; height: 18px; border-radius: 5px;
-  border: 1.5px solid var(--border2);
-  background: var(--surface2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0; margin-top: 2px; transition: all .15s;
-}
-.ck-box.on { background: var(--green); border-color: var(--green); }
-.ck-lbl { font-size: 12px; font-weight: 500; }
-.ck-lbl.on { text-decoration: line-through; color: var(--muted); }
-.ck-note { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-/* progress mini */
-.prog-mini { background: var(--surface2); border-radius: var(--r); padding: 9px 11px; margin-top: 10px; }
-.pm-head { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-bottom: 5px; }
-.pm-track { height: 4px; background: var(--border2); border-radius: 99px; overflow: hidden; }
-.pm-fill { height: 100%; border-radius: 99px; background: var(--blue); }
-.pm-fill.g { background: var(--green); }
-
-/* alerts */
-.alert {
-  border-radius: var(--r); padding: 9px 11px;
-  display: flex; gap: 8px; align-items: flex-start;
-  margin-top: 10px; font-size: 12px; line-height: 1.5;
-}
-.alert.warn { background: var(--amber-lt); color: var(--amber-dk); }
-.alert.good { background: var(--green-lt); color: var(--green-dk); }
-.alert.err  { background: var(--red-lt);   color: var(--red-dk); }
-.alert svg  { flex-shrink: 0; margin-top: 1px; }
-
-/* chips */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-.chip {
-  font-family: 'Cairo', sans-serif;
-  font-size: 12px; font-weight: 500;
-  padding: 6px 14px; border-radius: 99px;
-  border: 1px solid var(--border2);
-  background: var(--surface2); color: var(--muted);
-  cursor: pointer; transition: all .15s;
-}
-.chip:hover, .chip.p { background: var(--blue-lt); color: var(--blue-dk); border-color: var(--blue-lt); }
-
-/* fee table */
-.fee-tbl { width: 100%; font-size: 12px; margin-top: 8px; border-collapse: collapse; }
-.fee-tbl td { padding: 5px 0; border-bottom: 1px solid var(--border); }
-.fee-tbl tr:last-child td { border: none; font-weight: 700; }
-.fee-tbl td:last-child { text-align: left; }
-.fee-lbl { color: var(--muted); }
-.fee-tot { color: var(--blue-dk); }
-
-/* offices */
-.offices { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.office {
-  display: flex; align-items: center; gap: 10px;
-  background: var(--surface2); border-radius: var(--r);
-  padding: 9px 11px; border: 1px solid var(--border);
-  cursor: pointer; transition: all .15s;
-}
-.office:hover { background: var(--blue-lt); border-color: var(--blue-lt); }
-.o-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; }
-.o-name { font-size: 12px; font-weight: 600; }
-.o-addr { font-size: 11px; color: var(--muted); }
-.o-dist { font-size: 11px; font-weight: 700; color: var(--blue); margin-right: auto; }
-
-/* upload zone */
-.upload {
-  border: 2px dashed var(--border2); border-radius: var(--r);
-  padding: 20px; text-align: center; margin-top: 10px;
-  cursor: pointer; transition: all .15s; background: var(--surface2);
-}
-.upload:hover { border-color: var(--blue); background: var(--blue-lt); }
-.up-title { font-size: 12px; font-weight: 600; margin: 6px 0 2px; }
-.up-sub   { font-size: 11px; color: var(--muted); }
-
-/* timestamp */
-.ts { font-size: 11px; color: var(--hint); text-align: center; }
-
-/* typing */
-.typing { display: flex; gap: 4px; padding: 4px 2px; }
-.typing span {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--hint);
-  animation: blink 1.2s ease-in-out infinite;
-}
-.typing span:nth-child(2) { animation-delay: .2s; }
-.typing span:nth-child(3) { animation-delay: .4s; }
-@keyframes blink {
-  0%,80%,100% { transform: scale(1); opacity: .4; }
-  40% { transform: scale(1.2); opacity: 1; }
-}
-
-/* quick replies */
-.qr {
-  padding: 8px 18px;
-  display: flex; flex-wrap: wrap; gap: 6px;
-  background: var(--surface);
-  border-top: 1px solid var(--border); flex-shrink: 0;
-}
-.qr-chip {
-  font-family: 'Cairo', sans-serif;
-  font-size: 11px; font-weight: 500;
-  padding: 5px 12px; border-radius: 99px;
-  border: 1px solid var(--border2);
-  background: var(--surface); color: var(--muted);
-  cursor: pointer; transition: all .15s;
-}
-.qr-chip:hover { background: var(--blue-lt); color: var(--blue-dk); border-color: var(--blue-lt); }
-
-/* input bar */
-.ibar {
-  padding: 10px 18px;
-  display: flex; gap: 8px; align-items: flex-end;
-  background: var(--surface);
-  border-top: 1px solid var(--border); flex-shrink: 0;
-}
-.ibar-attach {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--surface2); border: 1px solid var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--muted); transition: all .15s; flex-shrink: 0;
-}
-.ibar-attach:hover { background: var(--blue-lt); color: var(--blue); }
-.ibar-input {
-  flex: 1; min-width: 0;
-  font-family: 'Cairo', sans-serif;
-  font-size: 13px; color: #1a1a18;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: var(--r-lg);
-  padding: 9px 14px;
-  resize: none; outline: none;
-  line-height: 1.4; min-height: 38px; max-height: 100px;
-  transition: border-color .15s;
-}
-.ibar-input:focus { border-color: var(--blue); }
-.ibar-input::placeholder { color: var(--hint); }
-.ibar-send {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--blue); border: none;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; flex-shrink: 0; transition: opacity .15s;
-}
-.ibar-send:hover { opacity: .85; }
-.ibar-send:disabled { opacity: .4; cursor: not-allowed; }
-
-/* ── LOGIN POPUP ── */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center;
-  z-index: 999;
-  animation: fadeIn .2s ease;
-}
-.overlay.hidden { display: none; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.login-card {
-  background: var(--surface);
-  border-radius: 18px;
-  padding: 36px 32px 28px;
-  width: 380px; max-width: 90vw;
-  box-shadow: 0 20px 60px rgba(0,0,0,.18);
-  animation: slideUp .25s ease;
-  text-align: center;
-}
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.lc-icon {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: var(--blue-lt);
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 16px;
-}
-.lc-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-.lc-sub   { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
-
-.lc-field {
-  width: 100%; margin-bottom: 12px;
-  font-family: 'Cairo', sans-serif;
-  font-size: 13px; color: #1a1a18;
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: var(--r);
-  padding: 11px 14px;
-  outline: none; text-align: right;
-  transition: border-color .15s;
-}
-.lc-field:focus { border-color: var(--blue); }
-.lc-field::placeholder { color: var(--hint); }
-
-.lc-btn {
-  width: 100%; padding: 12px;
-  font-family: 'Cairo', sans-serif;
-  font-size: 14px; font-weight: 700;
-  color: #fff; background: var(--blue);
-  border: none; border-radius: var(--r);
-  cursor: pointer; transition: opacity .15s;
-  margin-top: 4px;
-}
-.lc-btn:hover { opacity: .88; }
-.lc-btn:disabled { opacity: .5; cursor: not-allowed; }
-
-.lc-divider {
-  display: flex; align-items: center; gap: 10px;
-  margin: 16px 0; color: var(--hint); font-size: 11px;
-}
-.lc-divider::before, .lc-divider::after {
-  content: ''; flex: 1; height: 1px; background: var(--border2);
-}
-
-.lc-guest {
-  width: 100%; padding: 10px;
-  font-family: 'Cairo', sans-serif;
-  font-size: 13px; font-weight: 600;
-  color: var(--muted);
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: var(--r);
-  cursor: pointer; transition: all .15s;
-}
-.lc-guest:hover { background: var(--blue-lt); color: var(--blue-dk); border-color: var(--blue-lt); }
-
-.lc-note { font-size: 11px; color: var(--hint); margin-top: 14px; }
-
-/* free-messages counter badge */
-.free-badge {
-  font-size: 11px; font-weight: 600;
-  background: var(--amber-lt); color: var(--amber-dk);
-  padding: 3px 10px; border-radius: 99px;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.free-badge.hidden { display: none; }
-
-/* markdown-style response text */
-.bot-response h1, .bot-response h2, .bot-response h3 {
-  font-size: 13px; font-weight: 700; margin: 8px 0 4px;
-}
-.bot-response ul, .bot-response ol {
-  padding-right: 18px; margin: 6px 0;
-}
-.bot-response li { margin-bottom: 3px; font-size: 12px; }
-.bot-response p { margin-bottom: 6px; font-size: 13px; }
-.bot-response strong { font-weight: 700; }
-.bot-response em { font-style: italic; }
-</style>
-</head>
-<body>
-
 <!-- ══════════════ LOGIN OVERLAY ══════════════ -->
-<div class="overlay hidden" id="login-overlay">
-  <div class="login-card">
-    <div class="lc-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-    </div>
-    <div class="lc-title">سجّل دخولك للمتابعة</div>
-    <div class="lc-sub">استخدمت الرسائل المجانية الـ 3.<br>سجّل دخولك للاستمرار في استخدام المساعد.</div>
-
-    <input class="lc-field" id="lc-email" type="email" placeholder="البريد الإلكتروني" dir="ltr" />
-    <input class="lc-field" id="lc-pass"  type="password" placeholder="كلمة المرور" dir="ltr" />
-
-    <button class="lc-btn" id="lc-login-btn" onclick="doLogin()">تسجيل الدخول</button>
-
-    <div class="lc-divider">أو</div>
-
-    <button class="lc-guest" onclick="closeLoginAndContinue()">متابعة كضيف (3 رسائل فقط)</button>
-
-    <div class="lc-note">بتسجيل الدخول توافق على شروط الاستخدام وسياسة الخصوصية</div>
-  </div>
-</div>
-<!-- LOGIN POPUP -->
 <div class="overlay" *ngIf="showLoginPopup">
   <div class="login-card">
     <div class="lc-icon">
@@ -505,14 +9,14 @@ body {
       </svg>
     </div>
     <div class="lc-title">سجّل دخولك للمتابعة</div>
-    <div class="lc-sub">استخدمت الرسائل المجانية الـ 3.<br>سجّل دخولك للاستمرار.</div>
+    <div class="lc-sub">استخدمت الرسائل المجانية الـ 3.<br>سجّل دخولك للاستمرار في استخدام المساعد.</div>
 
-    <!-- <input class="lc-field" type="email" placeholder="البريد الإلكتروني"
-           [(ngModel)]="loginEmail" dir="ltr" />
-    <input class="lc-field" type="password" placeholder="كلمة المرور"
-           [(ngModel)]="loginPassword" dir="ltr" (keyup.enter)="doLogin()" /> -->
+    <input class="lc-field" type="email" placeholder="البريد الإلكتروني" [(ngModel)]="loginEmail" dir="ltr" />
+    <input class="lc-field" type="password" placeholder="كلمة المرور" [(ngModel)]="loginPassword" dir="ltr" (keyup.enter)="doLogin()" />
 
-    <div class="lc-error" *ngIf="loginError">{{ loginError }}</div>
+    <div class="lc-error" *ngIf="loginError" style="color: var(--red-dk); font-size: 12px; margin-bottom: 12px; text-align: right;">
+      {{ loginError }}
+    </div>
 
     <button class="lc-btn" [disabled]="loginLoading" (click)="doLogin()">
       {{ loginLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
@@ -520,24 +24,11 @@ body {
 
     <div class="lc-divider">أو</div>
 
-    <button class="lc-guest" (click)="continueAsGuest()">
-      متابعة كضيف (3 رسائل فقط)
-    </button>
+    <button class="lc-guest" (click)="continueAsGuest()">متابعة كضيف (3 رسائل فقط)</button>
+
+    <div class="lc-note">بتسجيل الدخول توافق على شروط الاستخدام وسياسة الخصوصية</div>
   </div>
 </div>
-<!-- NAV -->
-<nav class="nav">
-  <div class="logo">معاملاتك <em>AI</em></div>
-  <div class="nav-gap"></div>
-  <button class="nav-btn">الرئيسية</button>
-  <button class="nav-btn on">معاملاتي</button>
-  <button class="nav-btn">الخدمات</button>
-  <button class="nav-btn">المساعد</button>
-<span class="free-badge" *ngIf="!isLoggedIn">
-  {{ freeRemaining }} رسائل مجانية
-</span>
-  <div class="nav-av" id="nav-av">أح</div>
-</nav>
 
 <!-- MAIN -->
 <div class="main">
@@ -552,7 +43,7 @@ body {
       </div>
       <div>
         <div class="ct-name">مساعد معاملاتك</div>
-        <div class="ct-sub">تجديد رخصة القيادة · هيئة المرور</div>
+        <div class="ct-sub">{{ serviceName }}</div>
       </div>
       <div class="ct-gap"></div>
       <span class="badge badge-green">جارية</span>
@@ -564,340 +55,76 @@ body {
       </button>
     </div>
 
-    <!-- progress strip -->
-    <div class="prog-strip">
-      <div class="ps-dot done" id="pd1">✓</div>
-      <div class="ps-line done" id="pl1"></div>
-      <div class="ps-dot curr" id="pd2">2</div>
-      <div class="ps-line" id="pl2"></div>
-      <div class="ps-dot next" id="pd3">3</div>
-      <div class="ps-line" id="pl3"></div>
-      <div class="ps-dot next" id="pd4">4</div>
-      <div class="ps-txt" id="ps-txt">خطوة 2 من 4 — التقديم</div>
-    </div>
+    <!-- ════ MESSAGES AREA ════ -->
+    <div class="msgs" #msgsContainer>
 
-    <!-- messages -->
-    <div class="msgs" id="msgs">
-
-      <div class="ts">اليوم، 10:24 ص</div>
-
-      <!-- bot welcome -->
-      <div class="msg">
-        <div class="av bot">AI</div>
-        <div class="bub bot">
-          <div class="bub-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            أهلاً! هبدأ معاك تجديد الرخصة
-          </div>
-          المعاملة فيها 4 خطوات وهتاخد من 3 لـ 5 أيام. هبدأ معاك من الأول خطوة بخطوة.
+      <!-- ── Empty state: shown before user sends first message ── -->
+      <div class="empty-state" *ngIf="messages.length === 0">
+        <div class="es-icon">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="es-title">مرحباً! كيف أقدر أساعدك؟</div>
+        <div class="es-sub">اكتب سؤالك وهساعدك في إتمام معاملتك خطوة بخطوة</div>
+        <div class="es-hints">
+          <span class="es-hint">💰 الرسوم</span>
+          <span class="es-hint">📄 الأوراق المطلوبة</span>
+          <span class="es-hint">⏱ الوقت المتوقع</span>
         </div>
       </div>
 
-      <!-- user reply -->
-      <div class="msg u">
-        <div class="av usr">أح</div>
-        <div class="bub usr">تمام، جاهز</div>
-      </div>
+      <!-- ── Dynamic messages ── -->
+      <ng-container *ngFor="let msg of messages; let i = index">
+        <div class="msg" [class.u]="msg.sender === 'user'" style="margin-top:14px;">
 
-      <!-- step 1 -->
-      <div class="msg">
-        <div class="av bot">AI</div>
-        <div class="bub bot">
-          <div class="bub-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0e8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            الخطوة 1 — جمع المستندات
+          <!-- Avatar -->
+          <div class="av" [class.bot]="msg.sender === 'bot'" [class.usr]="msg.sender === 'user'">
+            {{ msg.sender === 'bot' ? 'AI' : 'أح' }}
           </div>
-          تأكد إن الأوراق دي معاك:
-          <div class="cklist">
-            <div class="ck-row">
-              <div class="ck-box on" onclick="toggleCk(this)">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <div><div class="ck-lbl on">بطاقة الرقم القومي</div><div class="ck-note">أصل + صورة — سارية المفعول</div></div>
-            </div>
-            <div class="ck-row">
-              <div class="ck-box on" onclick="toggleCk(this)">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <div><div class="ck-lbl on">الرخصة الحالية</div><div class="ck-note">حتى لو منتهية</div></div>
-            </div>
-            <div class="ck-row">
-              <div class="ck-box on" onclick="toggleCk(this)">
-                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>
-              </div>
-              <div><div class="ck-lbl on">6 صور شخصية</div><div class="ck-note">خلفية بيضاء — مقاس 4×6</div></div>
-            </div>
-          </div>
-          <div class="prog-mini">
-            <div class="pm-head"><span>تقدم الخطوة 1</span><span>3 / 3</span></div>
-            <div class="pm-track"><div class="pm-fill g" style="width:100%"></div></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- user -->
-      <div class="msg u">
-        <div class="av usr">أح</div>
-        <div class="bub usr">الأوراق كلها معايا</div>
-      </div>
+          <!-- Bubble -->
+          <div class="bub"
+               [class.bot]="msg.sender === 'bot'"
+               [class.usr]="msg.sender === 'user'"
+               [class.bot-response]="msg.sender === 'bot'">
 
-      <!-- step 2 choice -->
-      <div class="msg">
-        <div class="av bot">AI</div>
-        <div class="bub bot">
-          <div class="bub-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            الخطوة 2 — التقديم
-          </div>
-          عندك خيارين، إيه اللي يناسبك أكتر؟
-          <div class="chips">
-            <button class="chip p" onclick="showOnline()">أونلاين — بوابة مصر الرقمية</button>
-            <button class="chip" onclick="showOffice()">زيارة مكتب المرور</button>
-          </div>
-        </div>
-      </div>
+            <!-- Typing indicator -->
+            <div *ngIf="msg.isTyping" class="typing">
+              <span></span><span></span><span></span>
+            </div>
 
-      <!-- ONLINE -->
-      <div id="sec-online" style="display:none">
-        <div class="msg u" style="margin-top:14px;">
-          <div class="av usr">أح</div>
-          <div class="bub usr">أونلاين أحسن</div>
-        </div>
-        <div class="msg" style="margin-top:14px;">
-          <div class="av bot">AI</div>
-          <div class="bub bot">
-            <div class="bub-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              خطوات التقديم أونلاين
-            </div>
-            <div class="cklist">
-              <div class="ck-row">
-                <div class="ck-box" onclick="toggleCk(this)"></div>
-                <div><div class="ck-lbl">ادخل على بوابة مصر الرقمية وسجّل دخولك</div><div class="ck-note">eg.gov.eg — محتاج حساب مفعّل برقم قومي</div></div>
-              </div>
-              <div class="ck-row">
-                <div class="ck-box" onclick="toggleCk(this)"></div>
-                <div><div class="ck-lbl">اختار "خدمات المرور" ← "تجديد رخصة"</div></div>
-              </div>
-              <div class="ck-row">
-                <div class="ck-box" onclick="toggleCk(this)"></div>
-                <div><div class="ck-lbl">ارفع صور المستندات</div><div class="ck-note">JPG أو PDF — أقل من 2MB لكل ملف</div></div>
-              </div>
-              <div class="ck-row">
-                <div class="ck-box" onclick="toggleCk(this)"></div>
-                <div><div class="ck-lbl">ادفع الرسوم أونلاين (370 جنيه)</div><div class="ck-note">فيزا / ماستركارد / فوري</div></div>
-              </div>
-            </div>
-            <div class="alert warn">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              حتى لو قدمت أونلاين، هتحتاج تروح المكتب لاستلام الرخصة الفيزيكية.
-            </div>
-            <div class="chips">
-              <button class="chip p" onclick="showStep3()">انهيت التقديم ✓</button>
-              <button class="chip" onclick="showUpload()">محتاج مساعدة في الرفع</button>
-            </div>
-          </div>
-        </div>
+            <!-- HTML message -->
+            <div *ngIf="!msg.isTyping && msg.isHtml" [innerHTML]="msg.text"></div>
 
-        <div id="sec-upload" style="display:none">
-          <div class="msg" style="margin-top:14px;">
-            <div class="av bot">AI</div>
-            <div class="bub bot">
-              <div class="bub-title">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-                تحقق من وثائقك
-              </div>
-              ارفع صور المستندات وهتحقق منها الـ AI وأقولك لو في حاجة ناقصة
-              <div class="upload" id="upload-zone" onclick="simulateUpload()">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-                <div class="up-title">اسحب الملفات هنا أو اضغط للرفع</div>
-                <div class="up-sub">JPG، PNG، PDF — أقل من 2MB</div>
-              </div>
-            </div>
-          </div>
-        </div>
+            <!-- Plain text message -->
+            <div *ngIf="!msg.isTyping && !msg.isHtml">{{ msg.text }}</div>
 
-        <div id="sec-valid" style="display:none">
-          <div class="msg" style="margin-top:14px;">
-            <div class="av bot">AI</div>
-            <div class="bub bot">
-              <div class="bub-title">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0e8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/></svg>
-                نتيجة التحقق
-              </div>
-              <div class="cklist">
-                <div class="ck-row">
-                  <div class="ck-box on"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg></div>
-                  <div><div class="ck-lbl on">بطاقة الرقم القومي — سارية ✓</div></div>
-                </div>
-                <div class="ck-row">
-                  <div class="ck-box on"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg></div>
-                  <div><div class="ck-lbl on">الرخصة الحالية — مقبولة ✓</div></div>
-                </div>
-                <div class="ck-row">
-                  <div class="ck-box" style="background:var(--red-lt);border-color:var(--red);">
-                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="3" x2="9" y2="9"/><line x1="9" y1="3" x2="3" y2="9"/></svg>
-                  </div>
-                  <div><div class="ck-lbl" style="color:var(--red-dk)">الصور — خلفية مش بيضاء</div><div class="ck-note">أعد التصوير بخلفية بيضاء</div></div>
-                </div>
-              </div>
-              <div class="alert warn">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                وثيقة واحدة محتاجة تصحيح — صلحها وارفع تاني.
-              </div>
-            </div>
           </div>
         </div>
-      </div>
-
-      <!-- OFFICE -->
-      <div id="sec-office" style="display:none">
-        <div class="msg u" style="margin-top:14px;">
-          <div class="av usr">أح</div>
-          <div class="bub usr">هروح المكتب</div>
-        </div>
-        <div class="msg" style="margin-top:14px;">
-          <div class="av bot">AI</div>
-          <div class="bub bot">
-            <div class="bub-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              أقرب مكاتب مرور
-            </div>
-            <div class="offices">
-              <div class="office">
-                <div class="o-dot"></div>
-                <div><div class="o-name">مرور مدينة نصر</div><div class="o-addr">ش الخلفاوي — س–خ 8ص–2م</div></div>
-                <div class="o-dist">1.2 كم</div>
-              </div>
-              <div class="office">
-                <div class="o-dot" style="background:var(--hint)"></div>
-                <div><div class="o-name">مرور مصر الجديدة</div><div class="o-addr">ش الثورة — س–خ 8ص–2م</div></div>
-                <div class="o-dist">3.8 كم</div>
-              </div>
-            </div>
-            <div class="alert warn" style="margin-top:10px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              ودّي الأوراق الأصلية معاك. الصبح الباكر أقل زحمة.
-            </div>
-            <div class="chips">
-              <button class="chip p" onclick="showStep3()">قدمت الأوراق في المكتب ✓</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 3 -->
-      <div id="sec-step3" style="display:none">
-        <div class="ts" style="margin-top:6px;">10:41 ص</div>
-        <div class="msg u" style="margin-top:14px;">
-          <div class="av usr">أح</div>
-          <div class="bub usr">انهيت التقديم</div>
-        </div>
-        <div class="msg" style="margin-top:14px;">
-          <div class="av bot">AI</div>
-          <div class="bub bot">
-            <div class="bub-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              الخطوة 3 — سداد الرسوم
-            </div>
-            تفاصيل الرسوم الكاملة:
-            <table class="fee-tbl">
-              <tr><td class="fee-lbl">رسوم التجديد</td><td>200 جنيه</td></tr>
-              <tr><td class="fee-lbl">رسوم النموذج</td><td>70 جنيه</td></tr>
-              <tr><td class="fee-lbl">طوابع حكومية</td><td>50 جنيه</td></tr>
-              <tr><td class="fee-lbl">رسوم الصور</td><td>50 جنيه</td></tr>
-              <tr><td class="fee-lbl" style="color:#1a1a18">الإجمالي</td><td class="fee-tot">370 جنيه</td></tr>
-            </table>
-            <div class="chips">
-              <button class="chip p" onclick="showStep4()">دفعت الرسوم ✓</button>
-              <button class="chip">فين ادفع أونلاين؟</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- STEP 4 -->
-      <div id="sec-step4" style="display:none">
-        <div class="msg u" style="margin-top:14px;">
-          <div class="av usr">أح</div>
-          <div class="bub usr">دفعت</div>
-        </div>
-        <div class="msg" style="margin-top:14px;">
-          <div class="av bot">AI</div>
-          <div class="bub bot">
-            <div class="bub-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              الخطوة 4 — استلام الرخصة
-            </div>
-            بعد 3–5 أيام هتاخد SMS إن الرخصة جاهزة. اختار أقرب مكتب للاستلام:
-            <div class="offices">
-              <div class="office">
-                <div class="o-dot"></div>
-                <div><div class="o-name">مرور مدينة نصر</div><div class="o-addr">ش الخلفاوي — س–خ 8ص–2م</div></div>
-                <div class="o-dist">1.2 كم</div>
-              </div>
-              <div class="office">
-                <div class="o-dot" style="background:var(--hint)"></div>
-                <div><div class="o-name">مرور مصر الجديدة</div><div class="o-addr">ش الثورة — س–خ 8ص–2م</div></div>
-                <div class="o-dist">3.8 كم</div>
-              </div>
-              <div class="office">
-                <div class="o-dot" style="background:var(--hint)"></div>
-                <div><div class="o-name">مرور الزيتون</div><div class="o-addr">ش المطرية — س–خ 8ص–2م</div></div>
-                <div class="o-dist">5.1 كم</div>
-              </div>
-            </div>
-            <div class="alert good">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              كل الخطوات اتكملت! هنبعتلك تنبيه لما الرخصة تبقى جاهزة.
-            </div>
-            <div class="chips">
-              <button class="chip p" onclick="showDone()">ممتاز، شكراً!</button>
-              <button class="chip">هضطر آخد إيه معايا؟</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- DONE -->
-      <div id="sec-done" style="display:none">
-        <div class="msg u" style="margin-top:14px;">
-          <div class="av usr">أح</div>
-          <div class="bub usr">ممتاز، شكراً!</div>
-        </div>
-        <div class="msg" style="margin-top:14px;">
-          <div class="av bot">AI</div>
-          <div class="bub bot">
-            <div class="bub-title">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0e8a5e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              المعاملة اتسجلت بنجاح 🎉
-            </div>
-            هبعتلك إشعار لما الرخصة تبقى جاهزة. يسعدني ساعدتك!
-            <div class="chips">
-              <button class="chip">ابدأ معاملة جديدة</button>
-              <button class="chip">شوف معاملاتي</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      </ng-container>
 
     </div><!-- /msgs -->
 
     <!-- quick replies -->
     <div class="qr">
-      <button class="qr-chip" onclick="quickSend('إيه الأوراق المطلوبة؟')">إيه الأوراق المطلوبة؟</button>
-      <button class="qr-chip" onclick="quickSend('كام الرسوم؟')">كام الرسوم؟</button>
-      <button class="qr-chip" onclick="quickSend('قد إيه الوقت؟')">قد إيه الوقت؟</button>
-      <button class="qr-chip" onclick="quickSend('أقرب مكتب مرور')">أقرب مكتب مرور</button>
+      <button class="qr-chip" (click)="quickSend('إيه الأوراق المطلوبة؟')">إيه الأوراق المطلوبة؟</button>
+      <button class="qr-chip" (click)="quickSend('كام الرسوم؟')">كام الرسوم؟</button>
+      <button class="qr-chip" (click)="quickSend('قد إيه الوقت؟')">قد إيه الوقت؟</button>
+      <button class="qr-chip" (click)="quickSend('أقرب مكتب مرور')">أقرب مكتب مرور</button>
     </div>
 
     <!-- input bar -->
     <div class="ibar">
-      <button class="ibar-attach">
+      <button class="ibar-attach" (click)="triggerFileUpload()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
       </button>
-      <textarea class="ibar-input" id="inp" placeholder="اكتب سؤالك هنا..." rows="1" onkeydown="onKey(event)"></textarea>
-      <button class="ibar-send" id="send-btn" onclick="sendMsg()">
+
+      <!-- Hidden file input -->
+      <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)">
+
+      <textarea class="ibar-input" placeholder="اكتب سؤالك هنا..." rows="1" [(ngModel)]="msgText" (keydown)="onKey($event)"></textarea>
+      <button class="ibar-send" [disabled]="isSending || !msgText.trim()" (click)="sendMsg()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
@@ -906,11 +133,68 @@ body {
 
   <!-- SIDEBAR -->
   <div class="sidebar">
+
+    <!-- ── المحادثات السابقة (للمستخدمين المسجلين) ── -->
+    <div class="sb-history" *ngIf="isLoggedIn">
+
+      <!-- Header + New Chat -->
+      <div class="sbh-top">
+        <div class="sb-label">المحادثات</div>
+        <button class="new-chat-btn" (click)="startNewChat()" title="محادثة جديدة">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          جديدة
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="sessions-loading" *ngIf="sessionsLoading">
+        <div class="spin-ring"></div>
+        <span>جاري التحميل...</span>
+      </div>
+
+      <!-- Session List -->
+      <div class="sessions-list" *ngIf="!sessionsLoading">
+
+        <!-- Empty state -->
+        <div class="sessions-empty" *ngIf="userSessions.length === 0">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--hint)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <p>لا توجد محادثات سابقة</p>
+        </div>
+
+        <!-- Each session -->
+        <button
+          class="session-item"
+          *ngFor="let s of userSessions"
+          [class.active]="s.id === activeSessionId"
+          (click)="loadSession(s)"
+        >
+          <div class="si-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div class="si-body">
+            <div class="si-preview">{{ s.preview || 'محادثة جديدة' }}</div>
+            <div class="si-meta">
+              <span class="si-date">{{ formatSessionDate(s.startedAt) }}</span>
+              <span class="si-count" *ngIf="s.messageCount > 0">
+                {{ s.messageCount }} رسائل
+              </span>
+            </div>
+          </div>
+          <div class="si-active-bar" *ngIf="s.id === activeSessionId"></div>
+        </button>
+
+      </div>
+    </div><!-- /sb-history -->
+
+    <!-- Divider if logged in -->
+    <div class="sb-divider" *ngIf="isLoggedIn"></div>
+
+    <!-- ── الخدمة الحالية ── -->
     <div class="sb-header">
       <div class="sb-label">الخدمة الحالية</div>
       <div class="svc-card">
-        <div class="svc-name">تجديد رخصة القيادة</div>
-        <div class="svc-sub">هيئة المرور — وزارة الداخلية</div>
+        <div class="svc-name">{{ serviceName }}</div>
+        <div class="svc-sub" *ngIf="serviceAgency">{{ serviceAgency }}</div>
         <div class="svc-pills">
           <span class="pill p-blue">خدمات المرور</span>
           <span class="pill p-green">جزء أونلاين</span>
@@ -919,394 +203,49 @@ body {
       </div>
     </div>
 
-    <div class="sb-steps">
-      <div class="sb-label">تتبع الخطوات</div>
-
-      <div class="step-row">
-        <div class="step-col">
-          <div class="s-dot done" id="sd1">✓</div>
-          <div class="s-line done" id="sl1"></div>
-        </div>
-        <div class="s-body">
-          <div class="s-name">جمع المستندات</div>
-          <div class="s-desc">3 / 3 وثائق مكتملة</div>
-        </div>
-      </div>
-
-      <div class="step-row">
-        <div class="step-col">
-          <div class="s-dot active" id="sd2">2</div>
-          <div class="s-line" id="sl2"></div>
-        </div>
-        <div class="s-body">
-          <div class="s-name">التقديم</div>
-          <div class="s-desc">أونلاين أو في المكتب</div>
-        </div>
-      </div>
-
-      <div class="step-row">
-        <div class="step-col">
-          <div class="s-dot idle" id="sd3">3</div>
-          <div class="s-line" id="sl3"></div>
-        </div>
-        <div class="s-body">
-          <div class="s-name idle" id="sn3">سداد الرسوم</div>
-          <div class="s-desc">370 جنيه إجمالاً</div>
-        </div>
-      </div>
-
-      <div class="step-row">
-        <div class="step-col">
-          <div class="s-dot idle" id="sd4">4</div>
-        </div>
-        <div class="s-body">
-          <div class="s-name idle" id="sn4">استلام الرخصة</div>
-          <div class="s-desc">من مكتب المرور</div>
-        </div>
-      </div>
-    </div>
-
+    <!-- ── معلومات سريعة ── -->
     <div class="sb-info">
       <div class="sb-label" style="margin-bottom:8px">معلومات سريعة</div>
+
       <div class="info-item">
-        <div class="info-ic" style="background:var(--blue-lt)">
+        <div class="info-ic" style="background:var(--blue-light)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
-        <div><div class="info-lbl">متوسط الوقت</div><div class="info-val">3–5 أيام</div></div>
+        <div><div class="info-lbl">متوسط الوقت</div><div class="info-val">{{ serviceTime }}</div></div>
       </div>
+
+      <!-- السعر: ديناميكي من API أو ثابت كـ fallback -->
       <div class="info-item">
-        <div class="info-ic" style="background:var(--green-lt)">
+        <div class="info-ic" style="background:var(--green-light)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0e8a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         </div>
-        <div><div class="info-lbl">إجمالي الرسوم</div><div class="info-val">370 جنيه</div></div>
+        <div>
+          <div class="info-lbl">إجمالي الرسوم</div>
+          <div class="info-val fee-val">
+            {{ serviceFee !== null ? (serviceFee + ' جنيه') : '370 جنيه' }}
+          </div>
+        </div>
       </div>
+
       <div class="info-item">
-        <div class="info-ic" style="background:var(--amber-lt)">
+        <div class="info-ic" style="background:var(--amber-light)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c07b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
         </div>
         <div><div class="info-lbl">تنبيه انتهاء الصلاحية</div><div class="info-val">فعّال</div></div>
       </div>
+
+      <!-- الأوراق المطلوبة -->
+      <div class="info-item" *ngIf="requiredDocuments.length > 0">
+        <div class="info-ic" style="background:var(--blue-light)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div>
+          <div class="info-lbl">الأوراق المطلوبة</div>
+          <div class="info-val">{{ requiredDocuments.length }} وثائق</div>
+        </div>
+      </div>
     </div>
+
   </div><!-- /sidebar -->
 
 </div><!-- /main -->
-
-<script>
-// ══════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════
-const MAX_FREE_MSGS = 3;
-let freeRemaining = MAX_FREE_MSGS;
-let sessionGuid   = null;
-let isLoggedIn    = false;
-let isSending     = false;
-
-// ── helpers ──────────────────────────────────
-function getCookie(name) {
-  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-  return m ? decodeURIComponent(m[1]) : null;
-}
-function hasToken() {
-  return !!getCookie('token') || !!localStorage.getItem('auth_token');
-}
-function scrollMsgs() {
-  const m = document.getElementById('msgs');
-  setTimeout(() => m.scrollTop = m.scrollHeight, 80);
-}
-function show(id) {
-  const el = document.getElementById(id);
-  if (el) { el.style.display = 'block'; scrollMsgs(); }
-}
-function updateFreeBadge() {
-  const badge = document.getElementById('free-badge');
-  const count = document.getElementById('free-count');
-  if (isLoggedIn) { badge.classList.add('hidden'); return; }
-  badge.classList.remove('hidden');
-  count.textContent = freeRemaining;
-}
-
-// ══════════════════════════════════════════════
-//  SESSION
-// ══════════════════════════════════════════════
-async function ensureSession() {
-  if (sessionGuid) return true;
-  try {
-const res = await fetch(`${environment.apiUrl}/Session/newSession`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    userEmail: isLoggedIn
-      ? (getCookie('user_email') || 'guest@moamaltak.ai')
-      : 'guest@moamaltak.ai',
-    createdAt: new Date().toISOString()
-  })
-});
-    if (!res.ok) throw new Error('session failed');
-    const data = await res.json();
-    // Accept either { sessionGuidId } or { id } or { guid } from the response
-    sessionGuid = data.sessionGuidId || data.id || data.guid || data.sessionId;
-    return !!sessionGuid;
-  } catch (e) {
-    console.error('Session error:', e);
-    return false;
-  }
-}
-
-// ══════════════════════════════════════════════
-//  CHAT API
-// ══════════════════════════════════════════════
-async function callChatAPI(message) {
-  const ok = await ensureSession();
-  if (!ok) throw new Error('لا يمكن إنشاء جلسة');
-
-  const headers = { 'Content-Type': 'application/json' };
-  const token = getCookie('token') || localStorage.getItem('auth_token');
-  if (token) headers['Authorization'] = 'Bearer ' + token;
-
-  const res = await fetch('/api/AI/chat', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      message,
-      sessionGuidId: sessionGuid
-    })
-  });
-
-  if (!res.ok) {
-    const err = await res.text().catch(() => '');
-    throw new Error(err || `HTTP ${res.status}`);
-  }
-
-  const data = await res.json();
-  // Accept { reply } or { message } or { response } or { content }
-  return data.reply || data.message || data.response || data.content || JSON.stringify(data);
-}
-
-// ══════════════════════════════════════════════
-//  SEND MESSAGE
-// ══════════════════════════════════════════════
-function appendUserMsg(txt) {
-  const msgs = document.getElementById('msgs');
-  const m = document.createElement('div');
-  m.style.marginTop = '14px';
-  m.className = 'msg u';
-  m.innerHTML = `<div class="av usr">أح</div><div class="bub usr">${escHtml(txt)}</div>`;
-  msgs.appendChild(m);
-  scrollMsgs();
-}
-
-function appendBotMsg(html) {
-  const msgs = document.getElementById('msgs');
-  const m = document.createElement('div');
-  m.className = 'msg';
-  m.style.marginTop = '14px';
-  m.innerHTML = `<div class="av bot">AI</div><div class="bub bot bot-response">${html}</div>`;
-  msgs.appendChild(m);
-  scrollMsgs();
-}
-
-function showTyping() {
-  const msgs = document.getElementById('msgs');
-  const t = document.createElement('div');
-  t.className = 'msg';
-  t.id = 'typing-indicator';
-  t.style.marginTop = '14px';
-  t.innerHTML = `<div class="av bot">AI</div><div class="bub bot"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  msgs.appendChild(t);
-  scrollMsgs();
-  return t;
-}
-function removeTyping() {
-  const t = document.getElementById('typing-indicator');
-  if (t) t.remove();
-}
-
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Simple markdown → HTML (bold, lists, newlines)
-function mdToHtml(text) {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-    .replace(/\n/g, '<br>');
-}
-
-async function sendMsg(customText) {
-  if (isSending) return;
-  const inp = document.getElementById('inp');
-  const txt = (customText || inp.value).trim();
-  if (!txt) return;
-
-  // ── free-message gate ──
-  if (!hasToken() && !isLoggedIn) {
-    if (freeRemaining <= 0) {
-      showLoginOverlay();
-      return;
-    }
-    freeRemaining--;
-    updateFreeBadge();
-    if (freeRemaining === 0) {
-      // will show popup after the response
-    }
-  }
-
-  inp.value = '';
-  isSending = true;
-  document.getElementById('send-btn').disabled = true;
-
-  appendUserMsg(txt);
-  const typo = showTyping();
-
-  try {
-    const reply = await callChatAPI(txt);
-    removeTyping();
-    appendBotMsg(mdToHtml(reply));
-  } catch (err) {
-    removeTyping();
-    appendBotMsg(`<span style="color:var(--red-dk)">حصل خطأ: ${escHtml(err.message)}</span>`);
-    // on error restore free count so the user isn't penalised
-    if (!hasToken() && !isLoggedIn && freeRemaining < MAX_FREE_MSGS) freeRemaining++;
-    updateFreeBadge();
-  } finally {
-    isSending = false;
-    document.getElementById('send-btn').disabled = false;
-  }
-
-  // show login popup AFTER bot responds if quota just ran out
-  if (!hasToken() && !isLoggedIn && freeRemaining <= 0) {
-    setTimeout(showLoginOverlay, 800);
-  }
-}
-
-function quickSend(text) {
-  sendMsg(text);
-}
-
-function onKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
-}
-
-// ══════════════════════════════════════════════
-//  LOGIN OVERLAY
-// ══════════════════════════════════════════════
-function showLoginOverlay() {
-  document.getElementById('login-overlay').classList.remove('hidden');
-}
-function hideLoginOverlay() {
-  document.getElementById('login-overlay').classList.add('hidden');
-}
-
-async function doLogin() {
-  const email = document.getElementById('lc-email').value.trim();
-  const pass  = document.getElementById('lc-pass').value.trim();
-  if (!email || !pass) { alert('من فضلك ادخل البريد الإلكتروني وكلمة المرور'); return; }
-
-  const btn = document.getElementById('lc-login-btn');
-  btn.disabled = true;
-  btn.textContent = 'جاري تسجيل الدخول...';
-
-  try {
-    // Call your real login endpoint here — placeholder below
-    const res = await fetch('/api/Auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password: pass })
-    });
-    if (!res.ok) throw new Error('بيانات الدخول غلط');
-    const data = await res.json();
-    const token = data.token || data.accessToken;
-    if (token) {
-      localStorage.setItem('auth_token', token);
-      document.cookie = `token=${token}; path=/; max-age=86400`;
-    }
-    isLoggedIn = true;
-    sessionGuid = null; // reset so a new authenticated session is created
-    updateFreeBadge();
-    hideLoginOverlay();
-    appendBotMsg('تم تسجيل دخولك بنجاح ✅ ممكن تكمل أسئلتك.');
-  } catch (err) {
-    alert(err.message || 'حصل خطأ في تسجيل الدخول');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'تسجيل الدخول';
-  }
-}
-
-function closeLoginAndContinue() {
-  // Guest chose to stay as guest — close popup but note they're at limit
-  hideLoginOverlay();
-  appendBotMsg('عشان تكمل الأسئلة، هتحتاج تسجل دخولك. ممكن تضغط على "تسجيل الدخول" في أي وقت.');
-}
-
-// ══════════════════════════════════════════════
-//  FLOW HELPERS (unchanged)
-// ══════════════════════════════════════════════
-function showOnline()  { show('sec-online'); }
-function showOffice()  { show('sec-office'); }
-function showUpload()  { show('sec-upload'); }
-function showStep3()   { show('sec-step3');  advanceProgress(3); }
-function showStep4()   { show('sec-step4');  advanceProgress(4); }
-function showDone()    { show('sec-done');   advanceProgress(5); }
-
-function advanceProgress(step) {
-  const labels = ['','جمع المستندات','التقديم','سداد الرسوم','استلام الرخصة','مكتملة'];
-  [1,2,3,4].forEach(i => {
-    const dot = document.getElementById('pd'+i);
-    dot.className = 'ps-dot ' + (i < step ? 'done' : i === step ? 'curr' : 'next');
-    dot.textContent = i < step ? '✓' : i;
-    const line = document.getElementById('pl'+i);
-    if (line) line.className = 'ps-line' + (i < step ? ' done' : '');
-  });
-  document.getElementById('ps-txt').textContent =
-    step > 4 ? 'مكتملة — 4 من 4 خطوات' : `خطوة ${step-1} من 4 — ${labels[step-1]}`;
-  [1,2,3,4].forEach(i => {
-    const sd = document.getElementById('sd'+i);
-    sd.className = 's-dot ' + (i < step ? 'done' : i === step ? 'active' : 'idle');
-    sd.textContent = i < step ? '✓' : i;
-    const sl = document.getElementById('sl'+i);
-    if (sl) sl.className = 's-line' + (i < step ? ' done' : '');
-    const sn = document.getElementById('sn'+i);
-    if (sn) sn.className = 's-name' + (i >= step ? ' idle' : '');
-  });
-}
-
-function toggleCk(ckbox) {
-  const on = ckbox.classList.toggle('on');
-  ckbox.innerHTML = on
-    ? '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 6 5 9 10 3"/></svg>'
-    : '';
-  const lbl = ckbox.closest('.ck-row').querySelector('.ck-lbl');
-  if (lbl) lbl.classList.toggle('on', on);
-}
-
-function simulateUpload() {
-  const z = document.getElementById('upload-zone');
-  z.innerHTML = '<div class="up-title">جاري التحقق...</div>';
-  setTimeout(() => show('sec-valid'), 1200);
-}
-
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  // Check if already logged in
-  if (hasToken()) {
-    isLoggedIn = true;
-  }
-  updateFreeBadge();
-  // Pre-create session eagerly
-  ensureSession();
-});
-</script>
-</body>
-</html>

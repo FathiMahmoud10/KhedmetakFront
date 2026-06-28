@@ -184,3 +184,64 @@ $muted:  #6b7a8d;
 
   .gov-section-head__title { font-size: 22px; }
 }
+
+:host-context(.dark-theme) {
+  .gov-how {
+    background: #121212;
+    border-top-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .gov-section-head {
+    &__title {
+      color: #ffffff;
+    }
+    &__sub {
+      color: #9fb0c2;
+    }
+  }
+
+  .gov-step {
+    background: #1d1d1d;
+    border-color: rgba(255, 255, 255, 0.06);
+
+    &__num {
+      background: #2e90a8;
+      color: #ffffff;
+    }
+
+    &__title {
+      color: #ffffff;
+    }
+
+    &__desc {
+      color: #9fb0c2;
+    }
+
+    &__icon {
+      &--ask {
+        background: rgba(46, 144, 168, 0.15);
+        color: #3aaec9;
+      }
+      &--guide {
+        background: rgba(72, 127, 185, 0.15);
+        color: #487fb9;
+      }
+      &--docs {
+        background: rgba(240, 165, 0, 0.15);
+        color: #f0a500;
+      }
+      &--done {
+        background: rgba(41, 139, 100, 0.15);
+        color: #298b64;
+      }
+    }
+
+    &__arrow {
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+  }
+}

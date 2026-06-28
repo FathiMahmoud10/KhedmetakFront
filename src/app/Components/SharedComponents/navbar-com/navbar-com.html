@@ -1,10 +1,10 @@
-<nav class="app-navbar" [class.app-navbar--admin]="isAdminPage">
+<nav class="app-navbar" [class.app-navbar--admin]="isDashboardPage">
   <div class="app-navbar__inner container-fluid">
 
     <!-- Right: menu + brand -->
     <div class="app-navbar__start">
       <button
-        *ngIf="isAdminPage"
+        *ngIf="isDashboardPage"
         class="app-navbar__menu-btn"
         (click)="toggleSidebar()"
         type="button"
@@ -22,16 +22,18 @@
         <img src="\Images\Logo3.png" alt="Khedmetak AI" class="app-navbar__logo" width="42" height="48" />
         <div class="app-navbar__brand-text">
           <span class="app-navbar__brand-name">Khedmetak AI</span>
-          <span class="app-navbar__brand-tag" *ngIf="!isAdminPage">مساعد ذكي للخدمات الحكومية</span>
+          <span class="app-navbar__brand-tag" *ngIf="!isDashboardPage">مساعد ذكي للخدمات الحكومية</span>
           <span class="app-navbar__brand-tag app-navbar__brand-tag--admin" *ngIf="isAdminPage">لوحة تحكم النظام</span>
+          <span class="app-navbar__brand-tag" *ngIf="isUserDashboardPage">لوحة المستخدم</span>
         </div>
       </a>
     </div>
 
-    <div class="app-navbar__center" *ngIf="!isAdminPage">
+    <div class="app-navbar__center" *ngIf="!isDashboardPage">
       <ul class="app-navbar__links">
         <li><a class="app-navbar__link" routerLink="/home" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">الرئيسية</a></li>
-        <li><a class="app-navbar__link" routerLink="/chat" routerLinkActive="is-active">المساعد الذكي</a></li>
+        <!-- المساعد الذكي والخدمات للمستخدم العادي فقط -->
+        <li *ngIf="!isAdmin"><a class="app-navbar__link" routerLink="/chat" routerLinkActive="is-active">المساعد الذكي</a></li>
         <li><a class="app-navbar__link" routerLink="/services" routerLinkActive="is-active">الخدمات</a></li>
       </ul>
     </div>
@@ -46,20 +48,41 @@
         <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
       </button>
 
-      <a *ngIf="isAdminPage" class="app-navbar__return-btn" routerLink="/home">
+      <a *ngIf="isDashboardPage" class="app-navbar__return-btn" routerLink="/home">
         <i class="fas fa-arrow-right"></i>
         العودة للموقع
       </a>
 
-      <ul class="app-navbar__auth" *ngIf="!isAdminPage">
-        <li>
-          <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/admin-dashboard">
-            <i class="fas fa-user-shield"></i>
-            ملف الأدمن
+      <ul class="app-navbar__auth" *ngIf="!isDashboardPage">
+
+        <!-- ملف المستخدم — يظهر فقط للـ user العادي -->
+        <li *ngIf="isLoggedIn && !isAdmin">
+          <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/user-dashboard">
+            <i class="fas fa-user"></i>
+            ملف المستخدم
           </a>
         </li>
-        <li><a class="app-navbar__auth-link" routerLink="/signup">حساب جديد</a></li>
-        <li><a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">تسجيل الدخول</a></li>
+
+        <!-- لوحة الأدمن — للأدمن فقط -->
+        <li *ngIf="isLoggedIn && isAdmin">
+          <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/admin-dashboard">
+            <i class="fas fa-user-shield"></i>
+            لوحة التحكم
+          </a>
+        </li>
+
+        <!-- حساب جديد وتسجيل الدخول — للزوار فقط -->
+        <li *ngIf="!isLoggedIn"><a class="app-navbar__auth-link" routerLink="/signup">حساب جديد</a></li>
+        <li *ngIf="!isLoggedIn"><a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">تسجيل الدخول</a></li>
+
+        <!-- زرار تسجيل الخروج — للمسجلين فقط -->
+        <li *ngIf="isLoggedIn">
+          <button class="app-navbar__auth-link app-navbar__auth-link--logout" (click)="logout()" type="button">
+            <i class="fas fa-sign-out-alt"></i>
+            تسجيل الخروج
+          </button>
+        </li>
+
       </ul>
     </div>
 

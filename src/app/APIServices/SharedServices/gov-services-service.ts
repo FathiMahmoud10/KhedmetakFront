@@ -3,6 +3,7 @@ import { ApiResponse, GovServiceDto, IService } from "../../Utilities/Interfaces
 import { environment } from "../../../environments/environment";
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { UpdateFeesDto } from "../../Pages/admin-fees/admin-fees";
 
 @Injectable({
   providedIn: 'root'
@@ -51,5 +52,13 @@ export class GovServicesService {
   estimatedFees: dto.estimatedFees,
 
 };
+  }
+
+  // ====================================
+  updateFees(serviceId: number, fees: UpdateFeesDto) {
+    return this.http.put(
+      `${environment.apiUrl}/admin/govservices/${serviceId}/fees`,
+      fees
+    );
   }
 }

@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { ThemeService } from '../../Services/theme.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -12,7 +15,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
 
   email = '';
   password = '';
@@ -25,8 +28,30 @@ export class LoginComponent {
   passwordError = false;
 
   year = new Date().getFullYear();
+  isDarkMode = false;
+  private themeSub?: Subscription;
 
-  constructor(private router: Router, private http: HttpClient) {}
+  constructor(
+    private router: Router,
+    private http: HttpClient,
+    private authService: AuthService,
+    private themeService: ThemeService
+  ) { }
+
+  ngOnInit(): void {
+    this.isDarkMode = this.themeService.isDarkMode;
+    this.themeSub = this.themeService.isDarkMode$.subscribe(dark => {
+      this.isDarkMode = dark;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.themeSub?.unsubscribe();
+  }
+
+  toggleDarkMode(): void {
+    this.themeService.toggleTheme();
+  }
 
   validateEmail() { this.emailError = !this.email.trim(); }
   validatePassword() { this.passwordError = this.password.length < 6; }
@@ -35,7 +60,7 @@ export class LoginComponent {
     console.log('Google sign in');
   }
 
- onSubmit() {
+  onSubmit() {
     this.validateEmail();
     this.validatePassword();
 
@@ -52,33 +77,32 @@ export class LoginComponent {
       }
     ).subscribe({
       next: (res) => {
-  this.isLoading = false;
+        this.isLoading = false;
 
-  if (res?.data?.token) {
+        if (res?.data?.token) {
+          const expireDate = new Date(res.data.expiresAt);
+          document.cookie =
+            `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
+        }
 
-    const expireDate = new Date(res.data.expiresAt);
-
-    document.cookie =
-      `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
-  }
-
-  this.router.navigate(['/home']);
-},
+        // توجيه حسب الـ Role
+        const role = this.authService.getRole();
+        if (role === 'Admin') {
+          this.router.navigate(['/home']);
+        } else {
+          this.router.navigate(['/home']);
+        }
+      },
 
       error: (err) => {
         this.isLoading = false;
 
         if (err.status === 401) {
-          this.serverError =
-            'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+          this.serverError = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
         } else {
-          this.serverError =
-            'حدث خطأ، يرجى المحاولة مرة أخرى';
+          this.serverError = 'حدث خطأ، يرجى المحاولة مرة أخرى';
         }
       }
     });
   }
 }
-
-
-

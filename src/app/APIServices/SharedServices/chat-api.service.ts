@@ -17,6 +17,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   message: string;
   sessionGuidId: string;
+  reply?: string;
 }
 
 @Injectable({
@@ -27,19 +28,31 @@ export class ChatApiService {
 
   constructor(private http: HttpClient) {}
 
-  createSession(email: string): Observable<ApiResponse<any>> {
-    const payload: NewSessionRequest = {
+  createSession(email: string): Observable<any> {
+    const payload = {
       userEmail: email,
       createdAt: new Date().toISOString()
     };
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/Session/newSession`, payload);
+    return this.http.post<any>(`${this.apiUrl}/Session/newSession`, payload);
   }
 
-  sendMessage(message: string, sessionGuidId: string): Observable<ApiResponse<ChatResponse>> {
+  sendMessage(message: string, sessionGuidId: string): Observable<string> {
     const payload: ChatRequest = {
       message,
       sessionGuidId
     };
-    return this.http.post<ApiResponse<ChatResponse>>(`${this.apiUrl}/AI/chat`, payload);
+    return this.http.post(`${this.apiUrl}/AI/chat`, payload, { responseType: 'text' });
+  }
+
+  uploadDocument(file: File, chatSessionId: string | number, requiredDocumentId: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('File', file);
+    formData.append('ChatSessionId', chatSessionId.toString());
+    formData.append('RequiredDocumentId', requiredDocumentId.toString());
+    return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
+  }
+
+  getUserSessions(userEmail: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Session/UserSessions/${encodeURIComponent(userEmail)}`);
   }
 }

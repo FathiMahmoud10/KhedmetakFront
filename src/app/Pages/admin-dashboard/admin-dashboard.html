@@ -18,134 +18,149 @@
           <span>{{ todayLabel }}</span>
         </div>
         <div class="dash-hero__pending">
-          <span class="dash-hero__pending-num">15</span>
+          <!-- استخدام العداد الديناميكي المحسوب للطلبات قيد المراجعة -->
+          <span class="dash-hero__pending-num">{{ isLoading ? '...' : pendingRequestsCount }}</span>
           <span class="dash-hero__pending-lbl">طلب قيد المراجعة</span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Stats -->
-  <section class="dash-stats">
-    <article class="dash-stat dash-stat--navy">
-      <div class="dash-stat__accent"></div>
-      <div class="dash-stat__body">
-        <div class="dash-stat__info">
-          <span class="dash-stat__label">إجمالي الخدمات</span>
-          <span class="dash-stat__value">24</span>
-          <span class="dash-stat__hint">خدمة حكومية متاحة</span>
+  <!-- مؤشر جاري تحميل الإحصائيات الحقيقية من السيرفر -->
+  <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 my-5">
+    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
+    <p class="text-muted fst-italic">جاري سحب أحدث بيانات المنصة من الخادم المباشر...</p>
+  </div>
+
+  <!-- حاوية البيانات تظهر فقط فور انتهاء التحميل بنجاح -->
+  <ng-container *ngIf="!isLoading">
+
+    <!-- Stats -->
+    <section class="dash-stats">
+      <article class="dash-stat dash-stat--navy">
+        <div class="dash-stat__accent"></div>
+        <div class="dash-stat__body">
+          <div class="dash-stat__info">
+            <span class="dash-stat__label">إجمالي الخدمات</span>
+            <!-- ربط ديناميكي بعدد الخدمات الفعلي من الباك إند -->
+            <span class="dash-stat__value">{{ totalServices }}</span>
+            <span class="dash-stat__hint">خدمة حكومية نشطة</span>
+          </div>
+          <div class="dash-stat__icon"><i class="fas fa-concierge-bell"></i></div>
         </div>
-        <div class="dash-stat__icon"><i class="fas fa-concierge-bell"></i></div>
-      </div>
-    </article>
+      </article>
 
-    <article class="dash-stat dash-stat--green">
-      <div class="dash-stat__accent"></div>
-      <div class="dash-stat__body">
-        <div class="dash-stat__info">
-          <span class="dash-stat__label">إجمالي الطلبات</span>
-          <span class="dash-stat__value">1,248</span>
-          <span class="dash-stat__hint">طلب حكومي مسجّل</span>
+      <article class="dash-stat dash-stat--green">
+        <div class="dash-stat__accent"></div>
+        <div class="dash-stat__body">
+          <div class="dash-stat__info">
+            <span class="dash-stat__label">إجمالي الأقسام</span>
+            <!-- ربط ديناميكي بعدد القطاعات والتصنيفات الفعلي من الباك إند -->
+            <span class="dash-stat__value">{{ totalCategories }}</span>
+            <span class="dash-stat__hint">قطاع حكومي مسجّل</span>
+          </div>
+          <div class="dash-stat__icon"><i class="fas fa-layer-group"></i></div>
         </div>
-        <div class="dash-stat__icon"><i class="fas fa-file-invoice"></i></div>
-      </div>
-    </article>
+      </article>
 
-    <article class="dash-stat dash-stat--blue">
-      <div class="dash-stat__accent"></div>
-      <div class="dash-stat__body">
-        <div class="dash-stat__info">
-          <span class="dash-stat__label">المستخدمين النشطين</span>
-          <span class="dash-stat__value">842</span>
-          <span class="dash-stat__hint">مستخدم هذا الشهر</span>
+      <article class="dash-stat dash-stat--blue">
+        <div class="dash-stat__accent"></div>
+        <div class="dash-stat__body">
+          <div class="dash-stat__info">
+            <span class="dash-stat__label">المستخدمين المسجلين</span>
+            <!-- ربط ديناميكي بعدد المستخدمين والمواطنين الحقيقيين من الباك إند -->
+            <span class="dash-stat__value">{{ totalUsers }}</span>
+            <span class="dash-stat__hint">مواطن مسجّل بالمنصة</span>
+          </div>
+          <div class="dash-stat__icon"><i class="fas fa-users"></i></div>
         </div>
-        <div class="dash-stat__icon"><i class="fas fa-users"></i></div>
-      </div>
-    </article>
+      </article>
 
-    <article class="dash-stat dash-stat--amber">
-      <div class="dash-stat__accent"></div>
-      <div class="dash-stat__body">
-        <div class="dash-stat__info">
-          <span class="dash-stat__label">قيد المراجعة</span>
-          <span class="dash-stat__value">15</span>
-          <span class="dash-stat__hint">تحتاج إجراء منك</span>
+      <article class="dash-stat dash-stat--amber">
+        <div class="dash-stat__accent"></div>
+        <div class="dash-stat__body">
+          <div class="dash-stat__info">
+            <span class="dash-stat__label">قيد المراجعة</span>
+            <span class="dash-stat__value">{{ pendingRequestsCount }}</span>
+            <span class="dash-stat__hint">تحتاج إجراء منك</span>
+          </div>
+          <div class="dash-stat__icon"><i class="fas fa-clock"></i></div>
         </div>
-        <div class="dash-stat__icon"><i class="fas fa-clock"></i></div>
+      </article>
+    </section>
+
+    <!-- Chart -->
+    <section class="dash-panel dash-panel--chart">
+      <div class="dash-panel__head">
+        <div>
+          <!-- تعديل المسميات لتتناسب تماماً مع الرسم البياني المقارن الجديد للأرقام الحقيقية -->
+          <h2 class="dash-panel__title">التحليل الإحصائي للمنصة</h2>
+          <p class="dash-panel__sub">مقارنة مرئية مباشرة لإحصائيات النظام من قاعدة البيانات</p>
+        </div>
+        <span class="dash-panel__badge dash-panel__badge--up">
+          <i class="fas fa-circle text-success" style="font-size: 10px;"></i>
+          مباشر
+        </span>
       </div>
-    </article>
-  </section>
-
-  <!-- Chart -->
-  <section class="dash-panel dash-panel--chart">
-    <div class="dash-panel__head">
-      <div>
-        <h2 class="dash-panel__title">معدل الطلبات الأسبوعي</h2>
-        <p class="dash-panel__sub">عدد الطلبات الحكومية المستلمة خلال آخر 7 أيام</p>
+      <div class="dash-chart-wrap">
+        <canvas #ordersChart></canvas>
       </div>
-      <span class="dash-panel__badge dash-panel__badge--up">
-        <i class="fas fa-arrow-up"></i>
-        +18%
-      </span>
-    </div>
-    <div class="dash-chart-wrap">
-      <canvas #ordersChart></canvas>
-    </div>
-  </section>
+    </section>
 
-  <!-- Table -->
-  <section class="dash-panel">
-    <div class="dash-panel__head">
-      <div>
-        <h2 class="dash-panel__title">آخر الطلبات المقدمة</h2>
-        <p class="dash-panel__sub">مراجعة واتخاذ إجراء على أحدث طلبات المواطنين</p>
+    <!-- Table -->
+    <section class="dash-panel">
+      <div class="dash-panel__head">
+        <div>
+          <h2 class="dash-panel__title">آخر الطلبات المقدمة</h2>
+          <p class="dash-panel__sub">مراجعة واتخاذ إجراء على أحدث طلبات المواطنين</p>
+        </div>
+        <span class="dash-panel__count">{{ requestsList.length }} طلب</span>
       </div>
-      <span class="dash-panel__count">{{ requestsList.length }} طلب</span>
-    </div>
 
-    <div class="dash-table-wrap">
-      <table class="dash-table">
-        <thead>
-          <tr>
-            <th>اسم المواطن</th>
-            <th>الخدمة المطلوبة</th>
-            <th>تاريخ الطلب</th>
-            <th>حالة الطلب</th>
-            <th class="dash-table__actions-col">إجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let req of requestsList">
-            <td>
-              <div class="dash-table__user">
-                <span class="dash-table__avatar">{{ req.name.charAt(0) }}</span>
-                <span class="dash-table__name">{{ req.name }}</span>
-              </div>
-            </td>
-            <td>{{ req.service }}</td>
-            <td class="dash-table__date">{{ req.date }}</td>
-            <td>
-              <span class="dash-badge" [ngClass]="getStatusClass(req.status)">
-                {{ req.status }}
-              </span>
-            </td>
-            <td class="dash-table__actions-col">
-              <button
-                class="dash-btn-view"
-                data-bs-toggle="modal"
-                data-bs-target="#detailsModal"
-                (click)="viewDetails(req)"
-              >
-                <i class="fas fa-eye"></i>
-                عرض التفاصيل
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>اسم المواطن</th>
+              <th>الخدمة المطلوبة</th>
+              <th>تاريخ الطلب</th>
+              <th>حالة الطلب</th>
+              <th class="dash-table__actions-col">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let req of requestsList">
+              <td>
+                <div class="dash-table__user">
+                  <span class="dash-table__avatar">{{ req.name.charAt(0) }}</span>
+                  <span class="dash-table__name">{{ req.name }}</span>
+                </div>
+              </td>
+              <td>{{ req.service }}</td>
+              <td class="dash-table__date">{{ req.date }}</td>
+              <td>
+                <span class="dash-badge" [ngClass]="getStatusClass(req.status)">
+                  {{ req.status }}
+                </span>
+              </td>
+              <td class="dash-table__actions-col">
+                <button
+                  class="dash-btn-view"
+                  data-bs-toggle="modal"
+                  data-bs-target="#detailsModal"
+                  (click)="viewDetails(req)"
+                >
+                  <i class="fas fa-eye"></i>
+                  عرض التفاصيل
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
+  </ng-container>
 </div>
 
 <!-- Modal -->
@@ -188,7 +203,7 @@
           </div>
         </div>
 
-        <div class="dash-modal__file">
+        <div class="dash-modal__file" *ngIf="selectedRequest.userFile">
           <div class="dash-modal__file-info">
             <span class="dash-modal__file-icon"><i class="fas fa-file-pdf"></i></span>
             <div>
@@ -210,12 +225,25 @@
         </div>
       </div>
 
-      <div class="dash-modal__footer">
-        <button type="button" class="dash-modal__btn dash-modal__btn--accept" (click)="updateStatus('مقبول')">
+      <div class="dash-modal__footer" *ngIf="selectedRequest">
+        <!-- تعطيل زر القبول تلقائياً لحماية منطق الواجهة إذا كانت الحالة الحالية للطلب مقبولة بالفعل -->
+        <button 
+          type="button" 
+          class="dash-modal__btn dash-modal__btn--accept" 
+          (click)="updateStatus('مقبول')"
+          [disabled]="selectedRequest.status === 'مقبول'"
+        >
           <i class="fas fa-check"></i>
           قبول الطلب
         </button>
-        <button type="button" class="dash-modal__btn dash-modal__btn--reject" (click)="updateStatus('مرفوض')">
+        
+        <!-- تعطيل زر الرفض تلقائياً لحماية منطق الواجهة إذا كانت الحالة الحالية للطلب مرفوضة بالفعل -->
+        <button 
+          type="button" 
+          class="dash-modal__btn dash-modal__btn--reject" 
+          (click)="updateStatus('مرفوض')"
+          [disabled]="selectedRequest.status === 'مرفوض'"
+        >
           <i class="fas fa-times"></i>
           رفض الطلب
         </button>
