@@ -88,7 +88,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         // توجيه حسب الـ Role
         const role = this.authService.getRole();
         if (role === 'Admin') {
-          this.router.navigate(['/home']);
+          this.router.navigate(['/admin-dashboard']);
+        } else if (role === 'User') {
+          this.router.navigate(['/user-dashboard']);
         } else {
           this.router.navigate(['/home']);
         }
