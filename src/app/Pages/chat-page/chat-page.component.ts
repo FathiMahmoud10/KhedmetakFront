@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { ChatApiService, ChatResponse } from '../../APIServices/SharedServices/chat-api.service';
+import { ChatApiService, ChatResponse, CurrentServiceDetails } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 import { UserDashboardService } from '../../APIServices/SharedServices/user-dashboard.service';
 import { environment } from '../../../environments/environment';
@@ -34,6 +34,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
   @ViewChild('msgsContainer') msgsContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('submitFileInput') submitFileInputRef!: ElementRef<HTMLInputElement>;
 
   // ===========================
   // State variables
@@ -60,11 +61,29 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   loginPassword = '';
   msgText = '';
 
-  // Service info (populated from API)
+  // Service info (populated from API or chat response)
   serviceName = 'جاري التحميل...';
   serviceAgency = '';
   serviceFee: number | null = null;
   serviceTime = '30 دقيقة';
+  serviceCategoryName = '';
+  serviceRequiredDocsCount = 0;
+
+  // Current service details from latest chat response
+  currentServiceDetails: CurrentServiceDetails | null = null;
+
+  // Submit Request Form State
+  showSubmitForm = false;
+  submitFormLoading = false;
+  submitFormError = '';
+  submitFormSuccess = '';
+  submitUserName = '';
+  submitPhoneNumber = '';
+  submitNotes = '';
+  submitFiles: File[] = [];
+
+  isCollectingRequestInfo = false;
+  currentRequestStep = 0; // 1: Name, 2: Phone, 3: Notes, 4: Files
 
   // Session list sidebar state
   sessionsLoading = false;
@@ -86,6 +105,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     steps?: string[];
     currentStep?: number;
   }> = [];
+
+  copiedMap: { [key: number]: boolean } = {};
 
   // ===========================
   // Step wizard / checklist state
@@ -287,7 +308,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
     try {
       const email = this.isLoggedIn
-        ? (this.getCookie('user_email') || 'guest@moamaltak.ai')
+        ? (this.authService.getUserEmail() || 'guest@moamaltak.ai')
         : 'guest@moamaltak.ai';
 
       const res = await firstValueFrom(this.chatApiService.createSession(email));
@@ -421,6 +442,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     }
 
     this.msgText = '';
+
+    if (this.isCollectingRequestInfo) {
+      this.handleRequestInfoStep(text);
+      return;
+    }
+
     this.isSending = true;
 
     // Add user message
@@ -437,22 +464,21 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         throw new Error('فشل تهيئة جلسة المحادثة. يرجى التحقق من اتصالك بالإنترنت.');
       }
 
-      // res is a plain text string
-      const res = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
+      // res is now a JSON object: { currentServiceDetails, response }
+      const res: ChatResponse = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
 
       // Remove typing indicator
       this.messages.splice(typingIndicatorIndex, 1);
 
-      const replyText = (res || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
-      const steps = this.parseIntoSteps(replyText);
-
-      if (steps.length > 1) {
-        // Multi-step response — show step 0, user advances with "التالي"
-        this.messages.push({ sender: 'bot', text: '', steps, currentStep: 0 });
-      } else {
-        // Single-step response — show as normal bubble
-        this.messages.push({ sender: 'bot', text: steps[0] || this.mdToHtml(replyText), isHtml: true });
+      // Update sidebar service details from the response
+      if (res.currentServiceDetails) {
+        this.currentServiceDetails = res.currentServiceDetails;
+        this.updateSidebarFromServiceDetails(res.currentServiceDetails);
       }
+
+      const replyText = (res.response || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
+      // Render the full markdown response as a single formatted message
+      this.messages.push({ sender: 'bot', text: this.mdToHtml(replyText), isHtml: true });
     } catch (err: any) {
       this.messages.splice(typingIndicatorIndex, 1);
       this.messages.push({
@@ -490,6 +516,115 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   }
 
   // ===========================
+  // Service Details Sidebar Update
+  // ===========================
+
+  private updateSidebarFromServiceDetails(details: CurrentServiceDetails): void {
+    if (details.serviceName && details.serviceName !== 'لم تحدد بعد') {
+      this.serviceName = details.serviceName;
+    }
+    if (details.categoryName && details.categoryName !== '----') {
+      this.serviceCategoryName = details.categoryName;
+    }
+    if (details.fees != null && details.fees > 0) {
+      this.serviceFee = details.fees;
+    }
+    if (details.takenTime && details.takenTime !== '0') {
+      this.serviceTime = details.takenTime;
+    }
+    if (details.requiredDocumentsCount != null) {
+      this.serviceRequiredDocsCount = details.requiredDocumentsCount;
+    }
+  }
+
+  // ===========================
+  // Submit Service Request
+  // ===========================
+
+  openSubmitForm(): void {
+    if (!this.isLoggedIn) {
+      this.openLoginPopup();
+      return;
+    }
+    this.isCollectingRequestInfo = true;
+    this.currentRequestStep = 1;
+    this.submitUserName = '';
+    this.submitPhoneNumber = '';
+    this.submitNotes = '';
+    this.submitFiles = [];
+    this.appendBotMsg('بدء تقديم الطلب 📝.<br>من فضلك اكتب اسمك الكامل:');
+  }
+
+  closeSubmitForm(): void {
+    this.isCollectingRequestInfo = false;
+    this.currentRequestStep = 0;
+  }
+
+  async handleRequestInfoStep(text: string): Promise<void> {
+    // Add user message to chat
+    this.messages.push({ sender: 'user', text });
+    this.scrollToBottom();
+
+    if (this.currentRequestStep === 1) {
+      this.submitUserName = text;
+      this.currentRequestStep = 2;
+      this.appendBotMsg('تمام. من فضلك أدخل رقم جوالك:');
+    } else if (this.currentRequestStep === 2) {
+      this.submitPhoneNumber = text;
+      this.currentRequestStep = 3;
+      this.appendBotMsg('شكراً. اكتب أي ملاحظات إضافية على الطلب (أو اكتب "لا يوجد"):');
+    } else if (this.currentRequestStep === 3) {
+      this.submitNotes = text;
+      this.currentRequestStep = 4;
+      this.appendBotMsg('إذا كان لديك أي مستندات أو ملفات تريد إرفاقها، يرجى رفعها الآن باستخدام زر الإرفاق 📎 بالأسفل، أو اضغط على زر <strong>"إنهاء التقديم وإرسال الطلب"</strong> لإتمام الطلب.');
+    } else if (this.currentRequestStep === 4) {
+      if (text.includes('إنهاء') || text.includes('ارسال') || text.includes('تقديم') || text.includes('انهاء')) {
+        this.doSubmitRequest();
+      } else {
+        this.appendBotMsg('يرجى الضغط على زر <strong>"إنهاء التقديم وإرسال الطلب"</strong> لإتمام تقديم طلبك، أو رفع المستندات أولاً.');
+      }
+    }
+  }
+
+  async doSubmitRequest(): Promise<void> {
+    this.submitFormLoading = true;
+    this.appendBotMsg('سيتم تقديم الطلب... جاري المعالجة ⏳');
+
+    const userEmail = this.authService.getUserEmail() || '';
+    if (!userEmail) {
+      this.appendBotMsg('خطأ: لم يتم العثور على البريد الإلكتروني. يرجى تسجيل الدخول أولاً.');
+      this.submitFormLoading = false;
+      this.isCollectingRequestInfo = false;
+      this.currentRequestStep = 0;
+      return;
+    }
+
+    const govServiceId = this.govServiceId;
+
+    try {
+      const res = await firstValueFrom(
+        this.chatApiService.submitServiceRequest({
+          userEmail,
+          govServiceId,
+          userName: this.submitUserName || undefined,
+          phoneNumber: this.submitPhoneNumber || undefined,
+          notes: this.submitNotes || undefined,
+          files: this.submitFiles.length > 0 ? this.submitFiles : undefined
+        })
+      );
+
+      this.appendBotMsg('تم تقديم طلبك بنجاح! ✅ سيتم مراجعته في أقرب وقت.');
+      this.isCollectingRequestInfo = false;
+      this.currentRequestStep = 0;
+      this.loadUserSessions();
+    } catch (err: any) {
+      this.appendBotMsg(`حدث خطأ أثناء تقديم الطلب: ${err?.error?.message || err?.message || 'خطأ غير معروف'} ❌`);
+    } finally {
+      this.submitFormLoading = false;
+    }
+  }
+
+  // ===========================
   // File Upload Operations
   // ===========================
 
@@ -512,6 +647,17 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
     if (!this.isLoggedIn) {
       this.openLoginPopup();
+      return;
+    }
+
+    if (this.isCollectingRequestInfo) {
+      if (this.currentRequestStep === 4) {
+        this.submitFiles.push(file);
+        this.appendBotMsg(`تم إرفاق الملف: <strong>${file.name}</strong> بنجاح 📎`);
+      } else {
+        this.appendBotMsg('يرجى إكمال البيانات المطلوبة أولاً قبل إرفاق الملفات.');
+      }
+      event.target.value = '';
       return;
     }
 
@@ -912,6 +1058,19 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
     await this.ensureSession();
     this.loadUserSessions();
+  }
+
+  getUserInitials(): string {
+    if (!this.isLoggedIn) return 'ضيف';
+    const name = this.authService.getUserName();
+    if (!name) return 'م';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      const first = parts[0][0] || '';
+      const second = parts[1][0] || '';
+      return (first + second).substring(0, 2);
+    }
+    return name.substring(0, 2);
   }
 
   formatSessionDate(dateString: string): string {

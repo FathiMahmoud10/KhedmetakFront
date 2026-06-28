@@ -56,6 +56,15 @@ export class AuthService {
     }
   }
 
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp * 1000 < Date.now();
+    } catch {
+      return true;
+    }
+  }
+
   isLoggedIn(): boolean {
     const token = this.getTokenFromCookie();
     if (!token) return false;
@@ -69,14 +78,12 @@ export class AuthService {
     const payload = this.decodeJwt(token);
     if (!payload) return null;
 
-    // الـ Backend بيستخدم ClaimTypes.Role اللي بيتحول لـ URI ده في الـ JWT
     const roleClaim =
       payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
       ?? payload?.role
       ?? payload?.Role
       ?? null;
 
-    // لو الـ roles جت كـ array (لو User معاه أكتر من role)، خد الأولى
     if (Array.isArray(roleClaim)) {
       return roleClaim[0] ?? null;
     }
@@ -84,13 +91,30 @@ export class AuthService {
     return roleClaim;
   }
 
-  private isTokenExpired(token: string): boolean {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000 < Date.now();
-    } catch {
-      return true;
-    }
+  getUserName(): string | null {
+    const token = this.getTokenFromCookie();
+    if (!token) return null;
+    const payload = this.decodeJwt(token);
+    if (!payload) return null;
+
+    return payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']
+      ?? payload?.['unique_name']
+      ?? payload?.name
+      ?? payload?.Name
+      ?? null;
+  }
+
+  getUserEmail(): string | null {
+    const token = this.getTokenFromCookie();
+    if (!token) return null;
+    const payload = this.decodeJwt(token);
+    if (!payload) return null;
+
+    return payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
+      ?? payload?.email
+      ?? payload?.Email
+      ?? payload?.sub
+      ?? null;
   }
 
   clearStaleSession(): void {
