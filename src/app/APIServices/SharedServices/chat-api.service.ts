@@ -36,12 +36,12 @@ export class ChatApiService {
     return this.http.post<any>(`${this.apiUrl}/Session/newSession`, payload);
   }
 
-  sendMessage(message: string, sessionGuidId: string): Observable<string> {
+  sendMessage(message: string, sessionGuidId: string): Observable<any> {
     const payload: ChatRequest = {
       message,
       sessionGuidId
     };
-    return this.http.post(`${this.apiUrl}/AI/chat`, payload, { responseType: 'text' });
+    return this.http.post<any>(`${this.apiUrl}/AI/chat`, payload);
   }
 
   uploadDocument(file: File, chatSessionId: string | number, requiredDocumentId: number): Observable<any> {

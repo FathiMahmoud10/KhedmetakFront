@@ -561,16 +561,56 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         throw new Error('فشل تهيئة جلسة المحادثة. يرجى التحقق من اتصالك بالإنترنت.');
       }
 
-      // res is a plain text string
+      // res is a JSON response
       const res = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
 
       // Remove typing indicator
       this.messages.splice(typingIndicatorIndex, 1);
 
-      const replyText = (res || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
+      let replyText = 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
+      let serviceDetails: any = null;
 
-      // ── Extract & update sidebar info from the AI reply ──
-      this.extractServiceInfoFromReply(replyText);
+      if (res) {
+        if (typeof res === 'object') {
+          replyText = res.response || res.reply || res.message || replyText;
+          serviceDetails = res.currentServiceDetails || null;
+        } else if (typeof res === 'string') {
+          try {
+            const parsed = JSON.parse(res);
+            replyText = parsed.response || parsed.reply || parsed.message || replyText;
+            serviceDetails = parsed.currentServiceDetails || null;
+          } catch {
+            replyText = res;
+          }
+        }
+      }
+
+      // Update sidebar info based on JSON currentServiceDetails
+      if (serviceDetails) {
+        if (serviceDetails.serviceName && serviceDetails.serviceName !== 'لم تحدد بعد') {
+          this.serviceName = serviceDetails.serviceName;
+          this.sidebarUpdatedByAI = true;
+        } else if (serviceDetails.serviceName === 'لم تحدد بعد') {
+          this.serviceName = 'مساعد معاملاتك';
+        }
+
+        if (serviceDetails.categoryName && serviceDetails.categoryName !== '----') {
+          this.serviceAgency = serviceDetails.categoryName;
+        } else {
+          this.serviceAgency = '';
+        }
+
+        if (serviceDetails.fees !== undefined) {
+          this.serviceFee = serviceDetails.fees > 0 ? serviceDetails.fees : null;
+        }
+
+        if (serviceDetails.takenTime && serviceDetails.takenTime !== '0') {
+          this.serviceTime = serviceDetails.takenTime;
+        }
+      } else {
+        // Fallback to regex extraction from text
+        this.extractServiceInfoFromReply(replyText);
+      }
 
       this.messages.push({ sender: 'bot', text: this.mdToHtml(replyText), isHtml: true });
     } catch (err: any) {
