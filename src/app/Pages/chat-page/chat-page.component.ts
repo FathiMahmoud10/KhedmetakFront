@@ -86,6 +86,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     currentStep?: number;
   }> = [];
 
+  copiedMap: { [key: number]: boolean } = {};
+
 
   // File Upload State
   requiredDocuments: RequiredDocument[] = [];
@@ -860,16 +862,98 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       .replace(/"/g, '&quot;');
   }
 
+  copyToClipboard(htmlText: string, index: number): void {
+    if (!htmlText) return;
+    const tempEl = document.createElement('div');
+    tempEl.innerHTML = htmlText;
+    const plainText = tempEl.textContent || tempEl.innerText || '';
+
+    navigator.clipboard.writeText(plainText).then(() => {
+      this.copiedMap[index] = true;
+      setTimeout(() => {
+        this.copiedMap[index] = false;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  }
+
   private mdToHtml(text: string): string {
-    return text
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      .replace(/\n/g, '<br>');
+    if (!text) return '';
+
+    let html = this.escHtml(text);
+
+    // Replace headers
+    html = html.replace(/^### (.+)$/gm, '<h3 class="bot-h3">$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2 class="bot-h2">$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1 class="bot-h1">$1</h1>');
+
+    // Bold & Italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="bot-bold">$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em class="bot-italic">$1</em>');
+
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, '<code class="bot-code">$1</code>');
+
+    // Process lists and paragraphs line by line
+    const lines = html.split('\n');
+    const processedLines: string[] = [];
+    let activeListType: 'ul' | 'ol' | null = null;
+
+    for (let line of lines) {
+      const trimmed = line.trim();
+
+      const ulMatch = trimmed.match(/^[-*•]\s+(.+)$/);
+      const olMatch = trimmed.match(/^(\d+|[١٢٣٤٥٦٧٨٩]+)\.\s+(.+)$/);
+
+      if (ulMatch) {
+        if (activeListType === 'ol') {
+          processedLines.push('</ol>');
+          activeListType = null;
+        }
+        if (activeListType === null) {
+          processedLines.push('<ul class="bot-ul">');
+          activeListType = 'ul';
+        }
+        processedLines.push(`<li class="bot-li">${ulMatch[1]}</li>`);
+      } else if (olMatch) {
+        if (activeListType === 'ul') {
+          processedLines.push('</ul>');
+          activeListType = null;
+        }
+        if (activeListType === null) {
+          processedLines.push('<ol class="bot-ol">');
+          activeListType = 'ol';
+        }
+        processedLines.push(`<li class="bot-li">${olMatch[2]}</li>`);
+      } else {
+        if (activeListType === 'ul') {
+          processedLines.push('</ul>');
+          activeListType = null;
+        } else if (activeListType === 'ol') {
+          processedLines.push('</ol>');
+          activeListType = null;
+        }
+
+        if (trimmed.length > 0) {
+          if (trimmed.startsWith('<h') && (trimmed.endsWith('</h3>') || trimmed.endsWith('</h2>') || trimmed.endsWith('</h1>'))) {
+            processedLines.push(trimmed);
+          } else {
+            processedLines.push(`<p class="bot-p">${trimmed}</p>`);
+          }
+        } else {
+          processedLines.push('<div class="bot-space"></div>');
+        }
+      }
+    }
+
+    if (activeListType === 'ul') {
+      processedLines.push('</ul>');
+    } else if (activeListType === 'ol') {
+      processedLines.push('</ol>');
+    }
+
+    return processedLines.join('\n');
   }
 
   getProgressDotClass(step: number): string {
