@@ -408,7 +408,18 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // ===========================
 
   fetchUserSessions(): void {
-    const email = this.getCookie('user_email');
+    // Try cookie first, then fall back to JWT token claim
+    let email = this.getCookie('user_email');
+    if (!email) {
+      const token = this.authService.getTokenFromCookie();
+      if (token) {
+        const payload = this.authService.decodeJwt(token);
+        email = payload?.email
+          ?? payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress']
+          ?? payload?.Email
+          ?? null;
+      }
+    }
     if (!email) return;
 
     this.sessionsLoading = true;
@@ -439,9 +450,38 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     // Save to cookies
     this.setCookie('sessionGuidId', session.sessionGuidId, 1);
     this.setCookie('chatSessionId', session.id.toString(), 1);
-    // Clear current messages and start fresh with session context
+    // Clear current messages and start loading from the API
     this.messages = [];
-    this.appendBotMsg(`تم تحميل المحادثة السابقة. يمكنك الاستمرار من حيث توقفت.`);
+    
+    this.chatApiService.getSessionMessages(session.sessionGuidId).subscribe({
+      next: (res: any) => {
+        let msgList = [];
+        if (res && res.success && Array.isArray(res.data)) {
+          msgList = res.data;
+        } else if (Array.isArray(res)) {
+          msgList = res;
+        }
+
+        this.messages = msgList.map((m: any) => {
+          const sender = m.role === 'user' ? 'user' : 'bot';
+          return {
+            sender,
+            text: sender === 'bot' ? this.mdToHtml(m.content) : m.content,
+            isHtml: sender === 'bot'
+          };
+        });
+
+        if (this.messages.length === 0) {
+          this.appendBotMsg(`بدأت المحادثة الجديدة. كيف يمكنني مساعدتك اليوم؟`);
+        } else {
+          this.scrollToBottom();
+        }
+      },
+      error: (err: any) => {
+        console.error('Failed to load session messages:', err);
+        this.appendBotMsg(`<span style="color:var(--red-dk)">عذراً، فشل تحميل رسائل المحادثة السابقة.</span>`);
+      }
+    });
   }
 
   startNewChat(): void {
@@ -455,15 +495,33 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   }
 
   formatSessionDate(dateStr: string): string {
+    if (!dateStr) return '';
     const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'اليوم';
-    if (diffDays === 1) return 'أمس';
-    if (diffDays < 7) return `منذ ${diffDays} أيام`;
-    return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' });
+
+    // Format time: hh:mm AM/PM in Arabic
+    const timeOptions: Intl.DateTimeFormatOptions = {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    const timeStr = d.toLocaleTimeString('ar-EG', timeOptions);
+
+    if (diffDays === 0) {
+      return `اليوم، ${timeStr}`;
+    } else if (diffDays === 1) {
+      return `أمس، ${timeStr}`;
+    } else if (diffDays < 7) {
+      return `منذ ${diffDays} أيام`;
+    } else {
+      return d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }) + `، ${timeStr}`;
+    }
   }
+
 
   // ===========================
   // Send Message Logic

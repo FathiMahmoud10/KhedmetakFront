@@ -55,4 +55,9 @@ export class ChatApiService {
   getUserSessions(userEmail: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/Session/UserSessions/${encodeURIComponent(userEmail)}`);
   }
+
+  getSessionMessages(sessionGuidId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
+  }
 }
+
