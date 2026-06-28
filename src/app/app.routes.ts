@@ -24,8 +24,8 @@ import { userGuard } from './Guards/user.guard';
 import { authGuard } from './Guards/auth.guard';
 
 export const routes: Routes = [
-  // التطبيق يبدأ بصفحة اللوجن
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  // التطبيق يبدأ بصفحة الـ Home
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
 
   // ==============================
   // صفحات الزوار (بدون تسجيل دخول)
@@ -57,10 +57,10 @@ export const routes: Routes = [
   { path: 'chat', component: ChatPageComponent, canActivate: [userGuard] },
 
   // ==============================
-  // صفحات مشتركة (أي حد مسجل دخول)
+  // صفحات مشتركة وعامة (متاحة للجميع)
   // ==============================
-  { path: 'home',          component: HomePage,             canActivate: [authGuard] },
-  { path: 'services',      component: AllServicesComponent, canActivate: [authGuard] },
-  { path: 'services/:id',  component: ServiceDetailsComponent, canActivate: [authGuard] },
+  { path: 'home',          component: HomePage },
+  { path: 'services',      component: AllServicesComponent },
+  { path: 'services/:id',  component: ServiceDetailsComponent },
   { path: 'token-check',   component: TokenCheckComponent },
 ];
