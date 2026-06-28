@@ -46,10 +46,15 @@ export class ChatApiService {
     return this.http.post(`${this.apiUrl}/AI/chat`, payload, { responseType: 'text' });
   }
 
-  uploadDocument(file: File, chatSessionId: string | number, requiredDocumentId: number): Observable<any> {
+  // FIX: chat sessions are identified by Guid everywhere in the backend (SessionGuidId).
+  // There is no numeric "chatSessionId" available on the frontend - the "newSession"
+  // endpoint only ever returns the Guid. Sending a fabricated/derived number here meant
+  // the file never linked to the right session (or any session) on the backend.
+  // Always send the Guid under the field name the backend expects: sessionGuidId.
+  uploadDocument(file: File, sessionGuidId: string, requiredDocumentId: number): Observable<any> {
     const formData = new FormData();
     formData.append('File', file);
-    formData.append('ChatSessionId', chatSessionId.toString());
+    formData.append('SessionGuidId', sessionGuidId);
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
     return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
   }

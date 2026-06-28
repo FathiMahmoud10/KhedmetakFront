@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ChatApiService, ChatResponse } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { UserDashboardService } from '../../APIServices/SharedServices/user-dashboard.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
@@ -39,7 +40,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   readonly MAX_FREE_MSGS = 3;
   freeRemaining = this.MAX_FREE_MSGS;
   guestMessageCount = 0;
-  
+
   sessionGuid: string | null = null;
   chatSessionId: number | null = null;
   isLoggedIn = false;
@@ -47,6 +48,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   showLoginPopup = false;
   loginLoading = false;
   loginError = '';
+
+  // FIX: this page always talks to GovService #1 (see fetchRequiredDocuments below).
+  // We keep the id here so we can link the chat session to this exact service for the
+  // logged-in user — that's what makes the session show up under "طلباتي" / dashboard stats.
+  readonly govServiceId = 1;
+  sessionLinked = false;
 
   loginEmail = '';
   loginPassword = '';
@@ -64,8 +71,26 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     isHtml?: boolean;
     isTyping?: boolean;
     timestamp?: string;
+    steps?: string[];
+    currentStep?: number;
   }> = [];
 
+  // ===========================
+  // Step wizard / checklist state
+  // ===========================
+  step1Checklist: { label: string; checked: boolean }[] = [
+    { label: 'بطاقة الرقم القومي', checked: false },
+    { label: 'الرخصة الحالية', checked: false },
+    { label: '6 صور شخصية', checked: false }
+  ];
+  uploadVerified = false;
+  onlineMode = false;
+  officeMode = false;
+  showUploadZone = false;
+  step3Completed = false;
+  step4Completed = false;
+  chatDone = false;
+  activeStep = 1;
 
   // File Upload State
   requiredDocuments: RequiredDocument[] = [];
@@ -84,7 +109,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   constructor(
     private http: HttpClient,
     private chatApiService: ChatApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private dashboardService: UserDashboardService
   ) {}
 
   // ===========================
@@ -184,7 +210,10 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // ===========================
 
   async ensureSession(): Promise<boolean> {
-    if (this.sessionGuid) return true;
+    if (this.sessionGuid) {
+      this.linkSessionIfNeeded();
+      return true;
+    }
 
     // Try restoring session from cookies
     const savedGuid = this.getCookie('sessionGuidId');
@@ -193,6 +222,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     if (savedGuid) {
       this.sessionGuid = savedGuid;
       this.chatSessionId = savedId ? parseInt(savedId, 10) : null;
+      this.linkSessionIfNeeded();
       return true;
     }
 
@@ -202,11 +232,11 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         : 'guest@moamaltak.ai';
 
       const res = await firstValueFrom(this.chatApiService.createSession(email));
-      
+
       // Support both unwrapped (direct SessionResponse) and wrapped (ApiResponse<SessionResponse>)
-      let data = res;
-      if (res && res.success !== undefined && res.data !== undefined) {
-        data = res.data;
+      let data: any = res;
+      if (res && (res as any).success !== undefined && (res as any).data !== undefined) {
+        data = (res as any).data;
       }
 
       if (data) {
@@ -216,7 +246,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         } else {
           this.sessionGuid = data.sessionGuidId || data.guid || data.sessionId || (typeof data.id === 'string' ? data.id : null) || null;
           this.chatSessionId = typeof data.id === 'number' ? data.id : (data.chatSessionId ? parseInt(data.chatSessionId, 10) : null);
-          
+
           if (!this.chatSessionId && data.id) {
             const parsed = parseInt(data.id, 10);
             if (!isNaN(parsed)) {
@@ -232,11 +262,39 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
           }
         }
       }
+
+      // FIX: link the brand-new session to the logged-in user's account right away,
+      // so it's tracked as a real request (visible in "طلباتي" / dashboard stats)
+      // from the moment the chat starts — not only if the user happens to upload a file.
+      this.linkSessionIfNeeded();
+
       return !!this.sessionGuid;
     } catch (err) {
       console.error('Session creation failed:', err);
       return false;
     }
+  }
+
+  /**
+   * Links the current chat session to the logged-in user's account and to this
+   * page's gov service, marking it as a "Pending" request. Safe to call repeatedly —
+   * it's a no-op once sessionLinked is true or there's no session/login yet.
+   */
+  private linkSessionIfNeeded(): void {
+    if (this.sessionLinked || !this.isLoggedIn || !this.sessionGuid) return;
+
+    this.dashboardService
+      .linkSessionToService(this.sessionGuid, this.govServiceId, 'Pending')
+      .subscribe({
+        next: () => {
+          this.sessionLinked = true;
+        },
+        error: (err) => {
+          // Non-fatal — the chat itself still works even if linking fails (e.g. session
+          // not saved yet on the backend). We'll just retry next time ensureSession runs.
+          console.warn('فشل ربط الجلسة بحساب المستخدم:', err);
+        }
+      });
   }
 
   private fetchRequiredDocuments(): void {
@@ -332,10 +390,10 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       }
     } catch (err: any) {
       this.messages.splice(typingIndicatorIndex, 1);
-      this.messages.push({ 
-        sender: 'bot', 
+      this.messages.push({
+        sender: 'bot',
         text: `<span style="color:var(--red-dk)">حصل خطأ: ${this.escHtml(err?.error?.message || err?.message || 'خطأ غير معروف')}</span>`,
-        isHtml: true 
+        isHtml: true
       });
 
       // Refund the message count on fail
@@ -396,7 +454,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     const docName = this.requiredDocuments.find(d => d.id === Number(docId))?.documentName || 'مستند';
 
     const ok = await this.ensureSession();
-    if (!ok || (!this.chatSessionId && !this.sessionGuid)) {
+    if (!ok || !this.sessionGuid) {
       this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
       this.messages.push({ sender: 'bot', text: `<span style="color:var(--red-dk)">فشل الرفع: ${this.uploadErrorMessage}</span>`, isHtml: true });
       this.scrollToBottom();
@@ -408,20 +466,38 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.uploadErrorMessage = '';
     this.appendBotMsg(`جاري رفع ملف: <strong>${file.name}</strong> كـ <strong>${docName}</strong>...`);
 
-    const uploadSessionId = this.chatSessionId || this.sessionGuid || '';
-    this.chatApiService.uploadDocument(file, uploadSessionId, docId).subscribe({
+    // FIX: uploadDocument's 2nd param is sent to the backend as SessionGuidId (a Guid),
+    // so it must always be the actual session GUID — never the numeric chatSessionId,
+    // which previously took priority here and would fail to parse as a Guid server-side.
+    if (!this.sessionGuid) {
+      this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
+      this.appendBotMsg(`فشل الرفع: ${this.uploadErrorMessage}`);
+      return;
+    }
+
+    this.chatApiService.uploadDocument(file, this.sessionGuid, docId).subscribe({
       next: (res) => {
         this.uploadProgress = null;
         if (res && res.success) {
           this.uploadSuccessMessage = `تم رفع الملف بنجاح! المعرف: ${res.data?.id || res.data || ''}`;
           this.appendBotMsg(`تم رفع <strong>${docName}</strong> بنجاح! ✅ المعرف: ${res.data?.id || res.data || ''}`);
-          
+
           // Check off step 1 items dynamically
           if (docId === 1 || docName.includes('القومي') || docName.includes('بطاقة')) this.step1Checklist[0].checked = true;
           if (docId === 2 || docName.includes('الرخصة') || docName.includes('الحالية')) this.step1Checklist[1].checked = true;
           if (docId === 3 || docName.includes('صور') || docName.includes('شخصية')) this.step1Checklist[2].checked = true;
-          
+
           this.uploadVerified = true;
+
+          // The user is now actively progressing through the request (uploaded a doc),
+          // so reflect that in their "طلباتي" status instead of leaving it as Pending.
+          if (this.isLoggedIn && this.sessionGuid) {
+            this.dashboardService
+              .linkSessionToService(this.sessionGuid, this.govServiceId, 'InProgress')
+              .subscribe({
+                error: (err) => console.warn('فشل تحديث حالة الطلب إلى قيد التنفيذ:', err)
+              });
+          }
         } else {
           this.uploadErrorMessage = res?.message || 'فشل رفع الملف.';
           this.appendBotMsg(`فشل رفع الملف: ${this.uploadErrorMessage} ❌`);
@@ -484,7 +560,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       if (res && res.data && res.data.token) {
         const expireDate = new Date(res.data.expiresAt || new Date().getTime() + 86400000);
         document.cookie = `token=${res.data.token}; expires=${expireDate.toUTCString()}; path=/`;
-        
+
         // Save user email
         const userEmail = res.data.userEmail || this.loginEmail.trim();
         document.cookie = `user_email=${userEmail}; expires=${expireDate.toUTCString()}; path=/`;
@@ -495,6 +571,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         // Reset session on login so we start an authenticated chat session
         this.sessionGuid = null;
         this.chatSessionId = null;
+        this.sessionLinked = false;
         document.cookie = 'sessionGuidId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'chatSessionId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
@@ -516,43 +593,51 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // Steps / Navigation Handlers
   // ===========================
 
-  showOnline(): void { 
-    this.onlineMode = true; 
+  showOnline(): void {
+    this.onlineMode = true;
     this.officeMode = false;
     this.scrollToBottom();
   }
-  
-  showOffice(): void { 
-    this.officeMode = true; 
+
+  showOffice(): void {
+    this.officeMode = true;
     this.onlineMode = false;
     this.scrollToBottom();
   }
-  
-  showUpload(): void { 
+
+  showUpload(): void {
     if (!this.isLoggedIn) {
       this.openLoginPopup();
       return;
     }
-    this.showUploadZone = true; 
+    this.showUploadZone = true;
     this.scrollToBottom();
   }
 
-  showStep3(): void { 
-    this.step3Completed = true; 
-    this.activeStep = 3; 
+  showStep3(): void {
+    this.step3Completed = true;
+    this.activeStep = 3;
     this.scrollToBottom();
   }
-  
-  showStep4(): void { 
-    this.step4Completed = true; 
-    this.activeStep = 4; 
+
+  showStep4(): void {
+    this.step4Completed = true;
+    this.activeStep = 4;
     this.scrollToBottom();
   }
-  
-  showDone(): void { 
-    this.chatDone = true; 
-    this.activeStep = 5; 
+
+  showDone(): void {
+    this.chatDone = true;
+    this.activeStep = 5;
     this.scrollToBottom();
+
+    if (this.isLoggedIn && this.sessionGuid) {
+      this.dashboardService
+        .linkSessionToService(this.sessionGuid, this.govServiceId, 'Completed')
+        .subscribe({
+          error: (err) => console.warn('فشل تحديث حالة الطلب إلى مكتمل:', err)
+        });
+    }
   }
 
   // ===========================
