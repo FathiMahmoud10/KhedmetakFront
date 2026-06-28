@@ -1,518 +1,461 @@
-import {
-  Component, OnInit, ViewChild, ElementRef,
-  AfterViewChecked, HostListener
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ChatApiService } from '../../APIServices/SharedServices/chat-api.service';
-import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
-interface Message {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  liked?: boolean;
-  attachments?: UploadedFile[];
+interface SessionResponse {
+  sessionGuidId?: string;
+  id?: string;
+  guid?: string;
+  sessionId?: string;
 }
 
-interface Suggestion {
-  icon: string;
-  text: string;
+interface ChatResponse {
+  reply?: string;
+  message?: string;
+  response?: string;
+  content?: string;
 }
 
-interface Service {
-  id: string;
-  icon: string;
-  name: string;
-  description: string;
-  active: boolean;
-}
-
-export interface UploadedFile {
-  name: string;
-  size: number;
-  type: string;
-  previewUrl?: string;
-  isImage: boolean;
+interface LoginResponse {
+  token?: string;
+  accessToken?: string;
 }
 
 @Component({
   selector: 'app-chat-page',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './chat-page.component.html',
-  styleUrls: ['./chat-page.component.scss'],
+  styleUrls: ['./chat-page.component.scss']
 })
-export class ChatPageComponent implements OnInit, AfterViewChecked {
-  @ViewChild('messagesContainer') messagesContainer!: ElementRef;
-  @ViewChild('messageInput')      messageInput!: ElementRef;
-  @ViewChild('fileInput')         fileInput!: ElementRef;
-  @ViewChild('imageInput')        imageInput!: ElementRef;
+export class ChatPageComponent implements OnInit, AfterViewInit {
 
-  sidebarCollapsed = false;
-  modelMenuOpen    = false;
-  isTyping         = false;
-  currentMessage   = '';
-  activeChat       = 0;
-  currentSessionGuid: string | null = null;
-  isDragging       = false;
+  // ===========================
+  // ViewChild refs (بدل ngModel)
+  // ===========================
 
-  // ── Guest / Auth ──────────────────────────
-  isLoggedIn        = false;
-  userEmail         = '';
-  userDisplayName   = '';
-  guestMessageLimit = 3;
-  guestMessageCount = 0;
-  showLoginPopup    = false;
-  showImagePreview  = false;
-  previewImageUrl   = '';
-  copiedIndex       = -1;
+  @ViewChild('emailInput')    emailInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('passwordInput') passwordInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('msgInput')      msgInputRef!: ElementRef<HTMLTextAreaElement>;
 
-  private readonly GUEST_COUNT_KEY   = 'khedmetak_guest_msg_count';
-  private readonly GUEST_SESSION_KEY = 'khedmetak_guest_session';
-  private readonly GUEST_ID_KEY      = 'khedmetak_guest_id';
+  // ===========================
+  // State
+  // ===========================
 
-  messages:      Message[]      = [];
-  uploadedFiles: UploadedFile[] = [];
+  readonly MAX_FREE_MSGS = 3;
+  freeRemaining          = this.MAX_FREE_MSGS;
+  sessionGuid: string | null = null;
+  isLoggedIn   = false;
+  isSending    = false;
+  showLoginPopup = false;
+  loginLoading   = false;
+  loginError     = '';
+loginEmail: any;
+loginPassword: any;
 
-  services: Service[] = [
-    { id: 'general',    icon: '🤖', name: 'المساعد العام',         description: 'أسئلة عامة عن الخدمات الحكومية',     active: true  },
-    { id: 'license',    icon: '🚗', name: 'رخصة القيادة',          description: 'تجديد واستخراج الرخص المرورية',       active: false },
-    { id: 'id',         icon: '🪪', name: 'بطاقة الرقم القومي',    description: 'استخراج وتجديد البطاقة الشخصية',      active: false },
-    { id: 'birth',      icon: '📄', name: 'شهادة الميلاد',         description: 'طلب واستخراج شهادات الميلاد',         active: false },
-    { id: 'commercial', icon: '🏢', name: 'السجل التجاري',         description: 'تسجيل الشركات والمنشآت التجارية',     active: false },
-  ];
+  constructor(private http: HttpClient) {}
 
-  recentChats: string[] = [
-    'كيف أجدد رخصة القيادة؟',
-    'المستندات المطلوبة للرقم القومي',
-    'خطوات استخراج شهادة الميلاد',
-    'رسوم السجل التجاري',
-    'تجديد جواز السفر',
-  ];
+  // ===========================
+  // Lifecycle
+  // ===========================
 
-  suggestions: Suggestion[] = [
-    { icon: '🪪', text: 'كيف أجدد بطاقة الرقم القومي؟' },
-    { icon: '🚗', text: 'خطوات تجديد رخصة القيادة' },
-    { icon: '📄', text: 'المستندات المطلوبة لشهادة الميلاد' },
-    { icon: '🏢', text: 'كيف أسجّل شركتي في مصر؟' },
-  ];
-
-  private shouldScroll = false;
-  private genTimeout: ReturnType<typeof setTimeout> | null = null;
-
-  constructor(
-    private chatApiService: ChatApiService,
-    private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
-
-  // ─────────────────────────────────────────
-  // Init — check cookie session
-  // ─────────────────────────────────────────
   ngOnInit(): void {
-    const token = this.authService.getTokenFromCookie();
+    this.isLoggedIn = this.hasToken();
+    this.ensureSession();
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
+  }
+
+  // ===========================
+  // Token / Auth Helpers
+  // ===========================
+
+  private hasToken(): boolean {
+    return !!this.getCookie('token') || !!localStorage.getItem('auth_token');
+  }
+
+  private getToken(): string | null {
+    return this.getCookie('token') || localStorage.getItem('auth_token');
+  }
+
+  private getCookie(name: string): string | null {
+    const match = document.cookie.match(
+      new RegExp('(?:^|; )' + name + '=([^;]*)')
+    );
+    return match ? decodeURIComponent(match[1]) : null;
+  }
+
+  private saveToken(token: string): void {
+    localStorage.setItem('auth_token', token);
+    document.cookie = `token=${token}; path=/; max-age=86400`;
+  }
+
+  private buildHeaders(): HttpHeaders {
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    const token = this.getToken();
     if (token) {
-      this.isLoggedIn = true;
-      const payload = this.authService.decodeJwt(token);
-      if (payload) {
-        this.userEmail =
-          payload['email'] ||
-          payload['unique_name'] ||
-          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
-          '';
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  }
 
-        this.userDisplayName =
-          payload['name'] ||
-          payload['given_name'] ||
-          payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
-          this.userEmail.split('@')[0] ||
-          'مستخدم';
-      }
-    } else {
-      this.isLoggedIn = false;
-      const stored = localStorage.getItem(this.GUEST_COUNT_KEY);
-      this.guestMessageCount = stored ? parseInt(stored, 10) : 0;
+  // ===========================
+  // Session
+  // ===========================
 
-      const storedSession = localStorage.getItem(this.GUEST_SESSION_KEY);
-      if (storedSession) {
-        this.currentSessionGuid = storedSession;
-      }
+  async ensureSession(): Promise<boolean> {
+    if (this.sessionGuid) return true;
+
+    try {
+      const body = {
+        userEmail: this.isLoggedIn
+          ? (this.getCookie('user_email') || 'guest@moamaltak.ai')
+          : 'guest@moamaltak.ai',
+        createdAt: new Date().toISOString()
+      };
+
+      const res = await firstValueFrom(
+        this.http.post<SessionResponse>(
+          '/api/Session/newSession',
+          body,
+          { headers: this.buildHeaders() }
+        )
+      );
+
+      this.sessionGuid =
+        res?.sessionGuidId ||
+        res?.id            ||
+        res?.guid          ||
+        res?.sessionId     ||
+        null;
+
+      return !!this.sessionGuid;
+
+    } catch (err) {
+      console.error('Session creation failed:', err);
+      return false;
     }
   }
 
-  // ✅ FIX: closing brace was missing — block now closed correctly
-  ngAfterViewChecked(): void {
-    if (this.shouldScroll) {
-      this.scrollBottom();
-      this.shouldScroll = false;
-    }
+  // ===========================
+  // Chat API
+  // ===========================
+
+  async callChatAPI(message: string): Promise<string> {
+    const ok = await this.ensureSession();
+    if (!ok) throw new Error('لا يمكن إنشاء جلسة. تحقق من الاتصال.');
+
+    const res = await firstValueFrom(
+      this.http.post<ChatResponse>(
+        '/api/AI/chat',
+        { message, sessionGuidId: this.sessionGuid },
+        { headers: this.buildHeaders() }
+      )
+    );
+
+    return res?.reply || res?.message || res?.response || res?.content || '';
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.service-selector')) {
-      this.modelMenuOpen = false;
-    }
-  }
-
-  // ─────────────────────────────────────────
-  // Drag & Drop
-  // ─────────────────────────────────────────
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    if (!this.isGuestLimitReached) this.isDragging = true;
-  }
-
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging = false;
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging = false;
-    if (this.isGuestLimitReached) return;
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.processFiles(Array.from(files));
-    }
-  }
-
-  // ─────────────────────────────────────────
-  // Sidebar / Service
-  // ─────────────────────────────────────────
-  toggleSidebar(): void { this.sidebarCollapsed = !this.sidebarCollapsed; }
-  toggleModelMenu(): void { this.modelMenuOpen = !this.modelMenuOpen; }
-
-  selectService(serviceId: string): void {
-    this.services.forEach(s => s.active = s.id === serviceId);
-    this.modelMenuOpen = false;
-  }
-
-  get activeService(): Service {
-    return this.services.find(s => s.active) || this.services[0];
-  }
-
-  // ✅ FIX: removed duplicate lines inside startNewChat
-  startNewChat(): void {
-    this.messages = [];
-    this.uploadedFiles = [];
-    this.currentMessage = '';
-    this.activeChat = -1;
-    this.isTyping = false;
-    this.currentSessionGuid = null;
-
-    if (!this.isLoggedIn) {
-      this.guestMessageCount = 0;
-      localStorage.removeItem(this.GUEST_COUNT_KEY);
-      localStorage.removeItem(this.GUEST_SESSION_KEY);
-    }
-
-    if (this.genTimeout) { clearTimeout(this.genTimeout); this.genTimeout = null; }
-  }
-
-  // ✅ FIX: removed duplicate method definition
-  loadChat(index: number): void {
-    this.activeChat = index;
-    this.messages = [];
-    this.currentSessionGuid = null;
-  }
-
-  // ✅ FIX: removed duplicate method definition
-  sendSuggestion(text: string): void {
-    this.currentMessage = text;
-    this.sendMessage();
-  }
-
-  onEnterKey(event: KeyboardEvent): void {
-    if (!event.shiftKey) {
-      event.preventDefault();
-      if (this.currentMessage.trim() || this.uploadedFiles.length > 0) {
-        this.sendMessage();
-      }
-    }
-  }
-
-  // ─────────────────────────────────────────
+  // ===========================
   // Send Message
-  // ─────────────────────────────────────────
-  sendMessage(): void {
-    const text = this.currentMessage.trim();
-    if (!text && this.uploadedFiles.length === 0) return;
-    if (this.isTyping) return;
+  // ===========================
 
-    if (!this.isLoggedIn && this.guestMessageCount >= this.guestMessageLimit) {
-      this.showLoginPopup = true;
+  async sendMsg(customText?: string): Promise<void> {
+    if (this.isSending) return;
+
+    const inputEl = this.msgInputRef?.nativeElement;
+    const text    = (customText || inputEl?.value || '').trim();
+    if (!text) return;
+
+    // ── Free message gate ──
+    if (!this.hasToken() && !this.isLoggedIn) {
+      if (this.freeRemaining <= 0) {
+        this.openLoginPopup();
+        return;
+      }
+      this.freeRemaining--;
+    }
+
+    if (inputEl) inputEl.value = '';
+    this.isSending = true;
+
+    this.appendUserMsg(text);
+    const typingEl = this.appendTyping();
+
+    try {
+      const reply = await this.callChatAPI(text);
+      typingEl.remove();
+      this.appendBotMsg(this.mdToHtml(reply));
+    } catch (err: any) {
+      typingEl.remove();
+      this.appendBotMsg(
+        `<span style="color:var(--red-dk)">حصل خطأ: ${this.escHtml(err?.message || 'خطأ غير معروف')}</span>`
+      );
+      // أرجع الرصيد لو حصل error
+      if (!this.hasToken() && !this.isLoggedIn) {
+        this.freeRemaining = Math.min(this.freeRemaining + 1, this.MAX_FREE_MSGS);
+      }
+    } finally {
+      this.isSending = false;
+    }
+
+    // ظهور popup بعد ما الـ bot يرد لو الرصيد خلص
+    if (!this.hasToken() && !this.isLoggedIn && this.freeRemaining <= 0) {
+      setTimeout(() => this.openLoginPopup(), 800);
+    }
+  }
+
+  quickSend(text: string): void {
+    this.sendMsg(text);
+  }
+
+  onKey(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMsg();
+    }
+  }
+
+  // ===========================
+  // DOM Helpers
+  // ===========================
+
+  private getMsgsContainer(): HTMLElement | null {
+    return document.getElementById('msgs');
+  }
+
+  private appendUserMsg(text: string): void {
+    const msgs = this.getMsgsContainer();
+    if (!msgs) return;
+    const el = document.createElement('div');
+    el.className       = 'msg u';
+    el.style.marginTop = '14px';
+    el.innerHTML = `
+      <div class="av usr">أح</div>
+      <div class="bub usr">${this.escHtml(text)}</div>
+    `;
+    msgs.appendChild(el);
+    this.scrollToBottom();
+  }
+
+  private appendBotMsg(html: string): void {
+    const msgs = this.getMsgsContainer();
+    if (!msgs) return;
+    const el = document.createElement('div');
+    el.className       = 'msg';
+    el.style.marginTop = '14px';
+    el.innerHTML = `
+      <div class="av bot">AI</div>
+      <div class="bub bot bot-response">${html}</div>
+    `;
+    msgs.appendChild(el);
+    this.scrollToBottom();
+  }
+
+  private appendTyping(): HTMLElement {
+    const msgs = this.getMsgsContainer();
+    const el   = document.createElement('div');
+    el.className       = 'msg';
+    el.id              = 'typing-indicator';
+    el.style.marginTop = '14px';
+    el.innerHTML = `
+      <div class="av bot">AI</div>
+      <div class="bub bot">
+        <div class="typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    `;
+    msgs?.appendChild(el);
+    this.scrollToBottom();
+    return el;
+  }
+
+  private escHtml(s: string): string {
+    return s
+      .replace(/&/g,  '&amp;')
+      .replace(/</g,  '&lt;')
+      .replace(/>/g,  '&gt;')
+      .replace(/"/g,  '&quot;');
+  }
+
+  /** Markdown بسيط → HTML */
+  private mdToHtml(text: string): string {
+    return text
+      .replace(/\*\*(.+?)\*\*/g,  '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,       '<em>$1</em>')
+      .replace(/^### (.+)$/gm,     '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm,      '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm,       '<h1>$1</h1>')
+      .replace(/^\d+\. (.+)$/gm,   '<li>$1</li>')
+      .replace(/^- (.+)$/gm,       '<li>$1</li>')
+      .replace(/\n/g,              '<br>');
+  }
+
+  // ===========================
+  // Login Popup
+  // ===========================
+
+  openLoginPopup(): void {
+    this.loginError     = '';
+    this.showLoginPopup = true;
+    setTimeout(() => {
+      if (this.emailInputRef?.nativeElement)    this.emailInputRef.nativeElement.value    = '';
+      if (this.passwordInputRef?.nativeElement) this.passwordInputRef.nativeElement.value = '';
+    }, 50);
+  }
+
+  closeLoginPopup(): void {
+    this.showLoginPopup = false;
+    this.loginError     = '';
+  }
+
+  continueAsGuest(): void {
+    this.closeLoginPopup();
+    this.appendBotMsg(
+      'عشان تكمل الأسئلة، هتحتاج تسجل دخولك. ممكن تكلمنا في أي وقت بعد التسجيل.'
+    );
+  }
+
+  async doLogin(): Promise<void> {
+    const email    = this.emailInputRef?.nativeElement?.value?.trim()    || '';
+    const password = this.passwordInputRef?.nativeElement?.value?.trim() || '';
+
+    if (!email || !password) {
+      this.loginError = 'من فضلك ادخل البريد الإلكتروني وكلمة المرور';
       return;
     }
 
-    const msgAttachments: UploadedFile[] = this.uploadedFiles.map(f => ({ ...f }));
+    this.loginLoading = true;
+    this.loginError   = '';
 
-    this.messages.push({
-      role: 'user',
-      content: text,
-      timestamp: new Date(),
-      attachments: msgAttachments.length > 0 ? msgAttachments : undefined,
-    });
-
-    if (!this.isLoggedIn) {
-      this.guestMessageCount++;
-      localStorage.setItem(this.GUEST_COUNT_KEY, this.guestMessageCount.toString());
-    }
-
-    this.currentMessage = '';
-    this.uploadedFiles  = [];
-    this.shouldScroll   = true;
-    this.isTyping       = true;
-
-    if (this.messageInput?.nativeElement) {
-      this.messageInput.nativeElement.style.height = 'auto';
-    }
-
-    this.generateAIResponse(text);
-  }
-
-  // ─────────────────────────────────────────
-  // AI Response
-  // ─────────────────────────────────────────
-  private getEmail(): string {
-    if (this.isLoggedIn && this.userEmail) {
-      return this.userEmail;
-    }
-    let guestId = localStorage.getItem(this.GUEST_ID_KEY);
-    if (!guestId) {
-      guestId = 'guest_' + this.generateUUID();
-      localStorage.setItem(this.GUEST_ID_KEY, guestId);
-    }
-    return `${guestId}@guest.khedmetak.eg`;
-  }
-
-  private generateUUID(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0;
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
-  }
-
-  private generateAIResponse(query: string): void {
-    if (!this.currentSessionGuid) {
-      const email = this.getEmail();
-      this.chatApiService.createSession(email).subscribe({
-        next: (res) => {
-          this.currentSessionGuid = res.data?.sessionGuidId || res.data?.id || res.data;
-          if (!this.isLoggedIn && this.currentSessionGuid) {
-            localStorage.setItem(this.GUEST_SESSION_KEY, this.currentSessionGuid);
-          }
-          this.sendChatMessage(query);
-        },
-        error: (err) => {
-          console.error('فشل إنشاء الجلسة:', err);
-          this.messages.push({
-            role: 'assistant',
-            content: 'عذراً، تعذّر الاتصال بالخادم. يرجى التأكد من تشغيل الخادم والمحاولة مجدداً.',
-            timestamp: new Date()
-          });
-          this.isTyping = false;
-          this.shouldScroll = true;
-        }
-      });
-    } else {
-      this.sendChatMessage(query);
-    }
-  }
-
-  private sendChatMessage(query: string): void {
-    if (!this.currentSessionGuid) return;
-
-    this.chatApiService.sendMessage(query, this.currentSessionGuid).subscribe({
-      next: (res) => {
-        const reply = res.data?.message || (res as any).message || 'نعتذر، حدث خطأ أثناء الاتصال بالخادم.';
-        this.messages.push({ role: 'assistant', content: reply, timestamp: new Date() });
-        this.isTyping = false;
-        this.shouldScroll = true;
-      },
-      error: (err) => {
-        console.error('فشل إرسال الرسالة:', err);
-        if (err.status === 400 || err.status === 404) {
-          this.currentSessionGuid = null;
-          if (!this.isLoggedIn) localStorage.removeItem(this.GUEST_SESSION_KEY);
-        }
-        this.messages.push({
-          role: 'assistant',
-          content: 'عذراً، حدث خطأ في الاتصال بالخادم. يرجى المحاولة لاحقاً.',
-          timestamp: new Date()
-        });
-        this.isTyping = false;
-        this.shouldScroll = true;
-      }
-    });
-  }
-
-  retryLastMessage(): void {
-    const lastUserMsg = [...this.messages].reverse().find(m => m.role === 'user');
-    if (!lastUserMsg || this.isTyping) return;
-
-    const lastMsg = this.messages[this.messages.length - 1];
-    if (lastMsg?.role === 'assistant') {
-      this.messages.pop();
-    }
-
-    this.isTyping = true;
-    this.shouldScroll = true;
-    this.generateAIResponse(lastUserMsg.content);
-  }
-
-  stopGeneration(): void {
-    if (this.genTimeout) { clearTimeout(this.genTimeout); this.genTimeout = null; }
-    this.isTyping = false;
-  }
-
-  // ─────────────────────────────────────────
-  // Login Popup
-  // ─────────────────────────────────────────
-  closeLoginPopup(): void { this.showLoginPopup = false; }
-
-  goToLogin(): void {
-    this.showLoginPopup = false;
-    this.router.navigate(['/login']);
-  }
-
-  goToRegister(): void {
-    this.showLoginPopup = false;
-    this.router.navigate(['/signup']);
-  }
-
-  // ─────────────────────────────────────────
-  // Message Actions
-  // ─────────────────────────────────────────
-  copyMessage(content: string, index: number): void {
-    const plainText = content.replace(/<[^>]*>/g, '');
-    navigator.clipboard.writeText(plainText).then(() => {
-      this.copiedIndex = index;
-      setTimeout(() => { this.copiedIndex = -1; }, 2000);
-    }).catch(() => {});
-  }
-
-  likeMessage(index: number): void {
-    if (this.messages[index]) {
-      this.messages[index].liked = !this.messages[index].liked;
-    }
-  }
-
-  formatTime(date: Date): string {
-    return date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-  }
-
-  // ─────────────────────────────────────────
-  // File Upload
-  // ─────────────────────────────────────────
-  triggerUpload(): void { this.fileInput?.nativeElement.click(); }
-  triggerImageUpload(): void { this.imageInput?.nativeElement.click(); }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-    this.processFiles(Array.from(input.files));
-    input.value = '';
-  }
-
-  onImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (!input.files) return;
-    const imageFiles = Array.from(input.files).filter(f => f.type.startsWith('image/'));
-    this.processFiles(imageFiles);
-    input.value = '';
-  }
-
-  processFiles(files: File[]): void {
-    files.forEach(file => {
-      if (this.uploadedFiles.some(f => f.name === file.name && f.size === file.size)) return;
-
-      const isImage = file.type.startsWith('image/');
-
-      if (isImage) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const uploadedFile: UploadedFile = {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            previewUrl: e.target?.result as string,
-            isImage: true,
-          };
-          this.uploadedFiles = [...this.uploadedFiles, uploadedFile];
-        };
-        reader.readAsDataURL(file);
-      } else {
-        const uploadedFile: UploadedFile = {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          isImage: false,
-        };
-        this.uploadedFiles = [...this.uploadedFiles, uploadedFile];
-      }
-    });
-  }
-
-  removeFile(index: number): void { this.uploadedFiles.splice(index, 1); }
-
-  formatFileSize(bytes: number): string {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  }
-
-  openImagePreview(url: string): void {
-    this.previewImageUrl = url;
-    this.showImagePreview = true;
-  }
-
-  closeImagePreview(): void {
-    this.showImagePreview = false;
-    this.previewImageUrl = '';
-  }
-
-  // ─────────────────────────────────────────
-  // Input helpers
-  // ─────────────────────────────────────────
-  autoResize(event: Event): void {
-    const element = event.target as HTMLTextAreaElement;
-    element.style.height = 'auto';
-    element.style.height = Math.min(element.scrollHeight, 180) + 'px';
-  }
-
-  get remainingGuestMessages(): number {
-    return Math.max(0, this.guestMessageLimit - this.guestMessageCount);
-  }
-
-  get isGuestLimitReached(): boolean {
-    return !this.isLoggedIn && this.guestMessageCount >= this.guestMessageLimit;
-  }
-
-  get guestProgressPercent(): number {
-    return Math.min(100, (this.guestMessageCount / this.guestMessageLimit) * 100);
-  }
-
-  get userInitials(): string {
-    if (this.isLoggedIn && this.userDisplayName) {
-      return this.userDisplayName.charAt(0).toUpperCase();
-    }
-    return '؟';
-  }
-
-  private scrollBottom(): void {
     try {
-      const element = this.messagesContainer?.nativeElement;
-      if (element) { element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' }); }
-    } catch { /* silent */ }
+      const res = await firstValueFrom(
+        this.http.post<LoginResponse>('/api/Auth/login', { email, password })
+      );
+
+      const token = res?.token || res?.accessToken;
+      if (!token) throw new Error('لم يتم استلام token');
+
+      this.saveToken(token);
+      this.isLoggedIn  = true;
+      this.sessionGuid = null; // reset → session جديدة authenticated
+
+      this.closeLoginPopup();
+      this.appendBotMsg('تم تسجيل دخولك بنجاح ✅ ممكن تكمل أسئلتك.');
+
+    } catch (err: any) {
+      this.loginError =
+        err?.error?.message ||
+        err?.message        ||
+        'بيانات الدخول غلط، حاول تاني';
+    } finally {
+      this.loginLoading = false;
+    }
+  }
+
+  // ===========================
+  // Scroll
+  // ===========================
+
+  scrollToBottom(): void {
+    const msgs = this.getMsgsContainer();
+    if (msgs) {
+      setTimeout(() => (msgs.scrollTop = msgs.scrollHeight), 100);
+    }
+  }
+
+  // ===========================
+  // Sections / Flow
+  // ===========================
+
+  showOnline(): void { this.showSection('sec-online'); }
+  showOffice(): void { this.showSection('sec-office'); }
+  showUpload(): void { this.showSection('sec-upload'); }
+
+  showStep3(): void { this.showSection('sec-step3'); this.advanceProgress(3); }
+  showStep4(): void { this.showSection('sec-step4'); this.advanceProgress(4); }
+  showDone():  void { this.showSection('sec-done');  this.advanceProgress(5); }
+
+  private showSection(id: string): void {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = 'block';
+      this.scrollToBottom();
+    }
+  }
+
+  // ===========================
+  // Progress
+  // ===========================
+
+  advanceProgress(step: number): void {
+    const labels = [
+      '', 'جمع المستندات', 'التقديم',
+      'سداد الرسوم', 'استلام الرخصة', 'مكتملة'
+    ];
+
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('pd' + i);
+      if (dot) {
+        dot.className = 'ps-dot ' + (i < step ? 'done' : i === step ? 'curr' : 'next');
+        dot.innerHTML = i < step ? '✓' : i.toString();
+      }
+      const line = document.getElementById('pl' + i);
+      if (line) line.className = 'ps-line' + (i < step ? ' done' : '');
+    }
+
+    const txt = document.getElementById('ps-txt');
+    if (txt) {
+      txt.innerHTML = step > 4
+        ? 'مكتملة — 4 من 4 خطوات'
+        : `خطوة ${step - 1} من 4 — ${labels[step - 1]}`;
+    }
+
+    for (let i = 1; i <= 4; i++) {
+      const sd = document.getElementById('sd' + i);
+      if (sd) {
+        sd.className = 's-dot ' + (i < step ? 'done' : i === step ? 'active' : 'idle');
+        sd.innerHTML = i < step ? '✓' : i.toString();
+      }
+      const sl = document.getElementById('sl' + i);
+      if (sl) sl.className = 's-line' + (i < step ? ' done' : '');
+
+      const sn = document.getElementById('sn' + i);
+      if (sn) sn.className = 's-name' + (i >= step ? ' idle' : '');
+    }
+  }
+
+  // ===========================
+  // Checklist
+  // ===========================
+
+  toggleCk(event: Event): void {
+    const target = event.currentTarget as HTMLElement;
+    target.classList.toggle('on');
+
+    target.innerHTML = target.classList.contains('on')
+      ? `<svg width="10" height="10" viewBox="0 0 12 12"
+           fill="none" stroke="#fff" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+           <polyline points="2 6 5 9 10 3"/>
+         </svg>`
+      : '';
+
+    const row = target.closest('.ck-row');
+    if (row) {
+      const lbl = row.querySelector('.ck-lbl');
+      if (lbl) lbl.classList.toggle('on');
+    }
+  }
+
+  // ===========================
+  // Upload Simulation
+  // ===========================
+
+  simulateUpload(): void {
+    const zone = document.getElementById('upload-zone');
+    if (zone) zone.innerHTML = '<div class="up-title">جاري التحقق...</div>';
+    setTimeout(() => this.showSection('sec-valid'), 1200);
   }
 }
