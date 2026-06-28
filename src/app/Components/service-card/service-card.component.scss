@@ -129,3 +129,44 @@
 
   &:hover i { transform: translateX(-3px); }
 }
+
+:host-context(.dark-theme) {
+  .service-card {
+    background: #1d1d1d;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+    .card-title {
+      color: #ffffff;
+    }
+
+    .card-desc {
+      color: #9fb0c2;
+    }
+
+    .card-meta {
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .meta-item {
+      color: #9fb0c2;
+    }
+
+    .view-btn {
+      background: #252525;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #3aaec9;
+    }
+
+    &:hover {
+      border-color: rgba(46, 144, 168, 0.4);
+      box-shadow: 0 16px 48px rgba(46, 144, 168, 0.2);
+
+      .view-btn {
+        background: #2e90a8;
+        color: #ffffff;
+        border-color: transparent;
+      }
+    }
+  }
+}

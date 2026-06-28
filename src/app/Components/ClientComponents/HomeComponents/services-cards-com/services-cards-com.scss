@@ -201,3 +201,59 @@ $muted:  #6b7a8d;
     .carousel-control-next { display: none; }
   }
 }
+
+:host-context(.dark-theme) {
+  .gov-services {
+    background: #0f1720;
+  }
+
+  .gov-section-head {
+    &__title {
+      color: #ffffff;
+    }
+    &__sub {
+      color: #9fb0c2;
+    }
+  }
+
+  .gov-service-card {
+    background: #1d1d1d;
+    border-color: rgba(255, 255, 255, 0.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+    &__icon-wrap {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    &__fallback {
+      color: #3aaec9;
+    }
+
+    &__title {
+      color: #ffffff;
+    }
+
+    &__desc {
+      color: #9fb0c2;
+    }
+
+    &:hover {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+  }
+
+  .gov-carousel {
+    &__btn {
+      background: #1d1d1d;
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+      &:hover {
+        background: #2e90a8;
+        color: #ffffff;
+      }
+    }
+  }
+}

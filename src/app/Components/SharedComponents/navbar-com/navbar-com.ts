@@ -5,6 +5,7 @@ import { filter, Subscription } from 'rxjs';
 import { AdminSidebarService } from '../../../Services/admin-sidebar.service';
 import { UserSidebarService } from '../../../Services/user-sidebar.service';
 import { AuthService } from '../../../APIServices/SharedServices/auth.service';
+import { ThemeService } from '../../../Services/theme.service';
 
 @Component({
   selector: 'app-navbar-com',
@@ -20,18 +21,21 @@ export class NavbarCom implements OnInit, OnDestroy {
   isAdmin = false;
   isLoggedIn = false;
   private routeSub?: Subscription;
+  private themeSub?: Subscription;
 
   constructor(
     private router: Router,
     private adminSidebarService: AdminSidebarService,
     private userSidebarService: UserSidebarService,
-    private authService: AuthService
+    private authService: AuthService,
+    private themeService: ThemeService
   ) {}
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('theme');
-    this.isDarkMode = saved === 'dark';
-    document.body.classList.toggle('dark-theme', this.isDarkMode);
+    this.isDarkMode = this.themeService.isDarkMode;
+    this.themeSub = this.themeService.isDarkMode$.subscribe(dark => {
+      this.isDarkMode = dark;
+    });
 
     this.checkUrl(this.router.url);
     this.updateAuthState();
@@ -68,6 +72,7 @@ export class NavbarCom implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.themeSub?.unsubscribe();
   }
 
   toggleSidebar(): void {
@@ -79,11 +84,7 @@ export class NavbarCom implements OnInit, OnDestroy {
   }
 
   toggleDarkMode(): void {
-    this.isDarkMode = !this.isDarkMode;
-    document.body.classList.toggle('dark-theme', this.isDarkMode);
-    try {
-      localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-    } catch (e) {}
+    this.themeService.toggleTheme();
   }
 
   logout(): void {

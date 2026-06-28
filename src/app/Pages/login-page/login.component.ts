@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { ThemeService } from '../../Services/theme.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +15,7 @@ import { AuthService } from '../../APIServices/SharedServices/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit, OnDestroy {
 
   email = '';
   password = '';
@@ -26,12 +28,30 @@ export class LoginComponent {
   passwordError = false;
 
   year = new Date().getFullYear();
+  isDarkMode = false;
+  private themeSub?: Subscription;
 
   constructor(
     private router: Router,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private themeService: ThemeService
   ) { }
+
+  ngOnInit(): void {
+    this.isDarkMode = this.themeService.isDarkMode;
+    this.themeSub = this.themeService.isDarkMode$.subscribe(dark => {
+      this.isDarkMode = dark;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.themeSub?.unsubscribe();
+  }
+
+  toggleDarkMode(): void {
+    this.themeService.toggleTheme();
+  }
 
   validateEmail() { this.emailError = !this.email.trim(); }
   validatePassword() { this.passwordError = this.password.length < 6; }

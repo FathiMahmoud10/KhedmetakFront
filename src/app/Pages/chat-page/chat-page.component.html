@@ -2,30 +2,26 @@
 <div class="overlay" *ngIf="showLoginPopup">
   <div class="login-card">
     <div class="lc-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-           stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
       </svg>
     </div>
     <div class="lc-title">سجّل دخولك للمتابعة</div>
     <div class="lc-sub">استخدمت الرسائل المجانية الـ 3.<br>سجّل دخولك للاستمرار في استخدام المساعد.</div>
-
     <input class="lc-field" type="email" placeholder="البريد الإلكتروني" [(ngModel)]="loginEmail" dir="ltr" />
-    <input class="lc-field" type="password" placeholder="كلمة المرور" [(ngModel)]="loginPassword" dir="ltr" (keyup.enter)="doLogin()" />
-
-    <div class="lc-error" *ngIf="loginError" style="color: var(--red-dk); font-size: 12px; margin-bottom: 12px; text-align: right;">
+    <input class="lc-field" type="password" placeholder="كلمة المرور" [(ngModel)]="loginPassword" dir="ltr"
+      (keyup.enter)="doLogin()" />
+    <div class="lc-error" *ngIf="loginError"
+      style="color: var(--red-dk); font-size: 12px; margin-bottom: 12px; text-align: right;">
       {{ loginError }}
     </div>
-
     <button class="lc-btn" [disabled]="loginLoading" (click)="doLogin()">
       {{ loginLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
     </button>
-
     <div class="lc-divider">أو</div>
-
     <button class="lc-guest" (click)="continueAsGuest()">متابعة كضيف (3 رسائل فقط)</button>
-
     <div class="lc-note">بتسجيل الدخول توافق على شروط الاستخدام وسياسة الخصوصية</div>
   </div>
 </div>
@@ -39,7 +35,11 @@
     <!-- chat topbar -->
     <div class="chat-top">
       <div class="bot-ic">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 8v4l3 3" />
+        </svg>
       </div>
       <div>
         <div class="ct-name">مساعد معاملاتك</div>
@@ -48,21 +48,31 @@
       <div class="ct-gap"></div>
       <span class="badge badge-green">جارية</span>
       <button class="ct-icbtn" style="margin-right:8px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
       </button>
       <button class="ct-icbtn">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9" />
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <rect x="6" y="14" width="12" height="8" />
+        </svg>
       </button>
     </div>
 
-    <!-- ════ MESSAGES AREA ════ -->
+    <!-- MESSAGES AREA -->
     <div class="msgs" #msgsContainer>
 
-      <!-- ── Empty state: shown before user sends first message ── -->
       <div class="empty-state" *ngIf="messages.length === 0">
         <div class="es-icon">
-          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </div>
         <div class="es-title">مرحباً! كيف أقدر أساعدك؟</div>
@@ -74,37 +84,23 @@
         </div>
       </div>
 
-      <!-- ── Dynamic messages ── -->
       <ng-container *ngFor="let msg of messages; let i = index">
         <div class="msg" [class.u]="msg.sender === 'user'" style="margin-top:14px;">
-
-          <!-- Avatar -->
           <div class="av" [class.bot]="msg.sender === 'bot'" [class.usr]="msg.sender === 'user'">
             {{ msg.sender === 'bot' ? 'AI' : 'أح' }}
           </div>
-
-          <!-- Bubble -->
-          <div class="bub"
-               [class.bot]="msg.sender === 'bot'"
-               [class.usr]="msg.sender === 'user'"
-               [class.bot-response]="msg.sender === 'bot'">
-
-            <!-- Typing indicator -->
+          <div class="bub" [class.bot]="msg.sender === 'bot'" [class.usr]="msg.sender === 'user'"
+            [class.bot-response]="msg.sender === 'bot'">
             <div *ngIf="msg.isTyping" class="typing">
               <span></span><span></span><span></span>
             </div>
-
-            <!-- HTML message -->
             <div *ngIf="!msg.isTyping && msg.isHtml" [innerHTML]="msg.text"></div>
-
-            <!-- Plain text message -->
             <div *ngIf="!msg.isTyping && !msg.isHtml">{{ msg.text }}</div>
-
           </div>
         </div>
       </ng-container>
 
-    </div><!-- /msgs -->
+    </div>
 
     <!-- quick replies -->
     <div class="qr">
@@ -117,15 +113,21 @@
     <!-- input bar -->
     <div class="ibar">
       <button class="ibar-attach" (click)="triggerFileUpload()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path
+            d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+        </svg>
       </button>
-
-      <!-- Hidden file input -->
       <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)">
-
-      <textarea class="ibar-input" placeholder="اكتب سؤالك هنا..." rows="1" [(ngModel)]="msgText" (keydown)="onKey($event)"></textarea>
+      <textarea class="ibar-input" placeholder="اكتب سؤالك هنا..." rows="1" [(ngModel)]="msgText"
+        (keydown)="onKey($event)"></textarea>
       <button class="ibar-send" [disabled]="isSending || !msgText.trim()" (click)="sendMsg()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13" />
+          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+        </svg>
       </button>
     </div>
 
@@ -134,7 +136,52 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
 
-    <!-- ── الخدمة الحالية ── -->
+    <div class="sb-history" *ngIf="isLoggedIn">
+      <div class="sbh-top">
+        <div class="sb-label">المحادثات</div>
+        <button class="new-chat-btn" (click)="startNewChat()" title="محادثة جديدة">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          جديدة
+        </button>
+      </div>
+      <div class="sessions-loading" *ngIf="sessionsLoading">
+        <div class="spin-ring"></div>
+        <span>جاري التحميل...</span>
+      </div>
+      <div class="sessions-list" *ngIf="!sessionsLoading">
+        <div class="sessions-empty" *ngIf="userSessions.length === 0">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--hint)" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <p>لا توجد محادثات سابقة</p>
+        </div>
+        <button class="session-item" *ngFor="let s of userSessions" [class.active]="s.id === activeSessionId"
+          (click)="loadSession(s)">
+          <div class="si-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <div class="si-body">
+            <div class="si-preview">{{ s.preview || 'محادثة جديدة' }}</div>
+            <div class="si-meta">
+              <span class="si-date">{{ formatSessionDate(s.startedAt) }}</span>
+              <span class="si-count" *ngIf="s.messageCount > 0">{{ s.messageCount }} رسائل</span>
+            </div>
+          </div>
+          <div class="si-active-bar" *ngIf="s.id === activeSessionId"></div>
+        </button>
+      </div>
+    </div>
+
+    <div class="sb-divider" *ngIf="isLoggedIn"></div>
+
     <div class="sb-header">
       <div class="sb-label">الخدمة الحالية</div>
       <div class="svc-card">
@@ -148,41 +195,54 @@
       </div>
     </div>
 
-    <!-- ── معلومات سريعة ── -->
     <div class="sb-info">
       <div class="sb-label" style="margin-bottom:8px">معلومات سريعة</div>
-
       <div class="info-item">
         <div class="info-ic" style="background:var(--blue-light)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
         </div>
-        <div><div class="info-lbl">متوسط الوقت</div><div class="info-val">3–5 أيام</div></div>
+        <div>
+          <div class="info-lbl">متوسط الوقت</div>
+          <div class="info-val">{{ serviceTime }}</div>
+        </div>
       </div>
-
-      <!-- السعر: ديناميكي من API أو ثابت كـ fallback -->
       <div class="info-item">
         <div class="info-ic" style="background:var(--green-light)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0e8a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0e8a5e" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
         </div>
         <div>
           <div class="info-lbl">إجمالي الرسوم</div>
-          <div class="info-val fee-val">
-            {{ serviceFee !== null ? (serviceFee + ' جنيه') : '370 جنيه' }}
-          </div>
+          <div class="info-val fee-val">{{ serviceFee !== null ? (serviceFee + ' جنيه') : '370 جنيه' }}</div>
         </div>
       </div>
-
       <div class="info-item">
         <div class="info-ic" style="background:var(--amber-light)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c07b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c07b00" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z" />
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+          </svg>
         </div>
-        <div><div class="info-lbl">تنبيه انتهاء الصلاحية</div><div class="info-val">فعّال</div></div>
+        <div>
+          <div class="info-lbl">تنبيه انتهاء الصلاحية</div>
+          <div class="info-val">فعّال</div>
+        </div>
       </div>
-
-      <!-- الأوراق المطلوبة -->
       <div class="info-item" *ngIf="requiredDocuments.length > 0">
         <div class="info-ic" style="background:var(--blue-light)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
         </div>
         <div>
           <div class="info-lbl">الأوراق المطلوبة</div>

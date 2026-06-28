@@ -247,3 +247,36 @@ $white:  #ffffff;
     }
   }
 }
+
+:host-context(.dark-theme) {
+  .gov-hero {
+    background:
+      linear-gradient(105deg, rgba(#081014, 0.96) 0%, rgba(#0b1a20, 0.92) 45%, rgba(#0e252e, 0.8) 100%),
+      url('/Images/hero13.jpg') center / cover no-repeat;
+  }
+
+  .gov-hero__search {
+    background: #1d1d1d;
+    border-color: rgba(209, 177, 110, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .gov-hero__textarea {
+    background: #252525;
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:focus {
+      border-color: #2e90a8;
+      box-shadow: 0 0 0 3px rgba(46, 144, 168, 0.15);
+    }
+  }
+
+  .gov-hero__search-icon {
+    color: #3aaec9;
+  }
+}

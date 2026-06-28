@@ -30,20 +30,18 @@ export class ChatApiService {
 
   createSession(email: string): Observable<any> {
     const payload = {
-      dto: {
-        userEmail: email,
-        createdAt: new Date().toISOString()
-      }
+      userEmail: email,
+      createdAt: new Date().toISOString()
     };
     return this.http.post<any>(`${this.apiUrl}/Session/newSession`, payload);
   }
 
-  sendMessage(message: string, sessionGuidId: string): Observable<string> {
+  sendMessage(message: string, sessionGuidId: string): Observable<any> {
     const payload: ChatRequest = {
       message,
       sessionGuidId
     };
-    return this.http.post(`${this.apiUrl}/AI/chat`, payload, { responseType: 'text' });
+    return this.http.post<any>(`${this.apiUrl}/AI/chat`, payload);
   }
 
   // FIX: chat sessions are identified by Guid everywhere in the backend (SessionGuidId).
@@ -58,4 +56,13 @@ export class ChatApiService {
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
     return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
   }
+
+  getUserSessions(userEmail: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Session/UserSessions/${encodeURIComponent(userEmail)}`);
+  }
+
+  getSessionMessages(sessionGuidId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
+  }
 }
+
