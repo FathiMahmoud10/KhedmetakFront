@@ -494,10 +494,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // ===========================
 
   triggerFileUpload(docId?: number): void {
-    if (!this.isLoggedIn) {
-      this.openLoginPopup();
-      return;
-    }
     if (docId !== undefined) {
       this.selectedDocumentIdForUpload = docId;
     } else if (this.requiredDocuments.length > 0 && this.selectedDocumentIdForUpload === null) {
@@ -509,11 +505,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   async onFileSelected(event: any): Promise<void> {
     const file = event.target?.files?.[0];
     if (!file) return;
-
-    if (!this.isLoggedIn) {
-      this.openLoginPopup();
-      return;
-    }
 
     const docId = this.selectedDocumentIdForUpload || 1;
     const docName = this.requiredDocuments.find(d => d.id === Number(docId))?.documentName || 'مستند';

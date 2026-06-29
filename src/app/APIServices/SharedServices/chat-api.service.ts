@@ -53,16 +53,13 @@ export class ChatApiService {
     return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
   }
 
-  // FIX: chat sessions are identified by Guid everywhere in the backend (SessionGuidId).
-  // There is no numeric "chatSessionId" available on the frontend - the "newSession"
-  // endpoint only ever returns the Guid. Sending a fabricated/derived number here meant
-  // the file never linked to the right session (or any session) on the backend.
-  // Always send the Guid under the field name the backend expects: sessionGuidId.
+  // رفع ملف من الشات — بيروح على ChatController اللي مش محتاج token
+  // بيشتغل مع guests و logged-in users عبر الـ SessionGuidId
   uploadDocument(file: File, sessionGuidId: string, requiredDocumentId: number): Observable<any> {
     const formData = new FormData();
     formData.append('File', file);
     formData.append('SessionGuidId', sessionGuidId);
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
-    return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
+    return this.http.post<any>(`${this.apiUrl}/Chat/upload`, formData);
   }
 }
