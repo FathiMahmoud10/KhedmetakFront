@@ -519,122 +519,103 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // ===========================
   // Service Details Sidebar Update
   // ===========================
-
   private updateSidebarFromServiceDetails(details: CurrentServiceDetails): void {
-    if (details.serviceName && details.serviceName !== 'لم تحدد بعد') {
-      this.serviceName = details.serviceName;
-    }
-    if (details.categoryName && details.categoryName !== '----') {
-      this.serviceCategoryName = details.categoryName;
-    }
-    if (details.fees != null && details.fees > 0) {
-      this.serviceFee = details.fees;
-    }
-    if (details.takenTime && details.takenTime !== '0') {
-      this.serviceTime = details.takenTime;
-    }
-    if (details.requiredDocumentsCount != null) {
-      this.serviceRequiredDocsCount = details.requiredDocumentsCount;
-    }
+    this.serviceName = details.serviceName || this.serviceName;
+    this.serviceAgency = details.categoryName || this.serviceAgency;
+    this.serviceFee = details.fees ?? this.serviceFee;
+    this.serviceTime = details.takenTime || this.serviceTime;
+    this.serviceCategoryName = details.categoryName || this.serviceCategoryName;
+    this.serviceRequiredDocsCount = details.requiredDocumentsCount ?? this.serviceRequiredDocsCount;
   }
 
+  private handleRequestInfoStep(text: string): void {
+    // Simple step wizard for collecting request info
+    switch (this.currentRequestStep) {
+      case 0:
+        this.submitUserName = text;
+        this.currentRequestStep = 1;
+        this.appendBotMsg('الخطوة التالية: ادخل رقم الهاتف.');
+        break;
+      case 1:
+        this.submitPhoneNumber = text;
+        this.currentRequestStep = 2;
+        this.appendBotMsg('الخطوة التالية: ادخل ملاحظاتك.');
+        break;
+      case 2:
+        this.submitNotes = text;
+        this.currentRequestStep = 3;
+        this.appendBotMsg('هل تريد رفع ملفات الآن؟ إذا نعم اضغط على زر الرفع.');
+        break;
+      default:
+        this.isCollectingRequestInfo = false;
+        break;
+    }
+  }
   // ===========================
-  // Submit Service Request
-  // ===========================
+// Submit Request Form Handlers
+// ===========================
 
-  openSubmitForm(): void {
-    if (!this.isLoggedIn) {
-      this.openLoginPopup();
-      return;
-    }
-    this.isCollectingRequestInfo = true;
-    this.currentRequestStep = 1;
-    this.submitUserName = '';
-    this.submitPhoneNumber = '';
-    this.submitNotes = '';
-    this.submitFiles = [];
-    this.appendBotMsg('بدء تقديم الطلب 📝.<br>من فضلك اكتب اسمك الكامل:');
+/**
+ * Opens the submit request form and starts collecting request info.
+ */
+openSubmitForm(): void {
+  // Reset any previous request info state
+  this.submitUserName = '';
+  this.submitPhoneNumber = '';
+  this.submitNotes = '';
+  this.submitFiles = [];
+  this.currentRequestStep = 0;
+  this.isCollectingRequestInfo = true;
+  this.showSubmitForm = true;
+  this.appendBotMsg('الخطوة الأولى: ادخل اسمك.');
+}
+
+/**
+ * Finalises the request and sends it to the backend.
+ */
+doSubmitRequest(): void {
+  if (!this.sessionGuid) {
+    this.appendBotMsg('⚠️ لا يمكن إرسال الطلب بدون جلسة. الرجاء بدء محادثة أولاً.');
+    return;
   }
 
-  closeSubmitForm(): void {
-    this.isCollectingRequestInfo = false;
-    this.currentRequestStep = 0;
-  }
+  const requestData = {
+    userEmail: this.loginEmail || (document.cookie.match(/user_email=([^;]+)/) ? RegExp.$1 : ''),
+    govServiceId: this.govServiceId,
+    sessionGuidId: this.sessionGuid,
+    userName: this.submitUserName,
+    phoneNumber: this.submitPhoneNumber,
+    notes: this.submitNotes,
+    files: this.submitFiles
+  };
 
-  async handleRequestInfoStep(text: string): Promise<void> {
-    // Add user message to chat
-    this.messages.push({ sender: 'user', text });
-    this.scrollToBottom();
-
-    if (this.currentRequestStep === 1) {
-      this.submitUserName = text;
-      this.currentRequestStep = 2;
-      this.appendBotMsg('تمام. من فضلك أدخل رقم جوالك:');
-    } else if (this.currentRequestStep === 2) {
-      this.submitPhoneNumber = text;
-      this.currentRequestStep = 3;
-      this.appendBotMsg('شكراً. اكتب أي ملاحظات إضافية على الطلب (أو اكتب "لا يوجد"):');
-    } else if (this.currentRequestStep === 3) {
-      this.submitNotes = text;
-      this.currentRequestStep = 4;
-      this.appendBotMsg('إذا كان لديك أي مستندات أو ملفات تريد إرفاقها، يرجى رفعها الآن باستخدام زر الإرفاق 📎 بالأسفل، أو اضغط على زر <strong>"إنهاء التقديم وإرسال الطلب"</strong> لإتمام الطلب.');
-    } else if (this.currentRequestStep === 4) {
-      if (text.includes('إنهاء') || text.includes('ارسال') || text.includes('تقديم') || text.includes('انهاء')) {
-        this.doSubmitRequest();
+  this.submitFormLoading = true;
+  this.chatApiService.submitServiceRequest(requestData).subscribe({
+    next: (res) => {
+      this.submitFormLoading = false;
+      if (res && res.success) {
+        this.appendBotMsg('✅ تم إرسال الطلب بنجاح.');
+        this.showSubmitForm = false;
+        this.isCollectingRequestInfo = false;
+        this.loadUserSessions();
       } else {
-        this.appendBotMsg('يرجى الضغط على زر <strong>"إنهاء التقديم وإرسال الطلب"</strong> لإتمام تقديم طلبك، أو رفع المستندات أولاً.');
+        const msg = res?.message || 'فشل إرسال الطلب.';
+        this.appendBotMsg(`❌ ${msg}`);
       }
-    }
-  }
-
-  async doSubmitRequest(): Promise<void> {
-    this.submitFormLoading = true;
-    this.appendBotMsg('سيتم تقديم الطلب... جاري المعالجة ⏳');
-
-    const userEmail = this.authService.getUserEmail() || '';
-    if (!userEmail) {
-      this.appendBotMsg('خطأ: لم يتم العثور على البريد الإلكتروني. يرجى تسجيل الدخول أولاً.');
+    },
+    error: (err) => {
       this.submitFormLoading = false;
-      this.isCollectingRequestInfo = false;
-      this.currentRequestStep = 0;
-      return;
+      const errMsg = err?.error?.message || err?.message || 'خطأ غير معروف أثناء إرسال الطلب.';
+      this.appendBotMsg(`❌ ${errMsg}`);
     }
+  });
+}
 
-    const govServiceId = this.govServiceId;
+// ===========================
 
-    try {
-      const res = await firstValueFrom(
-        this.chatApiService.submitServiceRequest({
-          userEmail,
-          govServiceId,
-          sessionGuidId: this.sessionGuid || undefined,
-          userName: this.submitUserName || undefined,
-          phoneNumber: this.submitPhoneNumber || undefined,
-          notes: this.submitNotes || undefined,
-          files: this.submitFiles.length > 0 ? this.submitFiles : undefined
-        })
-      );
 
-      this.appendBotMsg('تم تقديم طلبك بنجاح! ✅ سيتم مراجعته في أقرب وقت.');
-      this.isCollectingRequestInfo = false;
-      this.currentRequestStep = 0;
-      this.loadUserSessions();
-    } catch (err: any) {
-      this.appendBotMsg(`حدث خطأ أثناء تقديم الطلب: ${err?.error?.message || err?.message || 'خطأ غير معروف'} ❌`);
-    } finally {
-      this.submitFormLoading = false;
-    }
-  }
-
-  // ===========================
-  // File Upload Operations
-  // ===========================
 
   triggerFileUpload(docId?: number): void {
-    if (!this.isLoggedIn) {
-      this.openLoginPopup();
-      return;
-    }
     if (docId !== undefined) {
       this.selectedDocumentIdForUpload = docId;
     } else if (this.requiredDocuments.length > 0 && this.selectedDocumentIdForUpload === null) {
@@ -646,22 +627,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   async onFileSelected(event: any): Promise<void> {
     const file = event.target?.files?.[0];
     if (!file) return;
-
-    if (!this.isLoggedIn) {
-      this.openLoginPopup();
-      return;
-    }
-
-    if (this.isCollectingRequestInfo) {
-      if (this.currentRequestStep === 4) {
-        this.submitFiles.push(file);
-        this.appendBotMsg(`تم إرفاق الملف: <strong>${file.name}</strong> بنجاح 📎`);
-      } else {
-        this.appendBotMsg('يرجى إكمال البيانات المطلوبة أولاً قبل إرفاق الملفات.');
-      }
-      event.target.value = '';
-      return;
-    }
 
     const docId = this.selectedDocumentIdForUpload || 1;
     const docName = this.requiredDocuments.find(d => d.id === Number(docId))?.documentName || 'مستند';
@@ -1044,7 +1009,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.sessionGuid = session.id;
     this.activeSessionId = session.id;
     this.setCookie('sessionGuidId', session.id, 1);
-    
+
     // Reset steps
     this.uploadVerified = false;
     this.onlineMode = false;
@@ -1065,7 +1030,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.chatSessionId = null;
     this.sessionLinked = false;
     this.activeSessionId = null;
-    
+
     // Reset wizard / checklist state
     this.uploadVerified = false;
     this.onlineMode = false;
