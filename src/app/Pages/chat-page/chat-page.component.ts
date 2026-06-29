@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { ChatApiService, ChatResponse } from '../../APIServices/SharedServices/chat-api.service';
+import { ChatApiService, ChatResponse, CurrentServiceDetails } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 import { UserDashboardService } from '../../APIServices/SharedServices/user-dashboard.service';
 import { environment } from '../../../environments/environment';
@@ -34,6 +34,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
   @ViewChild('msgsContainer') msgsContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('fileInput') fileInputRef!: ElementRef<HTMLInputElement>;
+  @ViewChild('submitFileInput') submitFileInputRef!: ElementRef<HTMLInputElement>;
 
   // ===========================
   // State variables
@@ -60,14 +61,33 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   loginPassword = '';
   msgText = '';
 
-  // Service info (populated from API)
+  // Service info (populated from API or chat response)
   serviceName = 'جاري التحميل...';
   serviceAgency = '';
   serviceFee: number | null = null;
   serviceTime = '30 دقيقة';
+  serviceCategoryName = '';
+  serviceRequiredDocsCount = 0;
+
+  // Current service details from latest chat response
+  currentServiceDetails: CurrentServiceDetails | null = null;
+
+  // Submit Request Form State
+  showSubmitForm = false;
+  submitFormLoading = false;
+  submitFormError = '';
+  submitFormSuccess = '';
+  submitUserName = '';
+  submitPhoneNumber = '';
+  submitNotes = '';
+  submitFiles: File[] = [];
+
+  isCollectingRequestInfo = false;
+  currentRequestStep = 0; // 1: Name, 2: Phone, 3: Notes, 4: Files
 
   // Session list sidebar state
   sessionsLoading = false;
+  historyCollapsed = false;
   userSessions: Array<{
     id: string;
     preview: string;
@@ -86,6 +106,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     steps?: string[];
     currentStep?: number;
   }> = [];
+
+  copiedMap: { [key: number]: boolean } = {};
 
   // ===========================
   // Step wizard / checklist state
@@ -287,7 +309,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
     try {
       const email = this.isLoggedIn
-        ? (this.getCookie('user_email') || 'guest@moamaltak.ai')
+        ? (this.authService.getUserEmail() || 'guest@moamaltak.ai')
         : 'guest@moamaltak.ai';
 
       const res = await firstValueFrom(this.chatApiService.createSession(email));
@@ -421,6 +443,12 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     }
 
     this.msgText = '';
+
+    if (this.isCollectingRequestInfo) {
+      this.handleRequestInfoStep(text);
+      return;
+    }
+
     this.isSending = true;
 
     // Add user message
@@ -437,22 +465,21 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         throw new Error('فشل تهيئة جلسة المحادثة. يرجى التحقق من اتصالك بالإنترنت.');
       }
 
-      // res is a plain text string
-      const res = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
+      // res is now a JSON object: { currentServiceDetails, response }
+      const res: ChatResponse = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
 
       // Remove typing indicator
       this.messages.splice(typingIndicatorIndex, 1);
 
-      const replyText = (res || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
-      const steps = this.parseIntoSteps(replyText);
-
-      if (steps.length > 1) {
-        // Multi-step response — show step 0, user advances with "التالي"
-        this.messages.push({ sender: 'bot', text: '', steps, currentStep: 0 });
-      } else {
-        // Single-step response — show as normal bubble
-        this.messages.push({ sender: 'bot', text: steps[0] || this.mdToHtml(replyText), isHtml: true });
+      // Update sidebar service details from the response
+      if (res.currentServiceDetails) {
+        this.currentServiceDetails = res.currentServiceDetails;
+        this.updateSidebarFromServiceDetails(res.currentServiceDetails);
       }
+
+      const replyText = (res.response || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
+      // Render the full markdown response as a single formatted message
+      this.messages.push({ sender: 'bot', text: this.mdToHtml(replyText), isHtml: true });
     } catch (err: any) {
       this.messages.splice(typingIndicatorIndex, 1);
       this.messages.push({
@@ -490,7 +517,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   }
 
   // ===========================
-  // File Upload Operations
+  // Service Details Sidebar Update
   // ===========================
 
   triggerFileUpload(docId?: number): void {
@@ -719,16 +746,98 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       .replace(/"/g, '&quot;');
   }
 
+  copyToClipboard(htmlText: string, index: number): void {
+    if (!htmlText) return;
+    const tempEl = document.createElement('div');
+    tempEl.innerHTML = htmlText;
+    const plainText = tempEl.textContent || tempEl.innerText || '';
+
+    navigator.clipboard.writeText(plainText).then(() => {
+      this.copiedMap[index] = true;
+      setTimeout(() => {
+        this.copiedMap[index] = false;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  }
+
   private mdToHtml(text: string): string {
-    return text
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      .replace(/\n/g, '<br>');
+    if (!text) return '';
+
+    let html = this.escHtml(text);
+
+    // Replace headers
+    html = html.replace(/^### (.+)$/gm, '<h3 class="bot-h3">$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2 class="bot-h2">$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1 class="bot-h1">$1</h1>');
+
+    // Bold & Italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="bot-bold">$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em class="bot-italic">$1</em>');
+
+    // Inline code
+    html = html.replace(/`([^`]+)`/g, '<code class="bot-code">$1</code>');
+
+    // Process lists and paragraphs line by line
+    const lines = html.split('\n');
+    const processedLines: string[] = [];
+    let activeListType: 'ul' | 'ol' | null = null;
+
+    for (let line of lines) {
+      const trimmed = line.trim();
+
+      const ulMatch = trimmed.match(/^[-*•]\s+(.+)$/);
+      const olMatch = trimmed.match(/^(\d+|[١٢٣٤٥٦٧٨٩]+)\.\s+(.+)$/);
+
+      if (ulMatch) {
+        if (activeListType === 'ol') {
+          processedLines.push('</ol>');
+          activeListType = null;
+        }
+        if (activeListType === null) {
+          processedLines.push('<ul class="bot-ul">');
+          activeListType = 'ul';
+        }
+        processedLines.push(`<li class="bot-li">${ulMatch[1]}</li>`);
+      } else if (olMatch) {
+        if (activeListType === 'ul') {
+          processedLines.push('</ul>');
+          activeListType = null;
+        }
+        if (activeListType === null) {
+          processedLines.push('<ol class="bot-ol">');
+          activeListType = 'ol';
+        }
+        processedLines.push(`<li class="bot-li">${olMatch[2]}</li>`);
+      } else {
+        if (activeListType === 'ul') {
+          processedLines.push('</ul>');
+          activeListType = null;
+        } else if (activeListType === 'ol') {
+          processedLines.push('</ol>');
+          activeListType = null;
+        }
+
+        if (trimmed.length > 0) {
+          if (trimmed.startsWith('<h') && (trimmed.endsWith('</h3>') || trimmed.endsWith('</h2>') || trimmed.endsWith('</h1>'))) {
+            processedLines.push(trimmed);
+          } else {
+            processedLines.push(`<p class="bot-p">${trimmed}</p>`);
+          }
+        } else {
+          processedLines.push('<div class="bot-space"></div>');
+        }
+      }
+    }
+
+    if (activeListType === 'ul') {
+      processedLines.push('</ul>');
+    } else if (activeListType === 'ol') {
+      processedLines.push('</ol>');
+    }
+
+    return processedLines.join('\n');
   }
 
   getProgressDotClass(step: number): string {
@@ -762,12 +871,35 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       next: (res) => {
         this.sessionsLoading = false;
         if (res && res.success && Array.isArray(res.data)) {
+          // Build the sessions list, then enrich each with its first user message as preview
           this.userSessions = res.data.map(req => ({
             id: req.sessionGuidId,
             preview: req.serviceName || 'محادثة',
             startedAt: req.startedAt,
             messageCount: req.messagesCount
           }));
+
+          // For each session, fetch history and use the first user message as preview
+          this.userSessions.forEach((session, index) => {
+            this.chatApiService.getSessionHistory(session.id).subscribe({
+              next: (histRes) => {
+                const history = (histRes && histRes.success !== undefined) ? histRes.data : histRes;
+                if (Array.isArray(history) && history.length > 0) {
+                  const firstUserMsg = history.find((m: any) => (m.role || m.Role) === 'user');
+                  if (firstUserMsg) {
+                    const msgText = (firstUserMsg.content || firstUserMsg.Content || '').trim();
+                    if (msgText) {
+                      // Truncate to 50 characters for sidebar display
+                      this.userSessions[index].preview = msgText.length > 50
+                        ? msgText.substring(0, 50) + '...'
+                        : msgText;
+                    }
+                  }
+                }
+              },
+              error: () => { /* keep serviceName as fallback */ }
+            });
+          });
         }
       },
       error: (err) => {
@@ -782,7 +914,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.sessionGuid = session.id;
     this.activeSessionId = session.id;
     this.setCookie('sessionGuidId', session.id, 1);
-    
+
     // Reset steps
     this.uploadVerified = false;
     this.onlineMode = false;
@@ -803,7 +935,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.chatSessionId = null;
     this.sessionLinked = false;
     this.activeSessionId = null;
-    
+
     // Reset wizard / checklist state
     this.uploadVerified = false;
     this.onlineMode = false;
@@ -823,16 +955,42 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     this.loadUserSessions();
   }
 
+  getUserInitials(): string {
+    if (!this.isLoggedIn) return 'ضيف';
+    const name = this.authService.getUserName();
+    if (!name) return 'م';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      const first = parts[0][0] || '';
+      const second = parts[1][0] || '';
+      return (first + second).substring(0, 2);
+    }
+    return name.substring(0, 2);
+  }
+
   formatSessionDate(dateString: string): string {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
+      // C# default DateTime (0001-01-01) comes back as an invalid/very old date
+      if (isNaN(date.getTime()) || date.getFullYear() < 2000) return '';
+      const now = new Date();
+      const isToday =
+        date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+      if (isToday) return 'اليوم';
+      const isYesterday =
+        date.getDate() === now.getDate() - 1 &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+      if (isYesterday) return 'أمس';
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
     } catch (e) {
-      return dateString;
+      return '';
     }
   }
 }

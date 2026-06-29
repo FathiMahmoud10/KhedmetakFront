@@ -14,10 +14,17 @@ export interface ChatRequest {
   sessionGuidId: string;
 }
 
+export interface CurrentServiceDetails {
+  serviceName: string;
+  categoryName: string;
+  requiredDocumentsCount: number;
+  fees: number;
+  takenTime: string;
+}
+
 export interface ChatResponse {
-  message: string;
-  sessionGuidId: string;
-  reply?: string;
+  currentServiceDetails: CurrentServiceDetails;
+  response: string;
 }
 
 @Injectable({
@@ -38,12 +45,12 @@ export class ChatApiService {
     return this.http.post<any>(`${this.apiUrl}/Session/newSession`, payload);
   }
 
-  sendMessage(message: string, sessionGuidId: string): Observable<string> {
+  sendMessage(message: string, sessionGuidId: string): Observable<ChatResponse> {
     const payload: ChatRequest = {
       message,
       sessionGuidId
     };
-    return this.http.post(`${this.apiUrl}/AI/chat`, payload, { responseType: 'text' });
+    return this.http.post<ChatResponse>(`${this.apiUrl}/AI/chat`, payload);
   }
 
   // FIX: matches the real backend route — SessionController exposes
@@ -61,5 +68,30 @@ export class ChatApiService {
     formData.append('SessionGuidId', sessionGuidId);
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
     return this.http.post<any>(`${this.apiUrl}/Chat/upload`, formData);
+  }
+
+  /**
+   * Submits a service request via multipart/form-data to /api/Session/submitRequest.
+   */
+  submitServiceRequest(data: {
+    userEmail: string;
+    govServiceId: number;
+    sessionGuidId?: string;
+    userName?: string;
+    phoneNumber?: string;
+    notes?: string;
+    files?: File[];
+  }): Observable<any> {
+    const formData = new FormData();
+    formData.append('UserEmail', data.userEmail);
+    formData.append('GovServiceId', data.govServiceId.toString());
+    if (data.sessionGuidId) formData.append('SessionGuidId', data.sessionGuidId);
+    if (data.userName) formData.append('UserName', data.userName);
+    if (data.phoneNumber) formData.append('PhoneNumber', data.phoneNumber);
+    if (data.notes) formData.append('Notes', data.notes);
+    if (data.files && data.files.length > 0) {
+      data.files.forEach(f => formData.append('Files', f));
+    }
+    return this.http.post<any>(`${this.apiUrl}/Session/submitRequest`, formData);
   }
 }
