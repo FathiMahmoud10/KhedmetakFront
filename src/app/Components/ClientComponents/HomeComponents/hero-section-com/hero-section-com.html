@@ -1,18 +1,17 @@
 <section class="gov-hero">
-  <div class="gov-hero__stripe" aria-hidden="true">
-    <span></span><span></span><span></span>
-  </div>
-
+  <!-- التأثيرات واللمسات الهندسية الزجاجية في الخلفية -->
   <div class="gov-hero__overlay"></div>
 
   <div class="gov-hero__inner container-fluid">
     <div class="gov-hero__content">
 
+      <!-- 🏷️ الكبسولة العلوية الزجاجية المحدثة -->
       <div class="gov-hero__badge">
         <i class="bi bi-shield-check"></i>
         <span>جمهورية مصر العربية — بوابة الخدمات الحكومية</span>
       </div>
 
+      <!-- 📝 العناوين الرئيسية والوصف -->
       <h1 class="gov-hero__title">Khedmetak AI</h1>
       <h2 class="gov-hero__subtitle">مساعدك الذكي للخدمات الحكومية المصرية</h2>
 
@@ -21,36 +20,53 @@
         واحصل على إرشادات دقيقة خطوة بخطوة.
       </p>
 
+      <!-- 🔍 صندوق البحث الزجاجي المتناسق -->
       <div class="gov-hero__search">
         <div class="gov-hero__search-box">
-          <i class="bi bi-chat-square-text gov-hero__search-icon"></i>
+          <!-- الأيقونة تظهر أولاً في الـ DOM لتدعم خاصية الـ Flex Direction (RTL) الانسيابية -->
+          <i class="bi bi-chat-left-text-fill gov-hero__search-icon"></i>
+          
           <textarea
             class="gov-hero__textarea"
             rows="2"
             placeholder="مثال: إزاي أجدد رخصة القيادة؟ أو أطلع بطاقة رقم قومي؟"
           ></textarea>
         </div>
-        <a routerLink="/chat" class="gov-hero__cta">
+        
+        <!-- زر الإرسال والاستعلام الأساسي -->
+        <button [routerLink]="['/chat']" class="gov-hero__cta" type="button">
           <i class="bi bi-send-fill"></i>
-          اسأل المساعد الآن
-        </a>
+          <span>اسأل المساعد الآن</span>
+        </button>
       </div>
 
-      @if (ServicesList.length > 0) {
+      <!-- 💊 قسم الخدمات الشائعة التفاعلي الذكي -->
+      @if (ServicesList && ServicesList.length > 0) {
         <div class="gov-hero__quick">
           <span class="gov-hero__quick-label">خدمات شائعة:</span>
           <div class="gov-hero__pills">
             @for (item of ServicesList; track item.id) {
-              <a routerLink="/chat" class="gov-hero__pill">{{ item.srvName }}</a>
+              <a [routerLink]="['/chat']" [queryParams]="{ query: item.srvName }" class="gov-hero__pill">
+                <!-- اختيار الأيقونة التعبيرية المناسبة ديناميكياً -->
+                @if (item.srvName.includes('رخصة') || item.srvName.includes('القيادة')) {
+                  <i class="bi bi-car-front-fill"></i>
+                } @else if (item.srvName.includes('بطاقة') || item.srvName.includes('الرقم القومي')) {
+                  <i class="bi bi-card-heading"></i>
+                } @else {
+                  <i class="bi bi-file-earmark-text-fill"></i>
+                }
+                <span>{{ item.srvName }}</span>
+              </a>
             }
           </div>
         </div>
       }
 
+      <!-- 🛡️ قائمة موثوقية وأمان البيانات السفلية -->
       <ul class="gov-hero__trust">
-        <li><i class="bi bi-patch-check-fill"></i> معلومات محدّثة</li>
-        <li><i class="bi bi-lock-fill"></i> بيانات آمنة</li>
-        <li><i class="bi bi-translate"></i> باللغة العربية</li>
+        <li><i class="bi bi-patch-check-fill"></i> <span>معلومات محدّثة</span></li>
+        <li><i class="bi bi-shield-lock-fill"></i> <span>بيانات آمنة</span></li>
+        <li><i class="bi bi-globe2"></i> <span>باللغة العربية</span></li>
       </ul>
 
     </div>

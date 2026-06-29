@@ -1,10 +1,10 @@
-<nav class="app-navbar" [class.app-navbar--admin]="isDashboardPage">
+<nav class="app-navbar" [class.app-navbar--admin]="isAdminPage">
   <div class="app-navbar__inner container-fluid">
 
-    <!-- Right: menu + brand -->
+    <!-- اليمين: القائمة والشعار -->
     <div class="app-navbar__start">
       <button
-        *ngIf="isDashboardPage"
+        *ngIf="isAdminPage"
         class="app-navbar__menu-btn"
         (click)="toggleSidebar()"
         type="button"
@@ -19,26 +19,47 @@
       </button>
 
       <a class="app-navbar__brand" routerLink="/home">
-        <img src="\Images\Logo3.png" alt="Khedmetak AI" class="app-navbar__logo" width="42" height="48" />
+        <img src="Images/Logo3.png" alt="Khedmetak AI" class="app-navbar__logo"  width="74" height="82"  />
         <div class="app-navbar__brand-text">
           <span class="app-navbar__brand-name">Khedmetak AI</span>
-          <span class="app-navbar__brand-tag" *ngIf="!isDashboardPage">مساعد ذكي للخدمات الحكومية</span>
+          <span class="app-navbar__brand-tag" *ngIf="!isAdminPage">مساعد ذكي للخدمات الحكومية</span>
           <span class="app-navbar__brand-tag app-navbar__brand-tag--admin" *ngIf="isAdminPage">لوحة تحكم النظام</span>
-          <span class="app-navbar__brand-tag" *ngIf="isUserDashboardPage">لوحة المستخدم</span>
         </div>
       </a>
     </div>
 
-    <div class="app-navbar__center" *ngIf="!isDashboardPage">
+    <!-- المنتصف: روابط التنقل السريعة -->
+    <div class="app-navbar__center" *ngIf="!isAdminPage">
       <ul class="app-navbar__links">
         <li><a class="app-navbar__link" routerLink="/home" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">الرئيسية</a></li>
-        <!-- المساعد الذكي والخدمات للمستخدم العادي فقط -->
-        <li *ngIf="!isAdmin"><a class="app-navbar__link" routerLink="/chat" routerLinkActive="is-active">المساعد الذكي</a></li>
+        <li><a class="app-navbar__link" routerLink="/chat" routerLinkActive="is-active">المساعد الذكي</a></li>
         <li><a class="app-navbar__link" routerLink="/services" routerLinkActive="is-active">الخدمات</a></li>
       </ul>
     </div>
 
+    <!-- اليسار: أزرار التفاعل والحسابات (مرتبة انسيابياً من اليمين إلى اليسار) -->
     <div class="app-navbar__end">
+      
+      <!-- 1. أزرار الحسابات والـ Auth (تظهر فقط في الصفحات العامة) -->
+      <ul class="app-navbar__auth" *ngIf="!isAdminPage">
+        <!-- تسجيل الدخول (الزر الأساسي البارز) -->
+        <li>
+          <a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>تسجيل الدخول</span>
+          </a>
+        </li>
+        
+        <!-- حساب جديد -->
+        <li>
+          <a class="app-navbar__auth-link" routerLink="/signup">
+            <i class="fas fa-user-plus"></i>
+            <span>حساب جديد</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- 2. زر تغيير الوضع الداكن (Dark Mode) -->
       <button
         class="app-navbar__icon-btn"
         (click)="toggleDarkMode()"
@@ -48,42 +69,17 @@
         <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
       </button>
 
-      <button *ngIf="isDashboardPage" class="app-navbar__return-btn" type="button" (click)="goBack()">
+      <!-- 3. زر ملف الأدمن (منفصل لإعطائه استقلالية وحماية مكانه) -->
+      <a *ngIf="!isAdminPage" class="app-navbar__return-btn" routerLink="/admin-profile">
+        <i class="fas fa-user-shield"></i>
+        <span>ملف الأدمن</span>
+      </a>
+
+      <!-- 4. زر العودة للموقع (يظهر فقط داخل لوحة التحكم) -->
+      <a *ngIf="isAdminPage" class="app-navbar__return-btn" routerLink="/home">
         <i class="fas fa-arrow-right"></i>
-        العودة للموقع
-      </button>
-
-      <ul class="app-navbar__auth" *ngIf="!isDashboardPage">
-
-        <!-- ملف المستخدم — يظهر فقط للـ user العادي -->
-        <li *ngIf="isLoggedIn && !isAdmin">
-          <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/user-dashboard">
-            <i class="fas fa-user"></i>
-            ملف المستخدم
-          </a>
-        </li>
-
-        <!-- لوحة الأدمن — للأدمن فقط -->
-        <li *ngIf="isLoggedIn && isAdmin">
-          <a class="app-navbar__auth-link app-navbar__auth-link--bold" routerLink="/admin-dashboard">
-            <i class="fas fa-user-shield"></i>
-            لوحة التحكم
-          </a>
-        </li>
-
-        <!-- حساب جديد وتسجيل الدخول — للزوار فقط -->
-        <li *ngIf="!isLoggedIn"><a class="app-navbar__auth-link" routerLink="/signup">حساب جديد</a></li>
-        <li *ngIf="!isLoggedIn"><a class="app-navbar__auth-link app-navbar__auth-link--primary" routerLink="/login">تسجيل الدخول</a></li>
-
-        <!-- زرار تسجيل الخروج — للمسجلين فقط -->
-        <li *ngIf="isLoggedIn">
-          <button class="app-navbar__auth-link app-navbar__auth-link--logout" (click)="logout()" type="button">
-            <i class="fas fa-sign-out-alt"></i>
-            تسجيل الخروج
-          </button>
-        </li>
-
-      </ul>
+        <span>العودة للموقع</span>
+      </a>
     </div>
 
   </div>

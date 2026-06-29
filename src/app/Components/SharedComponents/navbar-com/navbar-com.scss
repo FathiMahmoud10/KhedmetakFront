@@ -1,14 +1,13 @@
+// ============================================================
+// المتغيرات المأخوذة من مشروعكِ (Theme Variables)
+// ============================================================
 $navy:   #023264;
-$navy2:  #012050;
+$navy2:  #012050; // اللون الكحلي الغامق المعتمد للسايد بار
 $blue:   #487fb9;
-$green:  #298b64;
 $white:  #ffffff;
-$border: #e8edf3;
-$muted:  #6b7a8d;
+$green:  #298b64;
+$border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز الشكل الزجاجي
 
-// ============================================================
-// Navbar
-// ============================================================
 .app-navbar {
   position: fixed;
   top: 0;
@@ -16,22 +15,16 @@ $muted:  #6b7a8d;
   right: 0;
   z-index: 1050;
   height: 70px;
-  background: rgba($white, 0.92);
-  backdrop-filter: blur(12px);
+  /* دمج لون السايد بار الكحلي الغامق مع نسبة شفافية مثالية للزجاج */
+  background: rgba($navy2, 0.55); 
+  /* تأثير التغبيش الزجاجي الكثيف لرؤية انسيابية للأهرامات من خلفه */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid $border;
-  box-shadow: 0 2px 16px rgba($navy, 0.06);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
   direction: rtl;
   font-family: 'Cairo', sans-serif;
-
-  &:not(.app-navbar--admin)::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #ce1126 33.33%, #ffffff 33.33%, #ffffff 66.66%, #1a1a1a 66.66%);
-  }
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
 
   &--admin {
     background: linear-gradient(180deg, $white 0%, #f8fafc 100%);
@@ -42,17 +35,20 @@ $muted:  #6b7a8d;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 24px; /* مسافة أفقية مريحة تمنع اكتظاظ العناصر وتداخلها */
+    padding: 0 24px;
+  }
+
+  &__start {
+    display: flex;
+    align-items: center;
     gap: 16px;
   }
 
-  &__start,
   &__end {
     display: flex;
     align-items: center;
-    gap: 12px;
-  }
-
-  &__end {
+    gap: 16px; /* توسيع المسافة الداخلية بين أزرار تسجيل الدخول، الوضع الداكن، وملف الأدمن */
     flex-shrink: 0;
   }
 
@@ -61,17 +57,17 @@ $muted:  #6b7a8d;
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
-    border: 1.5px solid rgba($navy, 0.12);
-    border-radius: 10px;
-    background: rgba($navy, 0.04);
-    color: $navy;
+    border: 1.5px solid rgba($white, 0.2);
+    border-radius: 12px;
+    background: rgba($white, 0.05);
+    color: $white;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s, transform 0.15s;
     font-family: inherit;
 
     &:hover {
-      background: rgba($navy, 0.08);
-      border-color: rgba($navy, 0.2);
+      background: rgba($white, 0.12);
+      border-color: rgba($white, 0.3);
     }
 
     &:active {
@@ -88,7 +84,7 @@ $muted:  #6b7a8d;
     span {
       display: block;
       height: 2px;
-      background: $navy;
+      background: $white;
       border-radius: 2px;
       transition: width 0.2s;
 
@@ -104,14 +100,14 @@ $muted:  #6b7a8d;
   &__brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     text-decoration: none;
-    color: inherit;
+    color: $white;
   }
 
   &__logo {
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba($navy, 0.12));
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
   }
 
   &__brand-text {
@@ -124,13 +120,13 @@ $muted:  #6b7a8d;
   &__brand-name {
     font-size: 17px;
     font-weight: 800;
-    color: $navy;
+    color: $white;
     letter-spacing: -0.2px;
   }
 
   &__brand-tag {
     font-size: 11px;
-    color: $muted;
+    color: rgba($white, 0.65);
     font-weight: 500;
 
     &--admin {
@@ -148,7 +144,7 @@ $muted:  #6b7a8d;
   &__links {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -157,131 +153,171 @@ $muted:  #6b7a8d;
   &__link {
     display: inline-block;
     padding: 8px 16px;
-    border-radius: 9px;
+    border-radius: 20px;
     font-size: 14px;
     font-weight: 600;
-    color: $navy;
+    color: rgba($white, 0.8);
     text-decoration: none;
-    transition: background 0.2s, color 0.2s;
+    position: relative;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba($blue, 0.1);
-      color: $blue;
+      background: rgba($white, 0.08);
+      color: $white;
     }
 
+    // تأثير الخط المضيء السفلي المودرن للرابط النشط الحالي (Active Link)
     &.is-active {
-      background: $navy;
+      background: transparent;
       color: $white;
+      font-weight: 700;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 20%;
+        right: 20%;
+        height: 3px;
+        background: $white;
+        border-radius: 4px;
+        box-shadow: 0 0 12px rgba($white, 0.9);
+      }
     }
   }
 
+  // زر الوضع الداكن (Dark Mode) الدائري الزجاجي المتناسق
   &__icon-btn {
-    width: 40px;
-    height: 40px;
-    border: 1.5px solid $border;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba($white, 0.15);
     border-radius: 50%;
-    background: $white;
-    color: $navy;
-    font-size: 16px;
+    background: rgba($white, 0.05);
+    color: $white;
+    font-size: 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: rgba($blue, 0.08);
-      border-color: rgba($blue, 0.3);
+      background: rgba($white, 0.12);
+      border-color: rgba($white, 0.3);
+      transform: translateY(-1px);
     }
-
-    .fa-sun { color: #f0a500; }
   }
 
+  // زر ملف الأدمن (مفصول ليعطي استقلالية بصرية)
   &__return-btn {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    padding: 9px 16px;
-    border-radius: 10px;
-    border: 1.5px solid rgba($blue, 0.35);
-    background: rgba($blue, 0.06);
-    color: $blue;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba($white, 0.2);
+    background: rgba($white, 0.05);
+    color: $white;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
-      background: $blue;
-      border-color: $blue;
-      color: $white;
+      background: rgba($white, 0.15);
+      border-color: rgba($white, 0.3);
     }
   }
 
+  // حاوية أزرار الدخول والتسجيل
   &__auth {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px; /* تقليص المسافة لمنع تشتت أزرار الحساب الواحد */
     list-style: none;
     margin: 0;
     padding: 0;
   }
 
   &__auth-link {
-    padding: 8px 12px;
-    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px; /* تحويل الروابط لكبسولات انسيابية كاملة دائرية */
     font-size: 13px;
     font-weight: 600;
-    color: $navy;
+    color: rgba($white, 0.9);
     text-decoration: none;
-    transition: background 0.2s, color 0.2s;
+    border: 1px solid transparent;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
-      background: rgba($navy, 0.06);
+      background: rgba($white, 0.08);
+      color: $white;
     }
 
-    &--bold {
-      font-weight: 700;
-    }
-
+    // تصميم كبسولي زجاجي فاخر ومحدد لزر "تسجيل الدخول" الأساسي ليميزه في واجهتكِ
     &--primary {
-      background: linear-gradient(135deg, $navy, $blue);
+      background: rgba($white, 0.15);
+      border: 1px solid rgba($white, 0.3);
       color: $white !important;
-      padding: 8px 16px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
       &:hover {
-        opacity: 0.92;
-        background: linear-gradient(135deg, $navy, $blue);
+        background: $white;
+        color: $navy2 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
       }
     }
   }
 }
 
 // ============================================================
-// Responsive
+// قواعد الشاشات التجاوبية والمرونة (Responsive Layout)
 // ============================================================
+@media (max-width: 1150px) {
+  .app-navbar__inner {
+    gap: 12px;
+    padding: 0 16px;
+  }
+  .app-navbar__auth-link {
+    padding: 8px 12px; /* تقليص الحشو الداخلي طردياً لحماية المساحة ومنع تراكم النصوص */
+  }
+}
+
 @media (max-width: 992px) {
   .app-navbar__center {
     display: none;
   }
-
   .app-navbar__menu-label {
     display: none;
   }
 }
 
-@media (max-width: 576px) {
-  .app-navbar__brand-tag {
+@media (max-width: 768px) {
+  /* إخفاء زر ملف الأدمن والوضع الداكن على التابلت والهواتف لتوحيد المساحة */
+  .app-navbar__return-btn,
+  .app-navbar__icon-btn {
     display: none;
   }
+}
 
+@media (max-width: 650px) {
+  /* إخفاء خيارات الـ Auth النصية الثانوية في الشاشات الصغيرة جداً والاحتفاظ بالزر الأساسي لضمان التباين وعدم الخروج عن النطاق */
   .app-navbar__auth-link:not(.app-navbar__auth-link--primary) {
     display: none;
   }
+}
 
-  .app-navbar__return-btn span,
-  .app-navbar__return-btn {
-    font-size: 12px;
-    padding: 8px 12px;
+@media (max-width: 576px) {
+  .app-navbar {
+    background: $navy2; /* اعتماد نفس اللون الكحلي للسايد بار بشكل مصمت على الهواتف لتأمين مقروئية تامة */
+    backdrop-filter: none;
+  }
+  .app-navbar__brand-tag {
+    display: none;
   }
 }

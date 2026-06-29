@@ -1,3 +1,6 @@
+// ============================================================
+// المتغيرات الأساسية للهوية البصرية
+// ============================================================
 $navy:   #023264;
 $navy2:  #012050;
 $blue:   #487fb9;
@@ -5,6 +8,7 @@ $green:  #298b64;
 $gold:   #c9a227;
 $red:    #ce1126;
 $white:  #ffffff;
+$bg-light: #f4f6f9;
 
 .gov-hero {
   position: relative;
@@ -12,33 +16,19 @@ $white:  #ffffff;
   margin-top: 70px;
   display: flex;
   align-items: center;
-  background:
-    linear-gradient(105deg, rgba($navy2, 0.92) 0%, rgba($navy, 0.82) 45%, rgba($navy, 0.55) 100%),
-    url('/Images/hero13.jpg') center / cover no-repeat;
+  /* تعديل موضع الصورة لليسار تماماً لتندمج مع التدرج الكحلي جهة اليمين */
+  background: url('/Images/hero13.jpg') left center / cover no-repeat;
   direction: rtl;
   font-family: 'Cairo', sans-serif;
   overflow: hidden;
 
-  &__stripe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    display: flex;
-    z-index: 3;
-
-    span:nth-child(1) { flex: 1; background: $red; }
-    span:nth-child(2) { flex: 1; background: $white; }
-    span:nth-child(3) { flex: 1; background: #1a1a1a; }
-  }
-
-  &__overlay {
+  // 🌌 قناع التدرج الكحلي المزدوج فوق الصورة لصنع مساحة داكنة عميقة جهة اليمين للنصوص لضمان المقروئية التامة
+  &::before {
+    content: '';
     position: absolute;
     inset: 0;
-    background:
-      radial-gradient(circle at 85% 50%, rgba($gold, 0.08) 0%, transparent 45%),
-      radial-gradient(circle at 10% 80%, rgba($blue, 0.12) 0%, transparent 40%);
+    background: linear-gradient(to left, rgba(#011028, 1) 0%, rgba(#011638, 0.88) 45%, rgba(#011638, 0.3) 75%, rgba(#011638, 0) 100%);
+    z-index: 1;
     pointer-events: none;
   }
 
@@ -46,123 +36,156 @@ $white:  #ffffff;
     position: relative;
     z-index: 2;
     width: 100%;
-    padding: 48px 24px 56px;
+    padding: 40px 24px;
   }
 
   &__content {
-    max-width: 640px;
-    margin-right: 0;
+    max-width: 620px;
+    margin-right: 6%; 
     margin-left: auto;
-    color: $white;
+    color: $white; 
+    position: relative;
+    z-index: 2;
   }
 
+  // 🏷️ الكبسولة العلوية الزجاجية الداكنة الشفافة (Glass Badge)
   &__badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba($white, 0.1);
-    border: 1px solid rgba($white, 0.2);
-    border-right: 3px solid $gold;
-    padding: 8px 16px;
-    border-radius: 8px;
+    background: rgba($white, 0.06); 
+    border: 1px solid rgba($white, 0.15);
+    border-right: 4px solid $gold;
+    padding: 8px 20px;
+    border-radius: 12px; /* تم تعديلها لتتناسب هندسياً مع لغة زوايا التصميم الموحد */
     font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    backdrop-filter: blur(6px);
-
-    i { color: $gold; font-size: 16px; }
+    font-weight: 700;
+    margin-bottom: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: $white;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   }
 
   &__title {
-    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    font-size: clamp(2.4rem, 4.5vw, 3.5rem);
     font-weight: 900;
-    margin: 0 0 8px;
-    line-height: 1.15;
+    margin: 0 0 12px;
+    line-height: 1.2;
     letter-spacing: -0.5px;
+    color: $white;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* حماية إضافية للنص من خلفية الأهرامات */
   }
 
   &__subtitle {
-    font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 700;
-    color: $gold;
+    color: rgba($white, 0.95); 
     margin: 0 0 16px;
     line-height: 1.4;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   }
 
   &__desc {
-    font-size: 16px;
+    font-size: 15.5px;
     line-height: 1.75;
-    color: rgba($white, 0.88);
-    margin: 0 0 28px;
+    color: rgba($white, 0.75); 
+    margin: 0 0 32px;
     max-width: 560px;
   }
 
+  // 🔍 صندوق البحث الزجاجي الفاخر
   &__search {
-    background: rgba($white, 0.97);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba($gold, 0.25);
-    margin-bottom: 24px;
+    background: rgba($white, 0.88); /* زيادة طفيفة في التباين البصري للصندوق */
+    border-radius: 24px; /* توحيد زوايا الانحناء مع الأزرار */
+    padding: 28px;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.3), 
+                inset 0 1px 0 rgba($white, 0.5); 
+    border: 1px solid rgba($white, 0.7);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 2;
   }
 
   &__search-box {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: flex-start;
-    margin-bottom: 14px;
+    margin-bottom: 20px;
   }
 
   &__search-icon {
     font-size: 22px;
-    color: $navy;
-    margin-top: 8px;
+    color: $navy; 
+    margin-top: 12px;
     flex-shrink: 0;
   }
 
+  // 📝 حقل النص الزجاجي الداخلي وتكبير الخط
   &__textarea {
     flex: 1;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 15px;
+    border: 1px solid rgba(#011638, 0.12);
+    border-radius: 16px;
+    padding: 16px 18px;
+    font-size: 16px; /* تكبير الخط ليكون مريحاً ومطابقاً للمقاييس */
     font-family: 'Cairo', sans-serif;
-    color: #1a2535;
+    color: $navy2;
     resize: none;
     text-align: right;
-    background: #fafbfc;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    background: rgba($white, 0.5);
+    backdrop-filter: blur(5px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    &::placeholder { color: #94a3b8; }
+    &::placeholder { 
+      color: #627998; /* توضيح لون الـ placeholder لتسهيل القراءة */
+      font-weight: 500;
+    }
 
     &:focus {
       outline: none;
       border-color: $blue;
-      box-shadow: 0 0 0 3px rgba($blue, 0.15);
-      background: $white;
+      background: rgba($white, 0.95);
+      box-shadow: 0 0 0 4px rgba($blue, 0.2);
     }
   }
 
+  // 🔵 زر الإرسال الرئيسي المتناسق هندسياً وزواياه مدروسة
   &__cta {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     width: 100%;
     padding: 14px 24px;
-    border-radius: 11px;
-    background: linear-gradient(135deg, $green, #237a52);
+    border-radius: 16px; /* جعل زوايا الأزرار مطابقة وموازية تماماً لحقل المدخلات والصندوق البنائي */
+    background: linear-gradient(135deg, #012b55, #001731);
     color: $white;
     font-size: 16px;
     font-weight: 700;
-    text-decoration: none;
-    transition: transform 0.15s, box-shadow 0.2s;
-    box-shadow: 0 4px 16px rgba($green, 0.35);
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 25px rgba(#011638, 0.35);
+
+    i {
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
 
     &:hover {
-      color: $white;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 22px rgba($green, 0.45);
+      background: linear-gradient(135deg, #001731, #000a18);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(#000, 0.3);
+      
+      i {
+        transform: scale(1.1) translateX(-3px);
+      }
+    }
+    
+    &:active {
+      transform: translateY(0);
     }
   }
 
@@ -172,40 +195,69 @@ $white:  #ffffff;
 
   &__quick-label {
     display: block;
-    font-size: 13px;
-    color: rgba($white, 0.7);
-    margin-bottom: 10px;
-    font-weight: 600;
+    font-size: 13.5px;
+    color: rgba($white, 0.7); 
+    margin-bottom: 12px;
+    font-weight: 700;
   }
 
   &__pills {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
   }
 
+  // 💊 الكبسولات الشائعة الزجاجية البيضاء ذات الحواف المتناسقة وبأيقونات تعبيرية
   &__pill {
-    padding: 7px 14px;
-    border-radius: 20px;
-    background: rgba($white, 0.12);
-    border: 1px solid rgba($white, 0.22);
+    padding: 8px 18px;
+    border-radius: 14px; /* تعديل انحناء الكبسولات من الدائرية المفرطة لزوايا متناسقة وعصرية */
+    background: rgba($white, 0.12); /* تحويلها لتصميم زجاجي داكن خفيف بدلاً من الأبيض الصامت ليتماشى مع الهوية البصرية */
+    border: 1px solid rgba($white, 0.2);
     color: $white;
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    transition: background 0.2s, border-color 0.2s;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+    i {
+      font-size: 12px;
+      color: rgba($white, 0.7);
+    }
 
     &:hover {
-      background: rgba($gold, 0.2);
-      border-color: rgba($gold, 0.45);
-      color: $white;
+      background: $white;
+      border-color: $white;
+      color: $navy2;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+
+      i {
+        color: $navy2;
+      }
     }
   }
 
+  // 🔮 اللمسات الهندسية الخلفية
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(circle at 85% 30%, rgba($blue, 0.22) 0%, transparent 45%),
+      radial-gradient(circle at 95% 75%, rgba($white, 0.08) 0%, transparent 35%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // 🛠️ قائمة الثقة السفلية باللون الأبيض والأيقونات الذهبية المضيئة
   &__trust {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px 24px;
+    gap: 16px 32px;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -213,21 +265,37 @@ $white:  #ffffff;
     li {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: rgba($white, 0.8);
+      gap: 8px;
+      font-size: 14px;
+      color: rgba($white, 0.85); 
       font-weight: 600;
 
-      i { color: $gold; }
+      i { 
+        color: $gold; 
+        font-size: 16px;
+      }
     }
+  }
+}
+
+// ============================================================
+// تجاوب التصميم مع الشاشات الصغيرة (Responsive)
+// ============================================================
+@media (max-width: 992px) {
+  .gov-hero__content {
+    margin-right: 4%;
   }
 }
 
 @media (max-width: 768px) {
   .gov-hero {
     min-height: auto;
+    background: #011228; /* خلفية كحلية عميقة جداً لضمان المقروئية على الموبايل */
+    padding: 40px 0;
 
-    &__inner { padding: 36px 16px 48px; }
+    &::before { display: none; } 
+
+    &__inner { padding: 20px 16px; }
 
     &__content {
       max-width: 100%;
@@ -236,47 +304,20 @@ $white:  #ffffff;
     }
 
     &__badge {
-      font-size: 11px;
-      padding: 6px 12px;
+      justify-content: center;
     }
 
-    &__desc { margin-left: auto; margin-right: auto; }
+    &__search {
+      padding: 24px 16px;
+      border-radius: 20px;
+    }
+    
+    &__pills {
+      justify-content: center;
+    }
 
     &__trust {
       justify-content: center;
     }
-  }
-}
-
-:host-context(.dark-theme) {
-  .gov-hero {
-    background:
-      linear-gradient(105deg, rgba(#081014, 0.96) 0%, rgba(#0b1a20, 0.92) 45%, rgba(#0e252e, 0.8) 100%),
-      url('/Images/hero13.jpg') center / cover no-repeat;
-  }
-
-  .gov-hero__search {
-    background: #1d1d1d;
-    border-color: rgba(209, 177, 110, 0.15);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  }
-
-  .gov-hero__textarea {
-    background: #252525;
-    border-color: rgba(255, 255, 255, 0.08);
-    color: #ffffff;
-
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.35);
-    }
-
-    &:focus {
-      border-color: #2e90a8;
-      box-shadow: 0 0 0 3px rgba(46, 144, 168, 0.15);
-    }
-  }
-
-  .gov-hero__search-icon {
-    color: #3aaec9;
   }
 }
