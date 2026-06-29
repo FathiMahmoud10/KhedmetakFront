@@ -519,6 +519,101 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   // ===========================
   // Service Details Sidebar Update
   // ===========================
+  private updateSidebarFromServiceDetails(details: CurrentServiceDetails): void {
+    this.serviceName = details.serviceName || this.serviceName;
+    this.serviceAgency = details.categoryName || this.serviceAgency;
+    this.serviceFee = details.fees ?? this.serviceFee;
+    this.serviceTime = details.takenTime || this.serviceTime;
+    this.serviceCategoryName = details.categoryName || this.serviceCategoryName;
+    this.serviceRequiredDocsCount = details.requiredDocumentsCount ?? this.serviceRequiredDocsCount;
+  }
+
+  private handleRequestInfoStep(text: string): void {
+    // Simple step wizard for collecting request info
+    switch (this.currentRequestStep) {
+      case 0:
+        this.submitUserName = text;
+        this.currentRequestStep = 1;
+        this.appendBotMsg('الخطوة التالية: ادخل رقم الهاتف.');
+        break;
+      case 1:
+        this.submitPhoneNumber = text;
+        this.currentRequestStep = 2;
+        this.appendBotMsg('الخطوة التالية: ادخل ملاحظاتك.');
+        break;
+      case 2:
+        this.submitNotes = text;
+        this.currentRequestStep = 3;
+        this.appendBotMsg('هل تريد رفع ملفات الآن؟ إذا نعم اضغط على زر الرفع.');
+        break;
+      default:
+        this.isCollectingRequestInfo = false;
+        break;
+    }
+  }
+  // ===========================
+// Submit Request Form Handlers
+// ===========================
+
+/**
+ * Opens the submit request form and starts collecting request info.
+ */
+openSubmitForm(): void {
+  // Reset any previous request info state
+  this.submitUserName = '';
+  this.submitPhoneNumber = '';
+  this.submitNotes = '';
+  this.submitFiles = [];
+  this.currentRequestStep = 0;
+  this.isCollectingRequestInfo = true;
+  this.showSubmitForm = true;
+  this.appendBotMsg('الخطوة الأولى: ادخل اسمك.');
+}
+
+/**
+ * Finalises the request and sends it to the backend.
+ */
+doSubmitRequest(): void {
+  if (!this.sessionGuid) {
+    this.appendBotMsg('⚠️ لا يمكن إرسال الطلب بدون جلسة. الرجاء بدء محادثة أولاً.');
+    return;
+  }
+
+  const requestData = {
+    userEmail: this.loginEmail || (document.cookie.match(/user_email=([^;]+)/) ? RegExp.$1 : ''),
+    govServiceId: this.govServiceId,
+    sessionGuidId: this.sessionGuid,
+    userName: this.submitUserName,
+    phoneNumber: this.submitPhoneNumber,
+    notes: this.submitNotes,
+    files: this.submitFiles
+  };
+
+  this.submitFormLoading = true;
+  this.chatApiService.submitServiceRequest(requestData).subscribe({
+    next: (res) => {
+      this.submitFormLoading = false;
+      if (res && res.success) {
+        this.appendBotMsg('✅ تم إرسال الطلب بنجاح.');
+        this.showSubmitForm = false;
+        this.isCollectingRequestInfo = false;
+        this.loadUserSessions();
+      } else {
+        const msg = res?.message || 'فشل إرسال الطلب.';
+        this.appendBotMsg(`❌ ${msg}`);
+      }
+    },
+    error: (err) => {
+      this.submitFormLoading = false;
+      const errMsg = err?.error?.message || err?.message || 'خطأ غير معروف أثناء إرسال الطلب.';
+      this.appendBotMsg(`❌ ${errMsg}`);
+    }
+  });
+}
+
+// ===========================
+
+
 
   triggerFileUpload(docId?: number): void {
     if (docId !== undefined) {

@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
 export interface NewSessionRequest {
   userEmail: string;
@@ -50,7 +50,11 @@ export class ChatApiService {
       message,
       sessionGuidId
     };
-    return this.http.post<ChatResponse>(`${this.apiUrl}/AI/chat`, payload);
+    // The backend may wrap the response in an ApiResponse. Unwrap if needed.
+    return this.http.post<any>(`${this.apiUrl}/AI/chat`, payload).pipe(
+      // If the response has a 'data' field, use it; otherwise assume it's already the ChatResponse.
+      map(res => (res && res.success !== undefined && res.data !== undefined) ? res.data : res)
+    ) as Observable<ChatResponse>;
   }
 
   // FIX: matches the real backend route — SessionController exposes
