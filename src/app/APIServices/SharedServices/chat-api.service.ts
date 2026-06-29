@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
 export interface NewSessionRequest {
   userEmail: string;
@@ -50,7 +50,11 @@ export class ChatApiService {
       message,
       sessionGuidId
     };
-    return this.http.post<ChatResponse>(`${this.apiUrl}/AI/chat`, payload);
+    // The backend may wrap the response in an ApiResponse. Unwrap if needed.
+    return this.http.post<any>(`${this.apiUrl}/AI/chat`, payload).pipe(
+      // If the response has a 'data' field, use it; otherwise assume it's already the ChatResponse.
+      map(res => (res && res.success !== undefined && res.data !== undefined) ? res.data : res)
+    ) as Observable<ChatResponse>;
   }
 
   // FIX: matches the real backend route — SessionController exposes
@@ -60,17 +64,14 @@ export class ChatApiService {
     return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
   }
 
-  // FIX: chat sessions are identified by Guid everywhere in the backend (SessionGuidId).
-  // There is no numeric "chatSessionId" available on the frontend - the "newSession"
-  // endpoint only ever returns the Guid. Sending a fabricated/derived number here meant
-  // the file never linked to the right session (or any session) on the backend.
-  // Always send the Guid under the field name the backend expects: sessionGuidId.
+  // رفع ملف من الشات — بيروح على ChatController اللي مش محتاج token
+  // بيشتغل مع guests و logged-in users عبر الـ SessionGuidId
   uploadDocument(file: File, sessionGuidId: string, requiredDocumentId: number): Observable<any> {
     const formData = new FormData();
     formData.append('File', file);
     formData.append('SessionGuidId', sessionGuidId);
     formData.append('RequiredDocumentId', requiredDocumentId.toString());
-    return this.http.post<any>(`${this.apiUrl}/UserDocument/upload`, formData);
+    return this.http.post<any>(`${this.apiUrl}/Chat/upload`, formData);
   }
 
   /**
