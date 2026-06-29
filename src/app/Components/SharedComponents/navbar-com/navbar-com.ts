@@ -20,8 +20,6 @@ export class NavbarCom implements OnInit, OnDestroy {
   isAdmin = false;
   isLoggedIn = false;
   private routeSub?: Subscription;
-  // FIX: counts how many in-app navigations happened so "العودة للموقع" can go back
-  // to the page the user actually came from instead of always jumping to /home.
   private navigationCount = 0;
 
   constructor(
@@ -37,14 +35,14 @@ export class NavbarCom implements OnInit, OnDestroy {
     this.isDarkMode = saved === 'dark';
     document.body.classList.toggle('dark-theme', this.isDarkMode);
 
-    this.checkUrl(this.router.url);
     this.updateAuthState();
+    this.checkUrl(this.router.url);
 
     this.routeSub = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.navigationCount++;
-        this.checkUrl(event.url);
+        this.checkUrl(event.urlAfterRedirects || event.url);
         this.updateAuthState();
         this.adminSidebarService.close();
         this.userSidebarService.close();
@@ -57,16 +55,26 @@ export class NavbarCom implements OnInit, OnDestroy {
   }
 
   private checkUrl(url: string): void {
-    this.isAdminPage =
-      url.includes('admin') ||
-      url.includes('manage');
+    if (!url) return;
+    const currentUrl = url.toLowerCase();
 
-    this.isUserDashboardPage =
-      url.includes('user-dashboard') ||
-      url.includes('my-requests') ||
-      url.includes('my-files');
+    // الاستثناء الصريح: عند الدخول لصفحة ملف الأدمن أو الرئيسية أو الحسابات، نلغي تفعيل وضع لوحات التحكم الداخلية
+    if (currentUrl.includes('admin-profile') || currentUrl.includes('login') || currentUrl.includes('signup') || currentUrl.endsWith('/home') || currentUrl === '/') {
+      this.isAdminPage = false;
+      this.isUserDashboardPage = false;
+      return;
+    }
+
+    // تفعيل وضع الأدمن الداخلي فقط في لوحة التحكم الإدارية الحقيقية (السايد بار الداخلي)
+    this.isAdminPage = currentUrl.includes('/admin-dashboard') || currentUrl.includes('/admin/manage');
+
+    // تفعيل وضع لوحة المستخدم فقط داخل الصفحات الداخلية الخاصة بالـ Dashboard
+    this.isUserDashboardPage = currentUrl.includes('/user-dashboard') || 
+                               currentUrl.includes('my-requests') || 
+                               currentUrl.includes('my-files');
   }
 
+  // خاصية ترجع true إذا كنا داخل لوحة تحكم داخلية مستقلة (أدمن أو مستخدم)
   get isDashboardPage(): boolean {
     return this.isAdminPage || this.isUserDashboardPage;
   }
@@ -83,10 +91,6 @@ export class NavbarCom implements OnInit, OnDestroy {
     }
   }
 
-  // FIX: "العودة للموقع" used to be a hardcoded routerLink="/home", so it always
-  // dropped the user on the homepage instead of the page they came from.
-  // We now go back in the app's own navigation history (Location.back), and only
-  // fall back to /home when there's nowhere to go back to (e.g. direct page load).
   goBack(): void {
     if (this.navigationCount > 0) {
       this.location.back();
