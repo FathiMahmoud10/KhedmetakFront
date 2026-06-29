@@ -87,6 +87,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
   // Session list sidebar state
   sessionsLoading = false;
+  historyCollapsed = false;
   userSessions: Array<{
     id: string;
     preview: string;
@@ -606,6 +607,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         this.chatApiService.submitServiceRequest({
           userEmail,
           govServiceId,
+          sessionGuidId: this.sessionGuid || undefined,
           userName: this.submitUserName || undefined,
           phoneNumber: this.submitPhoneNumber || undefined,
           notes: this.submitNotes || undefined,
@@ -999,12 +1001,35 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       next: (res) => {
         this.sessionsLoading = false;
         if (res && res.success && Array.isArray(res.data)) {
+          // Build the sessions list, then enrich each with its first user message as preview
           this.userSessions = res.data.map(req => ({
             id: req.sessionGuidId,
             preview: req.serviceName || 'محادثة',
             startedAt: req.startedAt,
             messageCount: req.messagesCount
           }));
+
+          // For each session, fetch history and use the first user message as preview
+          this.userSessions.forEach((session, index) => {
+            this.chatApiService.getSessionHistory(session.id).subscribe({
+              next: (histRes) => {
+                const history = (histRes && histRes.success !== undefined) ? histRes.data : histRes;
+                if (Array.isArray(history) && history.length > 0) {
+                  const firstUserMsg = history.find((m: any) => (m.role || m.Role) === 'user');
+                  if (firstUserMsg) {
+                    const msgText = (firstUserMsg.content || firstUserMsg.Content || '').trim();
+                    if (msgText) {
+                      // Truncate to 50 characters for sidebar display
+                      this.userSessions[index].preview = msgText.length > 50
+                        ? msgText.substring(0, 50) + '...'
+                        : msgText;
+                    }
+                  }
+                }
+              },
+              error: () => { /* keep serviceName as fallback */ }
+            });
+          });
         }
       },
       error: (err) => {
@@ -1077,12 +1102,25 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     if (!dateString) return '';
     try {
       const date = new Date(dateString);
+      // C# default DateTime (0001-01-01) comes back as an invalid/very old date
+      if (isNaN(date.getTime()) || date.getFullYear() < 2000) return '';
+      const now = new Date();
+      const isToday =
+        date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+      if (isToday) return 'اليوم';
+      const isYesterday =
+        date.getDate() === now.getDate() - 1 &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+      if (isYesterday) return 'أمس';
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       return `${day}/${month}/${year}`;
     } catch (e) {
-      return dateString;
+      return '';
     }
   }
 }

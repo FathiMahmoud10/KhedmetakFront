@@ -79,6 +79,7 @@ export class ChatApiService {
   submitServiceRequest(data: {
     userEmail: string;
     govServiceId: number;
+    sessionGuidId?: string;
     userName?: string;
     phoneNumber?: string;
     notes?: string;
@@ -87,6 +88,7 @@ export class ChatApiService {
     const formData = new FormData();
     formData.append('UserEmail', data.userEmail);
     formData.append('GovServiceId', data.govServiceId.toString());
+    if (data.sessionGuidId) formData.append('SessionGuidId', data.sessionGuidId);
     if (data.userName) formData.append('UserName', data.userName);
     if (data.phoneNumber) formData.append('PhoneNumber', data.phoneNumber);
     if (data.notes) formData.append('Notes', data.notes);
