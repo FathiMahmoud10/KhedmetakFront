@@ -24,14 +24,17 @@ export class AdminService {
     return this.http.get<any>(`${environment.apiUrl}/Statistics`);
   }
 
-  // جلب كافة طلبات المواطنين الواردة للمنصة (تُترك كبيانات تجريبية في الكومبوننت حالياً)
-  getAllRequests(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseAdminUrl}/Requests`);
+  // جلب جميع طلبات المواطنين الحقيقية من قاعدة البيانات
+  getAllRequests(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/Admin/Requests`);
   }
 
-  // اتخاذ إجراء بالقبول أو الرفض على طلب معين
+  // تحديث حالة طلب المواطن — عند الحالة "Completed" يُصدر المستند تلقائياً من البوابة الرقمية
   updateRequestStatus(requestId: number, status: string): Observable<any> {
-    return this.http.put(`${this.baseAdminUrl}/Requests/${requestId}/status`, { status });
+    return this.http.put<any>(
+      `${environment.apiUrl}/Admin/Requests/${requestId}/status`,
+      { status }
+    );
   }
 
   // ==========================================

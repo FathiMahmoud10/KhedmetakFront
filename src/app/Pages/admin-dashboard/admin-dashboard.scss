@@ -439,6 +439,11 @@ $text:   #1a2535;
     color: $red;
   }
 
+  &--info {
+    background: rgba($blue, 0.1);
+    color: $blue;
+  }
+
   &--default {
     background: rgba($muted, 0.12);
     color: $muted;

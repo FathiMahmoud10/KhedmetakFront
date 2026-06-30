@@ -632,3 +632,191 @@ form {
     color: #9fb0c2;
   }
 }
+
+// ── Tabs Styling ────────────────────────────────────────────────
+.login-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid $border;
+}
+
+.login-tab {
+  flex: 1;
+  border: none;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: 'Cairo', sans-serif;
+  color: $muted;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: $navy;
+  }
+
+  &--active {
+    background: $white;
+    color: $navy;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  }
+}
+
+// ── Portal Badge & Info ─────────────────────────────────────────
+.portal-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba($blue, 0.08);
+  border: 1.5px dashed rgba($blue, 0.3);
+  border-radius: 12px;
+  margin-bottom: 20px;
+
+  i {
+    font-size: 24px;
+    color: $blue;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+  }
+
+  strong {
+    font-size: 0.95rem;
+    color: $navy;
+  }
+
+  small {
+    font-size: 0.78rem;
+    color: $muted;
+  }
+}
+
+.portal-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid $border;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: $muted;
+  line-height: 1.5;
+  margin-bottom: 12px;
+
+  i {
+    color: $blue;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  code {
+    font-family: monospace;
+    background: #e2e8f0;
+    padding: 1px 4px;
+    border-radius: 4px;
+    color: $navy;
+    font-weight: 700;
+  }
+}
+
+.otp-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba($green, 0.08);
+  border: 1px solid rgba($green, 0.2);
+  border-radius: 10px;
+  color: $green2;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.portal-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $muted;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: 'Cairo', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $navy;
+  }
+}
+
+// Dark theme support
+:host-context(.dark-theme) {
+  .login-tabs {
+    background: #181818;
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .login-tab {
+    color: #9fb0c2;
+
+    &--active {
+      background: #252525;
+      color: #ffffff;
+    }
+  }
+
+  .portal-badge {
+    background: rgba($blue, 0.04);
+    border-color: rgba($blue, 0.2);
+
+    strong {
+      color: #ffffff;
+    }
+    small {
+      color: #9fb0c2;
+    }
+  }
+
+  .portal-hint {
+    background: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.06);
+    color: #9fb0c2;
+
+    code {
+      background: #333;
+      color: #ffffff;
+    }
+  }
+
+  .otp-info {
+    background: rgba($green, 0.04);
+    border-color: rgba($green, 0.15);
+    color: #3aad7a;
+  }
+
+  .portal-back {
+    color: #9fb0c2;
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}
+

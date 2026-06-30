@@ -10,7 +10,7 @@
           لوحة التحكم
         </span>
         <h1 class="dash-hero__title">لوحة التحكم الرئيسية</h1>
-        <p class="dash-hero__sub">مرحباً بك مجدداً في نظام Khedmetak AI — نظرة عامة على أداء المنصة</p>
+        <p class="dash-hero__sub">مرحباً بك في نظام Khedmetak AI — إدارة وإصدار الطلبات الحكومية بشكل مباشر</p>
       </div>
       <div class="dash-hero__meta">
         <div class="dash-hero__date">
@@ -18,21 +18,19 @@
           <span>{{ todayLabel }}</span>
         </div>
         <div class="dash-hero__pending">
-          <!-- استخدام العداد الديناميكي المحسوب للطلبات قيد المراجعة -->
           <span class="dash-hero__pending-num">{{ isLoading ? '...' : pendingRequestsCount }}</span>
-          <span class="dash-hero__pending-lbl">طلب قيد المراجعة</span>
+          <span class="dash-hero__pending-lbl">طلب قيد الانتظار</span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- مؤشر جاري تحميل الإحصائيات الحقيقية من السيرفر -->
+  <!-- مؤشر تحميل الإحصائيات -->
   <div *ngIf="isLoading" class="d-flex flex-column align-items-center justify-content-center py-5 my-5">
     <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;"></div>
     <p class="text-muted fst-italic">جاري سحب أحدث بيانات المنصة من الخادم المباشر...</p>
   </div>
 
-  <!-- حاوية البيانات تظهر فقط فور انتهاء التحميل بنجاح -->
   <ng-container *ngIf="!isLoading">
 
     <!-- Stats -->
@@ -42,7 +40,6 @@
         <div class="dash-stat__body">
           <div class="dash-stat__info">
             <span class="dash-stat__label">إجمالي الخدمات</span>
-            <!-- ربط ديناميكي بعدد الخدمات الفعلي من الباك إند -->
             <span class="dash-stat__value">{{ totalServices }}</span>
             <span class="dash-stat__hint">خدمة حكومية نشطة</span>
           </div>
@@ -55,7 +52,6 @@
         <div class="dash-stat__body">
           <div class="dash-stat__info">
             <span class="dash-stat__label">إجمالي الأقسام</span>
-            <!-- ربط ديناميكي بعدد القطاعات والتصنيفات الفعلي من الباك إند -->
             <span class="dash-stat__value">{{ totalCategories }}</span>
             <span class="dash-stat__hint">قطاع حكومي مسجّل</span>
           </div>
@@ -68,7 +64,6 @@
         <div class="dash-stat__body">
           <div class="dash-stat__info">
             <span class="dash-stat__label">المستخدمين المسجلين</span>
-            <!-- ربط ديناميكي بعدد المستخدمين والمواطنين الحقيقيين من الباك إند -->
             <span class="dash-stat__value">{{ totalUsers }}</span>
             <span class="dash-stat__hint">مواطن مسجّل بالمنصة</span>
           </div>
@@ -80,7 +75,7 @@
         <div class="dash-stat__accent"></div>
         <div class="dash-stat__body">
           <div class="dash-stat__info">
-            <span class="dash-stat__label">قيد المراجعة</span>
+            <span class="dash-stat__label">قيد الانتظار</span>
             <span class="dash-stat__value">{{ pendingRequestsCount }}</span>
             <span class="dash-stat__hint">تحتاج إجراء منك</span>
           </div>
@@ -93,7 +88,6 @@
     <section class="dash-panel dash-panel--chart">
       <div class="dash-panel__head">
         <div>
-          <!-- تعديل المسميات لتتناسب تماماً مع الرسم البياني المقارن الجديد للأرقام الحقيقية -->
           <h2 class="dash-panel__title">التحليل الإحصائي للمنصة</h2>
           <p class="dash-panel__sub">مقارنة مرئية مباشرة لإحصائيات النظام من قاعدة البيانات</p>
         </div>
@@ -107,24 +101,39 @@
       </div>
     </section>
 
-    <!-- Table -->
+    <!-- Requests Table -->
     <section class="dash-panel">
       <div class="dash-panel__head">
         <div>
-          <h2 class="dash-panel__title">آخر الطلبات المقدمة</h2>
-          <p class="dash-panel__sub">مراجعة واتخاذ إجراء على أحدث طلبات المواطنين</p>
+          <h2 class="dash-panel__title">طلبات المواطنين — مباشر من قاعدة البيانات</h2>
+          <p class="dash-panel__sub">مراجعة واتخاذ إجراء حقيقي على طلبات المواطنين وإصدار المستندات الرسمية</p>
         </div>
         <span class="dash-panel__count">{{ requestsList.length }} طلب</span>
       </div>
 
-      <div class="dash-table-wrap">
+      <!-- تحميل الطلبات -->
+      <div *ngIf="requestsLoading" class="d-flex align-items-center justify-content-center py-4">
+        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+        <span class="text-muted">جاري تحميل الطلبات...</span>
+      </div>
+
+      <!-- رسالة فارغة -->
+      <div *ngIf="!requestsLoading && requestsList.length === 0"
+           class="text-center py-5 text-muted">
+        <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+        لا توجد طلبات مقدمة حالياً
+      </div>
+
+      <div class="dash-table-wrap" *ngIf="!requestsLoading && requestsList.length > 0">
         <table class="dash-table">
           <thead>
             <tr>
               <th>اسم المواطن</th>
               <th>الخدمة المطلوبة</th>
+              <th>القطاع</th>
               <th>تاريخ الطلب</th>
               <th>حالة الطلب</th>
+              <th>المستندات</th>
               <th class="dash-table__actions-col">إجراءات</th>
             </tr>
           </thead>
@@ -132,19 +141,28 @@
             <tr *ngFor="let req of requestsList">
               <td>
                 <div class="dash-table__user">
-                  <span class="dash-table__avatar">{{ req.name.charAt(0) }}</span>
-                  <span class="dash-table__name">{{ req.name }}</span>
+                  <span class="dash-table__avatar">{{ (req.citizenName || req.name || '؟').charAt(0) }}</span>
+                  <span class="dash-table__name">{{ req.citizenName || req.name || 'مواطن' }}</span>
                 </div>
               </td>
-              <td>{{ req.service }}</td>
-              <td class="dash-table__date">{{ req.date }}</td>
+              <td>{{ req.serviceName || req.service || '—' }}</td>
+              <td>{{ req.categoryName || '—' }}</td>
+              <td class="dash-table__date">
+                {{ (req.startedAt || req.date) | date:'dd/MM/yyyy' }}
+              </td>
               <td>
-                <span class="dash-badge" [ngClass]="getStatusClass(req.status)">
-                  {{ req.status }}
+                <span class="dash-badge" [ngClass]="getStatusClass(req.statusLabel || req.status)">
+                  {{ req.statusLabel || req.status }}
+                </span>
+              </td>
+              <td>
+                <span class="dash-badge dash-badge--default">
+                  {{ req.documents?.length ?? 0 }} ملف
                 </span>
               </td>
               <td class="dash-table__actions-col">
                 <button
+                  id="btn-view-req-{{ req.id }}"
                   class="dash-btn-view"
                   data-bs-toggle="modal"
                   data-bs-target="#detailsModal"
@@ -163,15 +181,23 @@
   </ng-container>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<!-- =============================================================== -->
+<!-- Modal تفاصيل الطلب وإصدار المستند الرسمي                       -->
+<!-- =============================================================== -->
+<div class="modal fade" id="detailsModal" tabindex="-1"
+     aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content dash-modal">
 
       <div class="dash-modal__header">
         <div>
-          <h5 class="dash-modal__title" id="detailsModalLabel">تفاصيل طلب الخدمة</h5>
-          <p class="dash-modal__sub" *ngIf="selectedRequest">طلب رقم #{{ selectedRequest.id }}</p>
+          <h5 class="dash-modal__title" id="detailsModalLabel">تفاصيل طلب الخدمة الحكومية</h5>
+          <p class="dash-modal__sub" *ngIf="selectedRequest">
+            طلب رقم #{{ selectedRequest.id }} —
+            <span class="dash-badge ms-1" [ngClass]="getStatusClass(selectedRequest.statusLabel || selectedRequest.status)">
+              {{ selectedRequest.statusLabel || selectedRequest.status }}
+            </span>
+          </p>
         </div>
         <button type="button" class="dash-modal__close" data-bs-dismiss="modal" aria-label="إغلاق">
           <i class="fas fa-times"></i>
@@ -179,74 +205,125 @@
       </div>
 
       <div class="dash-modal__body" *ngIf="selectedRequest">
+
+        <!-- اسم المواطن -->
         <div class="dash-modal__field dash-modal__field--full">
           <span class="dash-modal__label">اسم مقدم الطلب</span>
-          <strong class="dash-modal__value">{{ selectedRequest.name }}</strong>
+          <strong class="dash-modal__value">{{ selectedRequest.citizenName || selectedRequest.name }}</strong>
         </div>
 
+        <!-- بيانات الطلب -->
         <div class="dash-modal__grid">
           <div class="dash-modal__field">
             <span class="dash-modal__label">الخدمة المستهدفة</span>
-            <span class="dash-modal__value">{{ selectedRequest.service }}</span>
+            <span class="dash-modal__value">{{ selectedRequest.serviceName || selectedRequest.service }}</span>
           </div>
           <div class="dash-modal__field">
-            <span class="dash-modal__label">تاريخ التقديم</span>
-            <span class="dash-modal__value">{{ selectedRequest.date }}</span>
+            <span class="dash-modal__label">القطاع</span>
+            <span class="dash-modal__value">{{ selectedRequest.categoryName || '—' }}</span>
           </div>
           <div class="dash-modal__field">
             <span class="dash-modal__label">الرقم القومي</span>
-            <span class="dash-modal__value">{{ selectedRequest.nationalId }}</span>
+            <span class="dash-modal__value">{{ selectedRequest.nationalId || '—' }}</span>
           </div>
           <div class="dash-modal__field">
             <span class="dash-modal__label">رقم الهاتف</span>
-            <span class="dash-modal__value">{{ selectedRequest.phone }}</span>
+            <span class="dash-modal__value">{{ selectedRequest.phone || '—' }}</span>
+          </div>
+          <div class="dash-modal__field">
+            <span class="dash-modal__label">تاريخ التقديم</span>
+            <span class="dash-modal__value">{{ (selectedRequest.startedAt || selectedRequest.date) | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="dash-modal__field">
+            <span class="dash-modal__label">حالة المعالجة</span>
+            <span class="dash-badge" [ngClass]="getStatusClass(selectedRequest.statusLabel || selectedRequest.status)">
+              {{ selectedRequest.statusLabel || selectedRequest.status }}
+            </span>
           </div>
         </div>
 
-        <div class="dash-modal__file" *ngIf="selectedRequest.userFile">
-          <div class="dash-modal__file-info">
-            <span class="dash-modal__file-icon"><i class="fas fa-file-pdf"></i></span>
-            <div>
-              <span class="dash-modal__file-title">المستند الرسمي المرفق</span>
-              <small class="dash-modal__file-name">{{ selectedRequest.userFile }}</small>
+        <!-- المستندات المرفقة -->
+        <div *ngIf="selectedRequest.documents && selectedRequest.documents.length > 0">
+          <p class="dash-modal__label mb-2">
+            <i class="fas fa-paperclip me-1"></i>
+            المستندات المرفقة ({{ selectedRequest.documents.length }})
+          </p>
+          <div class="dash-modal__file" *ngFor="let doc of selectedRequest.documents">
+            <div class="dash-modal__file-info">
+              <span class="dash-modal__file-icon">
+                <i class="fas fa-file-pdf" *ngIf="doc.fileType?.includes('pdf')"></i>
+                <i class="fas fa-file-image" *ngIf="doc.fileType?.includes('image')"></i>
+                <i class="fas fa-file" *ngIf="!doc.fileType?.includes('pdf') && !doc.fileType?.includes('image')"></i>
+              </span>
+              <div>
+                <span class="dash-modal__file-title">{{ doc.fileName }}</span>
+                <small class="dash-modal__file-name">
+                  {{ doc.status }} — {{ doc.uploadedAt | date:'dd/MM/yyyy' }}
+                </small>
+              </div>
             </div>
+            <a [href]="getFileUrl(doc.filePath)"
+               target="_blank"
+               class="dash-modal__download">
+              <i class="fas fa-download"></i>
+              تحميل
+            </a>
           </div>
-          <button type="button" class="dash-modal__download">
-            <i class="fas fa-download"></i>
-            تحميل
-          </button>
         </div>
 
-        <div class="dash-modal__status-row">
-          <span class="dash-modal__label">حالة المعالجة</span>
-          <span class="dash-badge" [ngClass]="getStatusClass(selectedRequest.status)">
-            {{ selectedRequest.status }}
-          </span>
+        <!-- نتيجة الإصدار من البوابة الرقمية -->
+        <div *ngIf="issuanceResult" class="mt-3 p-3 rounded"
+             [ngClass]="issuanceResult.success ? 'bg-success bg-opacity-10 border border-success' : 'bg-danger bg-opacity-10 border border-danger'">
+          <p class="mb-1 fw-bold" [ngClass]="issuanceResult.success ? 'text-success' : 'text-danger'">
+            <i class="fas" [ngClass]="issuanceResult.success ? 'fa-check-circle' : 'fa-times-circle'"></i>
+            {{ issuanceResult.success ? '✅ تم الإصدار من بوابة مصر الرقمية بنجاح!' : '❌ فشل الإصدار من البوابة الرقمية' }}
+          </p>
+          <small class="text-muted d-block">{{ issuanceResult.message }}</small>
+          <small *ngIf="issuanceResult.transactionId" class="text-muted d-block mt-1">
+            رقم المعاملة: <code>{{ issuanceResult.transactionId }}</code>
+          </small>
         </div>
+
+        <!-- رسالة تحديث الحالة -->
+        <div *ngIf="updateMessage" class="mt-3 p-2 rounded text-center fw-semibold"
+             [ngClass]="updateSuccess ? 'bg-success bg-opacity-10 text-success' : 'bg-danger bg-opacity-10 text-danger'">
+          {{ updateMessage }}
+        </div>
+
       </div>
 
+      <!-- أزرار الإجراء -->
       <div class="dash-modal__footer" *ngIf="selectedRequest">
-        <!-- تعطيل زر القبول تلقائياً لحماية منطق الواجهة إذا كانت الحالة الحالية للطلب مقبولة بالفعل -->
-        <button 
-          type="button" 
-          class="dash-modal__btn dash-modal__btn--accept" 
+
+        <!-- قبول = إرسال طلب الإصدار الحقيقي لبوابة مصر الرقمية -->
+        <button
+          id="btn-accept-request"
+          type="button"
+          class="dash-modal__btn dash-modal__btn--accept"
           (click)="updateStatus('مقبول')"
-          [disabled]="selectedRequest.status === 'مقبول'"
+          [disabled]="isUpdatingStatus ||
+                      selectedRequest.status === 'Completed' ||
+                      selectedRequest.statusLabel === 'مقبول'"
         >
-          <i class="fas fa-check"></i>
-          قبول الطلب
+          <span *ngIf="isUpdatingStatus" class="spinner-border spinner-border-sm me-1" role="status"></span>
+          <i class="fas fa-check" *ngIf="!isUpdatingStatus"></i>
+          {{ isUpdatingStatus ? 'جاري الإصدار...' : 'قبول وإصدار المستند' }}
         </button>
-        
-        <!-- تعطيل زر الرفض تلقائياً لحماية منطق الواجهة إذا كانت الحالة الحالية للطلب مرفوضة بالفعل -->
-        <button 
-          type="button" 
-          class="dash-modal__btn dash-modal__btn--reject" 
+
+        <!-- رفض الطلب -->
+        <button
+          id="btn-reject-request"
+          type="button"
+          class="dash-modal__btn dash-modal__btn--reject"
           (click)="updateStatus('مرفوض')"
-          [disabled]="selectedRequest.status === 'مرفوض'"
+          [disabled]="isUpdatingStatus ||
+                      selectedRequest.status === 'Rejected' ||
+                      selectedRequest.statusLabel === 'مرفوض'"
         >
           <i class="fas fa-times"></i>
           رفض الطلب
         </button>
+
       </div>
 
     </div>

@@ -168,15 +168,190 @@
         </div>
       </ng-container>
 
+      <!-- ═══ PAYMENT CARD (shown when user clicks "تقديم طلب") ═══ -->
+      <div class="msg" *ngIf="showPaymentCard" style="margin-top:14px;">
+        <div class="av bot">AI</div>
+        <div class="bub-container bot">
+          <div class="payment-card">
+
+            <!-- Header -->
+            <div class="pc-header">
+              <div class="pc-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <div class="pc-header-text">
+                <span class="pc-title">تفاصيل الدفع</span>
+                <span class="pc-subtitle">اختار طريقة الدفع لإتمام الطلب</span>
+              </div>
+              <button class="pc-close" (click)="cancelPayment()" title="إلغاء">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/>
+                  <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Service Fee Banner -->
+            <div class="pc-fee-banner">
+              <div class="pc-fee-label">تكلفة الخدمة</div>
+              <div class="pc-fee-amount">
+                <span class="pc-fee-num">{{ paymentCardServiceFee !== null ? paymentCardServiceFee : serviceFee !== null ? serviceFee : 370 }}</span>
+                <span class="pc-fee-currency">جنيه مصري</span>
+              </div>
+              <div class="pc-fee-note">💡 الرسوم الحكومية الرسمية شاملة جميع الخدمات</div>
+            </div>
+
+            <!-- Step 1: Payment Method Selection -->
+            <div class="pc-section">
+              <div class="pc-section-label">اختار طريقة الدفع</div>
+              <div class="pc-methods">
+
+                <!-- Fawry -->
+                <button class="pc-method" [class.selected]="selectedPaymentMethod === 'fawry'"
+                  (click)="selectPaymentMethod('fawry')">
+                  <div class="pcm-logo fawry-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  </div>
+                  <div class="pcm-info">
+                    <span class="pcm-name">فوري</span>
+                    <span class="pcm-desc">ادفع بفيزا أو كود فوري</span>
+                  </div>
+                  <div class="pcm-check" *ngIf="selectedPaymentMethod === 'fawry'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                </button>
+
+                <!-- Vodafone Cash -->
+                <button class="pc-method" [class.selected]="selectedPaymentMethod === 'vodafone'"
+                  (click)="selectPaymentMethod('vodafone')">
+                  <div class="pcm-logo vodafone-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12
+                        19.79 19.79 0 0 1 1 3.18 2 2 0 0 1 3 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7
+                        2.81 2 2 0 0 1-.45 2.11L7.09 8.89a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45
+                        12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                  </div>
+                  <div class="pcm-info">
+                    <span class="pcm-name">فودافون كاش</span>
+                    <span class="pcm-desc">ادفع من محفظتك</span>
+                  </div>
+                  <div class="pcm-check" *ngIf="selectedPaymentMethod === 'vodafone'">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </div>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Step 2: Fawry Sub-method (only if Fawry selected) -->
+            <div class="pc-section pc-fawry-sub" *ngIf="selectedPaymentMethod === 'fawry'">
+              <div class="pc-section-label">اختار نوع الدفع بفوري</div>
+              <div class="pc-sub-methods">
+
+                <!-- Visa/Mastercard -->
+                <button class="pc-sub-btn" [class.selected]="fawrySubMethod === 'visa'"
+                  (click)="selectFawryMethod('visa')">
+                  <div class="pcsb-icon visa-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                      <line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                  </div>
+                  <div class="pcsb-text">
+                    <span class="pcsb-name">فيزا / ماستركارد</span>
+                    <span class="pcsb-desc">ادفع ببطاقتك البنكية أونلاين</span>
+                  </div>
+                  <span class="pcsb-badge" *ngIf="fawrySubMethod === 'visa'">✓</span>
+                </button>
+
+                <!-- Fawry Code -->
+                <button class="pc-sub-btn" [class.selected]="fawrySubMethod === 'code'"
+                  (click)="selectFawryMethod('code')">
+                  <div class="pcsb-icon code-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                      <line x1="12" y1="18" x2="12.01" y2="18"/>
+                    </svg>
+                  </div>
+                  <div class="pcsb-text">
+                    <span class="pcsb-name">كود فوري</span>
+                    <span class="pcsb-desc">ادفع في أي فرع فوري بالكود</span>
+                  </div>
+                  <span class="pcsb-badge" *ngIf="fawrySubMethod === 'code'">✓</span>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Confirm Button -->
+            <div class="pc-footer">
+              <button class="pc-confirm-btn"
+                [disabled]="!selectedPaymentMethod || (selectedPaymentMethod === 'fawry' && !fawrySubMethod)"
+                (click)="confirmPayment()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                تأكيد وإتمام الطلب
+              </button>
+              <button class="pc-cancel-btn" (click)="cancelPayment()">إلغاء</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- ═══ /PAYMENT CARD ═══ -->
+
+      <!-- ═══ SUCCESS CARD (shown when request is submitted successfully) ═══ -->
+      <div class="msg" *ngIf="showSuccessCard" style="margin-top:14px;">
+        <div class="av bot">AI</div>
+        <div class="bub-container bot">
+          <div class="success-message-card">
+            <div class="sm-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="sm-title">تم تقديم الطلب بنجاح</div>
+            <div class="sm-details">
+              <p>تم تسجيل طلبك بنجاح وجاري مراجعته والعمل عليه.</p>
+              <div class="sm-payment-alert">
+                <span>💳 تم تسديد مبلغ بقيمة <strong>{{ successCardPaidAmount }} جنيه</strong> لخدمة <strong>{{ successCardServiceName }}</strong>.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ═══ /SUCCESS CARD ═══ -->
+
     </div>
 
     <div class="qr">
-      <ng-container *ngIf="!isCollectingRequestInfo">
+      <ng-container *ngIf="!isCollectingRequestInfo && !showPaymentCard">
         <button class="qr-chip" (click)="quickSend('إيه الأوراق المطلوبة؟')">إيه الأوراق المطلوبة؟</button>
         <button class="qr-chip" (click)="quickSend('كام الرسوم؟')">كام الرسوم؟</button>
         <button class="qr-chip" (click)="quickSend('قد إيه الوقت؟')">قد إيه الوقت؟</button>
         <button class="qr-chip" (click)="quickSend('أقرب مكتب مرور')">أقرب مكتب مرور</button>
-        <button class="qr-chip" (click)="openSubmitForm()">تقديم طلب</button>
+        <button class="qr-chip qr-submit" (click)="openSubmitForm()">💳 تقديم طلب</button>
       </ng-container>
       <ng-container *ngIf="isCollectingRequestInfo && currentRequestStep === 4">
         <button class="qr-chip" style="background: var(--green); color: #fff; border-color: var(--green);" (click)="doSubmitRequest()">إنهاء التقديم وإرسال الطلب</button>

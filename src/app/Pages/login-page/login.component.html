@@ -57,68 +57,192 @@
 
       <div class="login-card">
         <h1 class="login-card__title">تسجيل الدخول</h1>
-        <p class="login-card__sub">أدخل بياناتك للمتابعة إلى المنصة</p>
+        <p class="login-card__sub">اختر طريقة تسجيل الدخول للمتابعة</p>
 
-        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
-
-          <button type="button" class="login-google" (click)="signInWithGoogle()">
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            تسجيل الدخول بـ Google
+        <!-- ── Tabs ─────────────────────────────────────────────── -->
+        <div class="login-tabs">
+          <button
+            id="tab-email"
+            type="button"
+            class="login-tab"
+            [class.login-tab--active]="activeTab === 'email'"
+            (click)="switchTab('email')"
+          >
+            <i class="bi bi-envelope"></i>
+            بريد إلكتروني
           </button>
-
-          <div class="login-divider"><span>أو بالبريد الإلكتروني</span></div>
-
-          <div class="login-field">
-            <label>البريد الإلكتروني أو اسم المستخدم</label>
-            <div class="login-input" [class.login-input--error]="emailError">
-              <i class="bi bi-envelope"></i>
-              <input type="text" [(ngModel)]="email" name="email" placeholder="admin@khedmetak.gov.eg" (blur)="validateEmail()" />
-            </div>
-            <span class="login-error" *ngIf="emailError">البريد الإلكتروني أو اسم المستخدم مطلوب</span>
-          </div>
-
-          <div class="login-field">
-            <div class="login-field__row">
-              <label>كلمة المرور</label>
-              <a href="#" class="login-forgot">نسيت كلمة المرور؟</a>
-            </div>
-            <div class="login-input" [class.login-input--error]="passwordError">
-              <i class="bi bi-lock"></i>
-              <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••" (blur)="validatePassword()" />
-              <button type="button" class="login-eye" (click)="showPass = !showPass" aria-label="إظهار كلمة المرور">
-                <i class="bi" [ngClass]="showPass ? 'bi-eye-slash' : 'bi-eye'"></i>
-              </button>
-            </div>
-            <span class="login-error" *ngIf="passwordError">يجب أن تكون كلمة المرور 6 أحرف على الأقل</span>
-          </div>
-
-          <label class="login-remember">
-            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
-            <span>تذكّرني على هذا الجهاز</span>
-          </label>
-
-          <div class="login-alert" *ngIf="serverError">
-            <i class="bi bi-exclamation-circle"></i>
-            <span>{{ serverError }}</span>
-          </div>
-
-          <button type="submit" class="login-submit" [disabled]="isLoading">
-            <span class="login-spinner" *ngIf="isLoading"></span>
-            <i class="bi bi-box-arrow-in-left" *ngIf="!isLoading"></i>
-            {{ isLoading ? 'جارٍ تسجيل الدخول…' : 'تسجيل الدخول بأمان' }}
+          <button
+            id="tab-portal"
+            type="button"
+            class="login-tab"
+            [class.login-tab--active]="activeTab === 'portal'"
+            (click)="switchTab('portal')"
+          >
+            <i class="bi bi-shield-check"></i>
+            بوابة مصر الرقمية
           </button>
+        </div>
 
-          <p class="login-legal">
-            بتسجيل دخولك توافق على
-            <a href="#">شروط الاستخدام</a> و<a href="#">سياسة الخصوصية</a>
-          </p>
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- Tab 1: Email / Password                               -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <ng-container *ngIf="activeTab === 'email'">
+          <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
 
-        </form>
+            <button type="button" class="login-google" (click)="signInWithGoogle()">
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+              تسجيل الدخول بـ Google
+            </button>
+
+            <div class="login-divider"><span>أو بالبريد الإلكتروني</span></div>
+
+            <div class="login-field">
+              <label>البريد الإلكتروني أو اسم المستخدم</label>
+              <div class="login-input" [class.login-input--error]="emailError">
+                <i class="bi bi-envelope"></i>
+                <input id="input-email" type="text" [(ngModel)]="email" name="email"
+                       placeholder="admin@khedmetak.gov.eg" (blur)="validateEmail()" />
+              </div>
+              <span class="login-error" *ngIf="emailError">البريد الإلكتروني مطلوب</span>
+            </div>
+
+            <div class="login-field">
+              <div class="login-field__row">
+                <label>كلمة المرور</label>
+                <a href="#" class="login-forgot">نسيت كلمة المرور؟</a>
+              </div>
+              <div class="login-input" [class.login-input--error]="passwordError">
+                <i class="bi bi-lock"></i>
+                <input id="input-password" [type]="showPass ? 'text' : 'password'"
+                       [(ngModel)]="password" name="password"
+                       placeholder="••••••••" (blur)="validatePassword()" />
+                <button type="button" class="login-eye"
+                        (click)="showPass = !showPass" aria-label="إظهار كلمة المرور">
+                  <i class="bi" [ngClass]="showPass ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+              <span class="login-error" *ngIf="passwordError">يجب أن تكون كلمة المرور 6 أحرف على الأقل</span>
+            </div>
+
+            <label class="login-remember">
+              <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+              <span>تذكّرني على هذا الجهاز</span>
+            </label>
+
+            <div class="login-alert" *ngIf="serverError">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>{{ serverError }}</span>
+            </div>
+
+            <button id="btn-email-login" type="submit" class="login-submit" [disabled]="isLoading">
+              <span class="login-spinner" *ngIf="isLoading"></span>
+              <i class="bi bi-box-arrow-in-left" *ngIf="!isLoading"></i>
+              {{ isLoading ? 'جارٍ تسجيل الدخول…' : 'تسجيل الدخول بأمان' }}
+            </button>
+
+            <p class="login-legal">
+              بتسجيل دخولك توافق على
+              <a href="#">شروط الاستخدام</a> و<a href="#">سياسة الخصوصية</a>
+            </p>
+          </form>
+        </ng-container>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- Tab 2: بوابة مصر الرقمية OTP                         -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <ng-container *ngIf="activeTab === 'portal'">
+
+          <!-- شارة البوابة -->
+          <div class="portal-badge">
+            <i class="bi bi-shield-fill-check"></i>
+            <div>
+              <strong>بوابة مصر الرقمية</strong>
+              <small>تسجيل دخول آمن بالرقم القومي</small>
+            </div>
+          </div>
+
+          <!-- الخطوة 1: الرقم القومي + الهاتف -->
+          <ng-container *ngIf="portalStep === 'credentials'">
+            <div class="login-field">
+              <label>الرقم القومي (14 رقم)</label>
+              <div class="login-input">
+                <i class="bi bi-person-vcard"></i>
+                <input id="input-national-id" type="text"
+                       [(ngModel)]="portalNationalId"
+                       placeholder="29801011234567" maxlength="14" />
+              </div>
+            </div>
+
+            <div class="login-field">
+              <label>رقم الهاتف المسجّل في البوابة</label>
+              <div class="login-input">
+                <i class="bi bi-phone"></i>
+                <input id="input-portal-phone" type="tel"
+                       [(ngModel)]="portalPhone"
+                       placeholder="01012345678" />
+              </div>
+            </div>
+
+            <div class="portal-hint">
+              <i class="bi bi-info-circle"></i>
+              بيانات الاختبار: رقم قومي <code>29801011234567</code> — هاتف <code>01012345678</code>
+            </div>
+
+            <div class="login-alert" *ngIf="portalError">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>{{ portalError }}</span>
+            </div>
+
+            <button id="btn-send-otp" type="button" class="login-submit"
+                    (click)="sendPortalOtp()" [disabled]="portalLoading">
+              <span class="login-spinner" *ngIf="portalLoading"></span>
+              <i class="bi bi-send" *ngIf="!portalLoading"></i>
+              {{ portalLoading ? 'جاري الإرسال...' : 'إرسال كود التحقق' }}
+            </button>
+          </ng-container>
+
+          <!-- الخطوة 2: OTP -->
+          <ng-container *ngIf="portalStep === 'otp'">
+            <div class="otp-info">
+              <i class="bi bi-check-circle-fill text-success"></i>
+              {{ portalSuccess }}
+            </div>
+
+            <div class="login-field">
+              <label>كود التحقق (OTP)</label>
+              <div class="login-input">
+                <i class="bi bi-key"></i>
+                <input id="input-otp" type="text"
+                       [(ngModel)]="portalOtp"
+                       placeholder="123456" maxlength="6"
+                       style="letter-spacing: 6px; font-size: 20px; font-weight: 700;" />
+              </div>
+            </div>
+
+            <div class="login-alert" *ngIf="portalError">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>{{ portalError }}</span>
+            </div>
+
+            <button id="btn-verify-otp" type="button" class="login-submit"
+                    (click)="verifyPortalOtp()" [disabled]="portalLoading">
+              <span class="login-spinner" *ngIf="portalLoading"></span>
+              <i class="bi bi-box-arrow-in-left" *ngIf="!portalLoading"></i>
+              {{ portalLoading ? 'جاري التحقق...' : 'تأكيد وتسجيل الدخول' }}
+            </button>
+
+            <button type="button" class="portal-back" (click)="backToCredentials()">
+              <i class="bi bi-arrow-right"></i>
+              تعديل البيانات
+            </button>
+          </ng-container>
+
+        </ng-container>
 
         <p class="login-signup">
           جديد على المنصة؟

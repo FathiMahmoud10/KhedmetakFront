@@ -85,6 +85,18 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   isCollectingRequestInfo = false;
   currentRequestStep = 0; // 1: Name, 2: Phone, 3: Notes, 4: Files
 
+  // Payment Flow State
+  showPaymentCard = false;
+  selectedPaymentMethod: 'fawry' | 'vodafone' | null = null;
+  fawrySubMethod: 'visa' | 'code' | null = null;
+  paymentCardServiceFee: number | null = null;
+  paymentProcessing = false;
+  paymentSuccess = false;
+
+  showSuccessCard = false;
+  successCardPaidAmount = 0;
+  successCardServiceName = '';
+
   // Session list sidebar state
   sessionsLoading = false;
   historyCollapsed = false;
@@ -539,10 +551,10 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       case 1:
         this.submitPhoneNumber = text;
         this.currentRequestStep = 2;
-        this.appendBotMsg('الخطوة التالية: ادخل ملاحظاتك.');
+        this.appendBotMsg('الخطوة التالية: ادخل ملاحظاتك (إذا لم يكن لديك ملاحظات، اكتب "لا توجد").');
         break;
       case 2:
-        this.submitNotes = text;
+        this.submitNotes = (!text || text.trim() === '') ? 'لا توجد' : text;
         this.currentRequestStep = 3;
         this.appendBotMsg('هل تريد رفع ملفات الآن؟ إذا نعم اضغط على زر الرفع.');
         break;
@@ -559,7 +571,43 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
  * Opens the submit request form and starts collecting request info.
  */
 openSubmitForm(): void {
-  // Reset any previous request info state
+  // Show payment card first with service fee
+  this.paymentCardServiceFee = this.serviceFee;
+  this.selectedPaymentMethod = null;
+  this.fawrySubMethod = null;
+  this.paymentSuccess = false;
+  this.showPaymentCard = true;
+  this.scrollToBottom();
+}
+
+/**
+ * Called when user selects a payment method (fawry or vodafone)
+ */
+selectPaymentMethod(method: 'fawry' | 'vodafone'): void {
+  this.selectedPaymentMethod = method;
+  if (method === 'vodafone') {
+    this.fawrySubMethod = null;
+  }
+  this.scrollToBottom();
+}
+
+/**
+ * Called when user selects fawry sub-method (visa or code)
+ */
+selectFawryMethod(sub: 'visa' | 'code'): void {
+  this.fawrySubMethod = sub;
+  this.scrollToBottom();
+}
+
+/**
+ * Confirms payment and proceeds to request collection
+ */
+confirmPayment(): void {
+  this.paymentProcessing = true;
+  this.showPaymentCard = false;
+  this.paymentProcessing = false;
+
+  // Now start collecting request info after payment selection
   this.submitUserName = '';
   this.submitPhoneNumber = '';
   this.submitNotes = '';
@@ -567,7 +615,19 @@ openSubmitForm(): void {
   this.currentRequestStep = 0;
   this.isCollectingRequestInfo = true;
   this.showSubmitForm = true;
-  this.appendBotMsg('الخطوة الأولى: ادخل اسمك.');
+  const methodLabel = this.selectedPaymentMethod === 'fawry'
+    ? (this.fawrySubMethod === 'visa' ? 'فوري - فيزا/ماستركارد' : 'فوري - كود فوري')
+    : 'فودافون كاش';
+  this.appendBotMsg(`✅ تم اختيار طريقة الدفع: <strong>${methodLabel}</strong>.<br>الآن، الخطوة الأولى: ادخل اسمك.`);
+}
+
+/**
+ * Cancels the payment flow
+ */
+cancelPayment(): void {
+  this.showPaymentCard = false;
+  this.selectedPaymentMethod = null;
+  this.fawrySubMethod = null;
 }
 
 /**
@@ -579,13 +639,15 @@ doSubmitRequest(): void {
     return;
   }
 
+  const finalNotes = (!this.submitNotes || this.submitNotes.trim() === '') ? 'لا توجد' : this.submitNotes;
+
   const requestData = {
     userEmail: this.loginEmail || (document.cookie.match(/user_email=([^;]+)/) ? RegExp.$1 : ''),
     govServiceId: this.govServiceId,
     sessionGuidId: this.sessionGuid,
     userName: this.submitUserName,
     phoneNumber: this.submitPhoneNumber,
-    notes: this.submitNotes,
+    notes: finalNotes,
     files: this.submitFiles
   };
 
@@ -594,10 +656,17 @@ doSubmitRequest(): void {
     next: (res) => {
       this.submitFormLoading = false;
       if (res && res.success) {
-        this.appendBotMsg('✅ تم إرسال الطلب بنجاح.');
+        const serviceNameVal = this.serviceName || 'الخدمة المطلوبة';
+        const paidAmount = this.paymentCardServiceFee !== null ? this.paymentCardServiceFee : (this.serviceFee !== null ? this.serviceFee : 370);
+        
+        this.successCardPaidAmount = paidAmount;
+        this.successCardServiceName = serviceNameVal;
+        this.showSuccessCard = true;
+
         this.showSubmitForm = false;
         this.isCollectingRequestInfo = false;
         this.loadUserSessions();
+        this.scrollToBottom();
       } else {
         const msg = res?.message || 'فشل إرسال الطلب.';
         this.appendBotMsg(`❌ ${msg}`);
@@ -1020,6 +1089,7 @@ doSubmitRequest(): void {
     this.chatDone = false;
     this.activeStep = 1;
     this.step1Checklist.forEach(item => item.checked = false);
+    this.showSuccessCard = false;
 
     this.loadSessionHistory(session.id);
   }
@@ -1041,6 +1111,7 @@ doSubmitRequest(): void {
     this.chatDone = false;
     this.activeStep = 1;
     this.step1Checklist.forEach(item => item.checked = false);
+    this.showSuccessCard = false;
 
     // Delete cookies
     this.setCookie('sessionGuidId', '', -1);
