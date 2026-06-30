@@ -37,6 +37,11 @@ export class AdminService {
     );
   }
 
+  // جلب سجل معاملات بوابة مصر الرقمية للتأكد من وصول الطلبات
+  getPortalTransactions(): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/external/portal/transactions`);
+  }
+
   // ==========================================
   // 2. العمليات الخاصة بصفحة الرسوم (Admin Fees)
   // ==========================================

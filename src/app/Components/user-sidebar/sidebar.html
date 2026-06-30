@@ -20,9 +20,32 @@
       </button>
     </div>
 
+    <!-- User Profile Card -->
+    <div class="user-profile-card">
+      <div class="user-profile-card__avatar-wrap">
+        <img
+          [src]="avatarUrl"
+          alt="User"
+          class="user-profile-card__avatar"
+          width="56"
+          height="56"
+          (error)="onAvatarError($event)"
+        />
+        <span class="user-profile-card__online-dot"></span>
+      </div>
+      <div class="user-profile-card__info">
+        <span class="user-profile-card__name">{{ userName }}</span>
+        <span class="user-profile-card__email">{{ userEmail }}</span>
+        <span class="user-profile-card__location" *ngIf="userLocation">
+          <i class="fas fa-map-marker-alt"></i>
+          {{ userLocation.city || userLocation.governorate || 'مصر' }}
+        </span>
+      </div>
+    </div>
+
     <!-- Nav -->
     <nav class="admin-drawer__nav">
-      <span class="admin-drawer__nav-label">حسابي</span>
+      <span class="admin-drawer__nav-label">التنقل</span>
       <ul class="admin-drawer__list">
         <li>
           <a routerLink="/user-dashboard" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
@@ -51,21 +74,17 @@
       </ul>
     </nav>
 
-    <!-- Footer -->
-    <div class="admin-drawer__footer">
-      <img
-        [src]="avatarUrl"
-        alt="User"
-        class="admin-drawer__avatar"
-        width="44"
-        height="44"
-        (error)="onAvatarError($event)"
-      />
-      <div class="admin-drawer__user">
-        <span class="admin-drawer__user-name">{{ userName }}</span>
-        <span class="admin-drawer__user-email">{{ userEmail }}</span>
-      </div>
-      <span class="admin-drawer__status"></span>
+    <!-- Logout Button -->
+    <div class="admin-drawer__footer-actions">
+      <button
+        id="btn-user-sidebar-logout"
+        type="button"
+        class="user-logout-btn"
+        (click)="logout()"
+      >
+        <i class="fas fa-sign-out-alt"></i>
+        <span>تسجيل الخروج</span>
+      </button>
     </div>
 
   </div>

@@ -101,8 +101,32 @@
       </div>
     </section>
 
+    <!-- View Switcher Tabs -->
+    <div class="portal-tabs">
+      <button
+        id="tab-citizen-requests"
+        class="portal-tab"
+        [class.portal-tab--active]="activeView === 'requests'"
+        (click)="switchView('requests')"
+      >
+        <i class="fas fa-file-alt"></i>
+        طلبات المواطنين
+        <span class="portal-tab__badge">{{ requestsList.length }}</span>
+      </button>
+      <button
+        id="tab-portal-log"
+        class="portal-tab"
+        [class.portal-tab--active]="activeView === 'portal-log'"
+        (click)="switchView('portal-log')"
+      >
+        <i class="fas fa-landmark"></i>
+        سجل بوابة مصر الرقمية
+        <span class="portal-tab__badge portal-tab__badge--portal">{{ portalTransactions.length }}</span>
+      </button>
+    </div>
+
     <!-- Requests Table -->
-    <section class="dash-panel">
+    <section class="dash-panel" *ngIf="activeView === 'requests'">
       <div class="dash-panel__head">
         <div>
           <h2 class="dash-panel__title">طلبات المواطنين — مباشر من قاعدة البيانات</h2>
@@ -171,6 +195,94 @@
                   <i class="fas fa-eye"></i>
                   عرض التفاصيل
                 </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================= -->
+    <!-- سجل بوابة مصر الرقمية                                        -->
+    <!-- ============================================================= -->
+    <section class="dash-panel portal-log-panel" *ngIf="activeView === 'portal-log'">
+      <div class="dash-panel__head">
+        <div>
+          <h2 class="dash-panel__title">
+            <i class="fas fa-landmark me-2 text-warning"></i>
+            سجل بوابة مصر الرقمية
+          </h2>
+          <p class="dash-panel__sub">جميع الطلبات المُرسَلة للبوابة الرقمية — الناجحة والفاشلة — بالتفاصيل الكاملة</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+          <span class="portal-live-badge">
+            <i class="fas fa-circle-dot fa-beat text-success" style="font-size:10px"></i>
+            مباشر
+          </span>
+          <button id="btn-refresh-portal-log" class="dash-btn-view" (click)="loadPortalTransactions()">
+            <i class="fas fa-sync-alt"></i> تحديث
+          </button>
+        </div>
+      </div>
+
+      <!-- تحميل -->
+      <div *ngIf="portalLoading" class="d-flex align-items-center justify-content-center py-5">
+        <div class="spinner-border text-warning me-3" role="status" style="width:2rem;height:2rem"></div>
+        <span class="text-muted">جاري الاتصال ببوابة مصر الرقمية...</span>
+      </div>
+
+      <!-- فارغ -->
+      <div *ngIf="!portalLoading && portalTransactions.length === 0" class="text-center py-5 text-muted">
+        <i class="fas fa-landmark fa-3x mb-3 d-block opacity-25"></i>
+        <p>لا توجد معاملات مسجلة في البوابة الرقمية حتى الآن</p>
+        <small>سيتم تسجيل المعاملات هنا فور قبول أي طلب من الأدمن وإصداره عبر البوابة</small>
+      </div>
+
+      <!-- الجدول -->
+      <div class="dash-table-wrap" *ngIf="!portalLoading && portalTransactions.length > 0">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>رقم المعاملة</th>
+              <th>الرقم القومي</th>
+              <th>اسم المواطن</th>
+              <th>الخدمة</th>
+              <th>التوقيت</th>
+              <th>الحالة</th>
+              <th>تفاصيل</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tx of portalTransactions; let i = index"
+                [class.portal-log-row--failed]="tx.status === 'Failed'"
+                [class.portal-log-row--issued]="tx.status === 'Issued'">
+              <td class="text-muted">{{ i + 1 }}</td>
+              <td>
+                <code class="portal-txid">{{ tx.transactionId === '—' ? '—' : (tx.transactionId | slice:0:8) + '…' }}</code>
+              </td>
+              <td><span class="portal-nid">{{ tx.nationalId }}</span></td>
+              <td>
+                <div class="dash-table__user">
+                  <span class="dash-table__avatar">{{ (tx.citizenName || '؟').charAt(0) }}</span>
+                  <span class="dash-table__name">{{ tx.citizenName }}</span>
+                </div>
+              </td>
+              <td>{{ tx.serviceName }}</td>
+              <td class="dash-table__date">{{ tx.timestamp | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <span class="dash-badge"
+                  [ngClass]="tx.status === 'Issued' ? 'dash-badge--success' : 'dash-badge--danger'">
+                  <i [class]="tx.status === 'Issued' ? 'fas fa-check-circle' : 'fas fa-times-circle'" class="me-1"></i>
+                  {{ tx.status === 'Issued' ? 'تم الإصدار ✓' : 'فشل الإصدار ✗' }}
+                </span>
+              </td>
+              <td>
+                <span *ngIf="tx.errorMessage" class="portal-error-tip" [title]="tx.errorMessage">
+                  <i class="fas fa-exclamation-triangle text-danger"></i>
+                  {{ tx.errorMessage }}
+                </span>
+                <span *ngIf="!tx.errorMessage" class="text-muted small">—</span>
               </td>
             </tr>
           </tbody>

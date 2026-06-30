@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { ChatApiService, ChatResponse, CurrentServiceDetails } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 import { UserDashboardService } from '../../APIServices/SharedServices/user-dashboard.service';
+import { LocationService, UserLocation } from '../../Services/location.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
@@ -51,10 +52,9 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   loginLoading = false;
   loginError = '';
 
-  // FIX: this page always talks to GovService #1 (see fetchRequiredDocuments below).
-  // We keep the id here so we can link the chat session to this exact service for the
-  // logged-in user — that's what makes the session show up under "طلباتي" / dashboard stats.
-  readonly govServiceId = 1;
+  // FIX: This used to be hardcoded to 1 (National ID issuance). Now we read it from query params.
+  // If not provided, it remains null until the user selects a service.
+  govServiceId: number | null = null;
   sessionLinked = false;
 
   loginEmail = '';
@@ -81,9 +81,10 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   submitPhoneNumber = '';
   submitNotes = '';
   submitFiles: File[] = [];
+  uploadedDocIds = new Set<number>();
 
   isCollectingRequestInfo = false;
-  currentRequestStep = 0; // 1: Name, 2: Phone, 3: Notes, 4: Files
+  currentRequestStep = 0; // 0: Name & Phone, 1: Notes & Files, 2: Review
 
   // Payment Flow State
   showPaymentCard = false;
@@ -152,13 +153,17 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   ];
 
 
+  // User location (used to add local context to AI messages)
+  userLocation: UserLocation | null = null;
+
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
     private chatApiService: ChatApiService,
     private authService: AuthService,
-    private dashboardService: UserDashboardService
+    private dashboardService: UserDashboardService,
+    private locationService: LocationService
   ) {}
 
   // ===========================
@@ -172,12 +177,19 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     if (this.isLoggedIn) {
       this.loadUserSessions();
     }
+    // Silently request user location for context-aware AI responses
+    this.locationService.getLocation().then(loc => this.userLocation = loc);
 
-    // FIX: "متابعة المحادثة" (resume conversation) links here with ?session=<guid>.
-    // If present, resume that exact session (and load its message history) instead
-    // of falling back to whatever session happens to be saved in the cookie / creating
-    // a brand-new one — otherwise clicking "resume" never actually showed the old chat.
     const resumeGuid = this.route.snapshot.queryParamMap.get('session');
+    const serviceIdParam = this.route.snapshot.queryParamMap.get('serviceId');
+
+    if (serviceIdParam) {
+      this.govServiceId = parseInt(serviceIdParam, 10);
+      if (isNaN(this.govServiceId)) {
+        this.govServiceId = null;
+      }
+    }
+
     if (resumeGuid) {
       this.sessionGuid = resumeGuid;
       this.activeSessionId = resumeGuid;
@@ -186,7 +198,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       this.ensureSession();
     } else {
       this.ensureSession();
-      // Chat starts empty — messages appear only after user sends first message
     }
   }
 
@@ -377,7 +388,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
    * it's a no-op once sessionLinked is true or there's no session/login yet.
    */
   private linkSessionIfNeeded(): void {
-    if (this.sessionLinked || !this.isLoggedIn || !this.sessionGuid) return;
+    if (this.sessionLinked || !this.isLoggedIn || !this.sessionGuid || !this.govServiceId) return;
 
     this.dashboardService
       .linkSessionToService(this.sessionGuid, this.govServiceId, 'Pending')
@@ -395,7 +406,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   }
 
   private fetchRequiredDocuments(): void {
-    this.http.get<ApiResponse<ServiceDetailApi>>(`${environment.apiUrl}/GovServices/1`).subscribe({
+    if (!this.govServiceId) return;
+    this.http.get<ApiResponse<ServiceDetailApi>>(`${environment.apiUrl}/GovServices/${this.govServiceId}`).subscribe({
       next: (res) => {
         if (res && res.success && res.data) {
           const data = res.data;
@@ -478,8 +490,14 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         throw new Error('فشل تهيئة جلسة المحادثة. يرجى التحقق من اتصالك بالإنترنت.');
       }
 
+      // Append location context if available (only on the first message sent)
+      const locationCtx = this.messages.filter(m => m.sender === 'user').length === 1
+        ? this.locationService.buildLocationContext(this.userLocation)
+        : '';
+      const textWithCtx = locationCtx ? text + locationCtx : text;
+
       // res is now a JSON object: { currentServiceDetails, response }
-      const res: ChatResponse = await firstValueFrom(this.chatApiService.sendMessage(text, this.sessionGuid!));
+      const res: ChatResponse = await firstValueFrom(this.chatApiService.sendMessage(textWithCtx, this.sessionGuid!));
 
       // Remove typing indicator
       this.messages.splice(typingIndicatorIndex, 1);
@@ -488,6 +506,13 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       if (res.currentServiceDetails) {
         this.currentServiceDetails = res.currentServiceDetails;
         this.updateSidebarFromServiceDetails(res.currentServiceDetails);
+        
+        // Link session to the newly detected service if it has an ID
+        if (res.currentServiceDetails.id && this.govServiceId !== res.currentServiceDetails.id) {
+          this.govServiceId = res.currentServiceDetails.id;
+          this.fetchRequiredDocuments();
+          this.linkSessionIfNeeded();
+        }
       }
 
       const replyText = (res.response || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
@@ -608,18 +633,49 @@ confirmPayment(): void {
   this.showPaymentCard = false;
   this.paymentProcessing = false;
 
-  // Now start collecting request info after payment selection
-  this.submitUserName = '';
+  // Now start collecting request info after payment selection (using multi-step form overlay)
+  this.submitUserName = this.authService.getUserName() || '';
   this.submitPhoneNumber = '';
   this.submitNotes = '';
   this.submitFiles = [];
+  this.uploadedDocIds.clear();
   this.currentRequestStep = 0;
-  this.isCollectingRequestInfo = true;
+  this.isCollectingRequestInfo = false; // Using form overlay instead of chat collection
   this.showSubmitForm = true;
   const methodLabel = this.selectedPaymentMethod === 'fawry'
     ? (this.fawrySubMethod === 'visa' ? 'فوري - فيزا/ماستركارد' : 'فوري - كود فوري')
     : 'فودافون كاش';
-  this.appendBotMsg(`✅ تم اختيار طريقة الدفع: <strong>${methodLabel}</strong>.<br>الآن، الخطوة الأولى: ادخل اسمك.`);
+  this.appendBotMsg(`✅ تم اختيار طريقة الدفع: <strong>${methodLabel}</strong>.<br>برجاء إتمام ملء بيانات الطلب ورفع الملفات من نافذة التقديم.`);
+}
+
+isDocUploaded(docId: number): boolean {
+  return this.uploadedDocIds.has(docId);
+}
+
+nextRequestStep(): void {
+  if (this.currentRequestStep === 0) {
+    if (!this.submitUserName.trim() || !this.submitPhoneNumber.trim()) {
+      alert('برجاء إدخال الاسم بالكامل ورقم الهاتف للمتابعة');
+      return;
+    }
+    this.currentRequestStep = 1;
+  } else if (this.currentRequestStep === 1) {
+    // Validate mandatory documents
+    const missingMandatory = this.requiredDocuments.filter(doc => doc.isMandatory && !this.isDocUploaded(doc.id));
+    if (missingMandatory.length > 0) {
+      alert(`برجاء رفع الأوراق الإلزامية المطلوبة: ${missingMandatory.map(m => m.documentName).join(', ')}`);
+      return;
+    }
+    this.currentRequestStep = 2;
+  } else if (this.currentRequestStep === 2) {
+    this.doSubmitRequest();
+  }
+}
+
+prevRequestStep(): void {
+  if (this.currentRequestStep > 0) {
+    this.currentRequestStep--;
+  }
 }
 
 /**
@@ -642,9 +698,19 @@ doSubmitRequest(): void {
 
   const finalNotes = (!this.submitNotes || this.submitNotes.trim() === '') ? 'لا توجد' : this.submitNotes;
 
+  const userEmail = this.authService.getUserEmail() 
+    || this.loginEmail 
+    || (document.cookie.match(/user_email=([^;]+)/) ? RegExp.$1 : '');
+
+  if (!userEmail) {
+    this.appendBotMsg('⚠️ لا يمكن إرسال الطلب. الرجاء تسجيل الدخول أولاً.');
+    this.submitFormLoading = false;
+    return;
+  }
+
   const requestData = {
-    userEmail: this.loginEmail || (document.cookie.match(/user_email=([^;]+)/) ? RegExp.$1 : ''),
-    govServiceId: this.govServiceId,
+    userEmail,
+    govServiceId: this.govServiceId || 1,
     sessionGuidId: this.sessionGuid,
     userName: this.submitUserName,
     phoneNumber: this.submitPhoneNumber,
@@ -668,11 +734,6 @@ doSubmitRequest(): void {
         this.isCollectingRequestInfo = false;
         this.loadUserSessions();
         this.scrollToBottom();
-
-        // توجيه المستخدم لصفحة "طلباتي" بعد 3 ثوانٍ ليتمكن من رؤية طلبه ومتابعته
-        setTimeout(() => {
-          this.router.navigate(['/my-requests']);
-        }, 3000);
       } else {
         const msg = res?.message || 'فشل إرسال الطلب.';
         this.appendBotMsg(`❌ ${msg}`);
@@ -735,6 +796,9 @@ doSubmitRequest(): void {
           this.uploadSuccessMessage = `تم رفع الملف بنجاح! المعرف: ${res.data?.id || res.data || ''}`;
           this.appendBotMsg(`تم رفع <strong>${docName}</strong> بنجاح! ✅ المعرف: ${res.data?.id || res.data || ''}`);
 
+          // تسجيل رفع الملف لتحديث الحالة في واجهة الفورم
+          this.uploadedDocIds.add(Number(docId));
+
           // Check off step 1 items dynamically
           if (docId === 1 || docName.includes('القومي') || docName.includes('بطاقة')) this.step1Checklist[0].checked = true;
           if (docId === 2 || docName.includes('الرخصة') || docName.includes('الحالية')) this.step1Checklist[1].checked = true;
@@ -744,7 +808,7 @@ doSubmitRequest(): void {
 
           // The user is now actively progressing through the request (uploaded a doc),
           // so reflect that in their "طلباتي" status instead of leaving it as Pending.
-          if (this.isLoggedIn && this.sessionGuid) {
+          if (this.isLoggedIn && this.sessionGuid && this.govServiceId) {
             this.dashboardService
               .linkSessionToService(this.sessionGuid, this.govServiceId, 'InProgress')
               .subscribe({
@@ -886,7 +950,7 @@ doSubmitRequest(): void {
     this.activeStep = 5;
     this.scrollToBottom();
 
-    if (this.isLoggedIn && this.sessionGuid) {
+    if (this.isLoggedIn && this.sessionGuid && this.govServiceId) {
       this.dashboardService
         .linkSessionToService(this.sessionGuid, this.govServiceId, 'Completed')
         .subscribe({

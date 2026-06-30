@@ -39,6 +39,11 @@ export class AdminDashboard implements OnInit, AfterViewInit {
   // ── الطلبات الحقيقية من قاعدة البيانات ───────────────────────────
   requestsList: any[] = [];
 
+  // ── سجل معاملات بوابة مصر الرقمية ──────────────────────────────
+  activeView        : 'requests' | 'portal-log' = 'requests';
+  portalTransactions: any[] = [];
+  portalLoading     : boolean = false;
+
   // ── حالة المودال ──────────────────────────────────────────────────
   selectedRequest  : any    = null;
   isUpdatingStatus : boolean = false;
@@ -63,6 +68,31 @@ export class AdminDashboard implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.loadDashboardStats();
     this.loadRequests();
+  }
+
+  // ── تبديل العرض بين الطلبات وسجل البوابة ─────────────────────────
+  switchView(view: 'requests' | 'portal-log'): void {
+    this.activeView = view;
+    if (view === 'portal-log') {
+      this.loadPortalTransactions();
+    } else {
+      this.loadRequests();
+    }
+  }
+
+  // ── جلب معاملات البوابة الرقمية ─────────────────────────────────
+  loadPortalTransactions(): void {
+    this.portalLoading = true;
+    this.adminService.getPortalTransactions().subscribe({
+      next: (res) => {
+        this.portalTransactions = res?.data ?? res ?? [];
+        this.portalLoading = false;
+      },
+      error: () => {
+        this.portalTransactions = [];
+        this.portalLoading = false;
+      }
+    });
   }
 
   ngAfterViewInit(): void {}
@@ -156,6 +186,8 @@ export class AdminDashboard implements OnInit, AfterViewInit {
         this.updateSuccess  = true;
         this.issuanceResult = res?.data?.issuanceResult ?? null;
         this.isUpdatingStatus = false;
+        // تحديث سجل البوابة الرقمية تلقائياً بعد كل إصدار
+        this.loadPortalTransactions();
       },
       error: (err) => {
         this.updateMessage    = err?.error?.message ?? 'حدث خطأ أثناء تحديث الحالة ❌';

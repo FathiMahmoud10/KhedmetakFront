@@ -107,10 +107,14 @@ export class ServiceDetailsComponent implements OnInit {
   }
 
   startService(): void {
-    console.log('Starting service:', this.service?.id);
+    if (this.service?.id) {
+      this.router.navigate(['/chat'], { queryParams: { serviceId: this.service.id } });
+    }
   }
 
   askAssistant(): void {
-    console.log('Ask assistant about:', this.service?.srvName);
+    if (this.service?.id) {
+      this.router.navigate(['/chat'], { queryParams: { serviceId: this.service.id } });
+    }
   }
 }

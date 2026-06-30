@@ -1,6 +1,11 @@
 <div class="signup-page" dir="rtl">
 
-  <!-- Floating Dark/Light Mode Toggle -->
+  <!-- Egyptian flag stripe -->
+  <div class="auth-stripe" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+
+  <!-- Theme toggle -->
   <button
     type="button"
     class="auth-theme-toggle"
@@ -10,214 +15,285 @@
     <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
   </button>
 
-  <!-- اليسار - اللوحة التعريفية -->
-  <div class="left-panel">
-    <div class="left-inner">
-      <div class="brand-top">
-        <div class="brand-icon">
-          <img src="assets/images/logo.png" alt="شعار خدمتك" />
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- LEFT — Hero Panel                                         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <aside class="signup-hero">
+    <div class="signup-hero__bg"></div>
+    <div class="signup-hero__grid"></div>
+    <div class="signup-hero__inner">
+
+      <div class="signup-hero__badge">
+        <i class="fas fa-user-plus"></i>
+        <span>إنشاء حساب جديد — خدمتك AI</span>
+      </div>
+
+      <div class="signup-hero__logo-wrap">
+        <i class="fas fa-landmark"></i>
+      </div>
+
+      <h2 class="signup-hero__title">انضم إلى<br><span>خدمتك AI</span></h2>
+      <p class="signup-hero__lead">
+        سجّل حسابك للوصول الفوري إلى الخدمات الحكومية المصرية وإدارتها بذكاء.
+      </p>
+
+      <!-- Decorative Steps -->
+      <div class="signup-hero__steps">
+        <div class="signup-hero__step">
+          <div class="signup-hero__step-num">١</div>
+          <div>
+            <div class="signup-hero__step-text">المعلومات الشخصية</div>
+            <div class="signup-hero__step-sub">الاسم، الرقم القومي، الهاتف</div>
+          </div>
         </div>
-        <span class="brand-label">خدمات حكومية · مساعد ذكي</span>
+        <div class="signup-hero__step">
+          <div class="signup-hero__step-num">٢</div>
+          <div>
+            <div class="signup-hero__step-text">بيانات التواصل</div>
+            <div class="signup-hero__step-sub">البريد الإلكتروني وكلمة المرور</div>
+          </div>
+        </div>
+        <div class="signup-hero__step">
+          <div class="signup-hero__step-num">٣</div>
+          <div>
+            <div class="signup-hero__step-text">العنوان والموقع</div>
+            <div class="signup-hero__step-sub">المحافظة والحي والشارع</div>
+          </div>
+        </div>
       </div>
 
-      <div class="illustration-wrap">
-        <img src="assets/images/signup-illustration.jpg" alt="توضيح" class="illus-img" />
-      </div>
-
-      <div class="left-text">
-        <h2>مرحباً بك في خدمتك AI</h2>
-        <p class="lead">مساعدك الذكي للخدمات الحكومية</p>
-        <p class="desc">تصفّح الخدمات الحكومية وتابع طلباتك واحصل على مساعدة فورية بالذكاء الاصطناعي في أي وقت.</p>
-        <div class="accent-line"></div>
-      </div>
     </div>
-  </div>
+  </aside>
 
-  <!-- اليمين - نموذج إنشاء الحساب -->
-  <div class="right-panel">
-    <div class="form-container">
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- RIGHT — Form                                              -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <main class="signup-main">
+    <div class="signup-form-wrap">
 
-      <!-- رأس العلامة التجارية -->
-      <div class="form-brand">
-        <div class="form-brand-icon">
-          <img src="assets/images/logo.png" alt="شعار" />
-        </div>
+      <!-- Brand -->
+      <div class="signup-brand">
+        <img src="\Images\Logo3.png" alt="Khedmetak AI" class="signup-brand__logo" />
         <div>
-          <div class="form-brand-name">خدمتك</div>
-          <div class="form-brand-sub">خدمات حكومية · مساعد ذكي</div>
+          <div class="signup-brand__name">Khedmetak AI</div>
+          <div class="signup-brand__sub">بوابة الخدمات الحكومية المصرية</div>
         </div>
       </div>
 
-      <!-- البطاقة -->
-      <div class="card">
-        <h2 class="card-title">إنشاء حساب جديد</h2>
-        <p class="card-sub">انضم إلى خدمتك للوصول إلى الخدمات الحكومية الذكية في ثوانٍ.</p>
+      <!-- Card -->
+      <div class="signup-card">
+        <h1 class="signup-card__title">إنشاء حساب جديد</h1>
+        <p class="signup-card__sub">انضم إلى المنصة للوصول إلى الخدمات الحكومية بسهولة وسرعة.</p>
 
         <form (ngSubmit)="onSubmit()" #signupForm="ngForm" novalidate>
 
-          <!-- زر جوجل -->
+          <!-- Google -->
           <button type="button" class="btn-google" (click)="signUpWithGoogle()">
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
             إنشاء حساب بـ Google
           </button>
 
           <div class="divider"><span>أو سجّل بالبريد الإلكتروني</span></div>
 
-          <!-- الاسم الكامل -->
-          <div class="field">
-            <label>الاسم الكامل</label>
-            <div class="input-wrap" [class.has-error]="nameError">
-              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-              <input type="text" [(ngModel)]="fullName" name="fullName" placeholder="أحمد محمد" (blur)="validateName()" />
+          <!-- ═══════════════════════════════════════ -->
+          <!-- Section 1: المعلومات الشخصية          -->
+          <!-- ═══════════════════════════════════════ -->
+          <div class="form-section">
+            <div class="form-section__header">
+              <span class="form-section__num">١</span>
+              <span class="form-section__title">المعلومات الشخصية</span>
+              <span class="form-section__sub">الاسم والهوية</span>
             </div>
-            <span class="err-msg" *ngIf="nameError">الاسم الكامل مطلوب</span>
-          </div>
 
-          <!-- الرقم القومي + رقم الهاتف -->
-          <div class="field-row">
+            <!-- الاسم الكامل -->
             <div class="field">
-              <label>الرقم القومي</label>
-              <div class="input-wrap" [class.has-error]="nationalIdError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-                <input type="text" [(ngModel)]="nationalId" name="nationalId" placeholder="14 رقم" maxlength="14" (blur)="validateNationalId()" />
+              <label>الاسم الكامل</label>
+              <div class="input-wrap" [class.has-error]="nameError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                <input type="text" [(ngModel)]="fullName" name="fullName" placeholder="أحمد محمد" (blur)="validateName()" />
               </div>
-              <span class="err-msg" *ngIf="nationalIdError">يجب أن يكون 14 رقماً</span>
+              <span class="err-msg" *ngIf="nameError">الاسم الكامل مطلوب</span>
             </div>
-            <div class="field">
-              <label>رقم الهاتف</label>
-              <div class="input-wrap" [class.has-error]="phoneError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.8 19.8 0 01-3-8.59A2 2 0 012.06 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
-                <input type="text" [(ngModel)]="phone" name="phone" placeholder="01XX XXX XXXX" (blur)="validatePhone()" />
-              </div>
-              <span class="err-msg" *ngIf="phoneError">رقم هاتف غير صحيح</span>
-            </div>
-          </div>
 
-          <!-- البريد الإلكتروني -->
-          <div class="field">
-            <label>البريد الإلكتروني</label>
-            <div class="input-wrap" [class.has-error]="emailError">
-              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
-              <input type="email" [(ngModel)]="email" name="email" placeholder="you@example.com" (blur)="validateEmail()" />
-            </div>
-            <span class="err-msg" *ngIf="emailError">بريد إلكتروني صحيح مطلوب</span>
-          </div>
-
-          <!-- تاريخ الميلاد -->
-          <div class="field">
-            <label>تاريخ الميلاد</label>
-            <div class="input-wrap" [class.has-error]="dateOfBirthError">
-              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              <input type="date" [(ngModel)]="dateOfBirth" name="dateOfBirth" (blur)="validateDateOfBirth()" />
-            </div>
-            <span class="err-msg" *ngIf="dateOfBirthError">تاريخ الميلاد مطلوب</span>
-          </div>
-
-          <!-- المحافظة + الحي -->
-          <div class="field-row">
-            <div class="field">
-              <label>المحافظة</label>
-              <div class="input-wrap" [class.has-error]="cityError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-7.5 7-12a7 7 0 10-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
-                <input type="text" [(ngModel)]="city" name="city" placeholder="القاهرة" (blur)="validateCity()" />
+            <!-- الرقم القومي + الهاتف -->
+            <div class="field-row">
+              <div class="field">
+                <label>الرقم القومي</label>
+                <div class="input-wrap" [class.has-error]="nationalIdError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                  <input type="text" [(ngModel)]="nationalId" name="nationalId" placeholder="14 رقم" maxlength="14" (blur)="validateNationalId()" />
+                </div>
+                <span class="err-msg" *ngIf="nationalIdError">يجب أن يكون 14 رقماً</span>
               </div>
-              <span class="err-msg" *ngIf="cityError">المحافظة مطلوبة</span>
-            </div>
-            <div class="field">
-              <label>الحي</label>
-              <div class="input-wrap" [class.has-error]="districtError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
-                <input type="text" [(ngModel)]="district" name="district" placeholder="مدينة نصر" (blur)="validateDistrict()" />
+              <div class="field">
+                <label>رقم الهاتف</label>
+                <div class="input-wrap" [class.has-error]="phoneError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.8 19.8 0 01-3-8.59A2 2 0 012.06 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L6.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
+                  <input type="text" [(ngModel)]="phone" name="phone" placeholder="01XX XXX XXXX" (blur)="validatePhone()" />
+                </div>
+                <span class="err-msg" *ngIf="phoneError">رقم هاتف غير صحيح</span>
               </div>
-              <span class="err-msg" *ngIf="districtError">الحي مطلوب</span>
+            </div>
+
+            <!-- تاريخ الميلاد -->
+            <div class="field">
+              <label>تاريخ الميلاد</label>
+              <div class="input-wrap" [class.has-error]="dateOfBirthError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <input type="date" [(ngModel)]="dateOfBirth" name="dateOfBirth" (blur)="validateDateOfBirth()" />
+              </div>
+              <span class="err-msg" *ngIf="dateOfBirthError">تاريخ الميلاد مطلوب</span>
             </div>
           </div>
 
-          <!-- الشارع -->
-          <div class="field">
-            <label>الشارع</label>
-            <div class="input-wrap" [class.has-error]="streetError">
-              <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21h16M6 21V9l6-5 6 5v12M10 21v-5h4v5"/></svg>
-              <input type="text" [(ngModel)]="street" name="street" placeholder="شارع التحرير" (blur)="validateStreet()" />
+          <!-- ═══════════════════════════════════════ -->
+          <!-- Section 2: بيانات التواصل             -->
+          <!-- ═══════════════════════════════════════ -->
+          <div class="form-section">
+            <div class="form-section__header">
+              <span class="form-section__num">٢</span>
+              <span class="form-section__title">بيانات التواصل والأمان</span>
+              <span class="form-section__sub">للدخول والتواصل</span>
             </div>
-            <span class="err-msg" *ngIf="streetError">الشارع مطلوب</span>
-          </div>
 
-          <!-- رقم المبنى + رقم الطابق -->
-          <div class="field-row">
+            <!-- البريد الإلكتروني -->
             <div class="field">
-              <label>رقم المبنى</label>
-              <div class="input-wrap" [class.has-error]="buildingNumberError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg>
-                <input type="text" [(ngModel)]="buildingNumber" name="buildingNumber" placeholder="12" (blur)="validateBuildingNumber()" />
+              <label>البريد الإلكتروني</label>
+              <div class="input-wrap" [class.has-error]="emailError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+                <input type="email" [(ngModel)]="email" name="email" placeholder="you@example.com" (blur)="validateEmail()" />
               </div>
-              <span class="err-msg" *ngIf="buildingNumberError">رقم المبنى مطلوب</span>
+              <span class="err-msg" *ngIf="emailError">بريد إلكتروني صحيح مطلوب</span>
             </div>
-            <div class="field">
-              <label>رقم الطابق <span class="optional-label">(اختياري)</span></label>
-              <div class="input-wrap">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/><path d="M9 21v-4h6v4"/></svg>
-                <input type="text" [(ngModel)]="floorNumber" name="floorNumber" placeholder="3" />
-              </div>
-            </div>
-          </div>
 
-          <!-- رقم الشقة + الرمز البريدي -->
-          <div class="field-row">
-            <div class="field">
-              <label>رقم الشقة <span class="optional-label">(اختياري)</span></label>
-              <div class="input-wrap">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 21V9h6v12"/></svg>
-                <input type="text" [(ngModel)]="apartmentNumber" name="apartmentNumber" placeholder="5" />
+            <!-- كلمة المرور + تأكيدها -->
+            <div class="field-row">
+              <div class="field">
+                <label>كلمة المرور</label>
+                <div class="input-wrap" [class.has-error]="passwordError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••" (blur)="validatePassword()" />
+                  <button type="button" class="eye-btn" (click)="showPass = !showPass">
+                    <svg *ngIf="!showPass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg *ngIf="showPass"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A11 11 0 0112 20C5 20 1 12 1 12a21 21 0 015.06-6.06M9.9 4.24A11 11 0 0112 4c7 0 11 8 11 8a21 21 0 01-3.17 4.19M14.12 14.12A3 3 0 119.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  </button>
+                </div>
+                <span class="err-msg" *ngIf="passwordError">6 أحرف على الأقل</span>
               </div>
-            </div>
-            <div class="field">
-              <label>الرمز البريدي <span class="optional-label">(اختياري)</span></label>
-              <div class="input-wrap">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9-5 9 5-9 5-9-5zM3 8v8l9 5 9-5V8"/></svg>
-                <input type="text" [(ngModel)]="postalCode" name="postalCode" placeholder="11511" />
+              <div class="field">
+                <label>تأكيد كلمة المرور</label>
+                <div class="input-wrap" [class.has-error]="confirmError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••" (blur)="validateConfirm()" />
+                  <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">
+                    <svg *ngIf="!showConfirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg *ngIf="showConfirm"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A11 11 0 0112 20C5 20 1 12 1 12a21 21 0 015.06-6.06M9.9 4.24A11 11 0 0112 4c7 0 11 8 11 8a21 21 0 01-3.17 4.19M14.12 14.12A3 3 0 119.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  </button>
+                </div>
+                <span class="err-msg" *ngIf="confirmError">كلمتا المرور غير متطابقتين</span>
               </div>
             </div>
           </div>
 
-          <!-- كلمة المرور + تأكيدها -->
-          <div class="field-row">
-            <div class="field">
-              <label>كلمة المرور</label>
-              <div class="input-wrap" [class.has-error]="passwordError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                <input [type]="showPass ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="••••••••" (blur)="validatePassword()" />
-                <button type="button" class="eye-btn" (click)="showPass = !showPass">
-                  <svg *ngIf="!showPass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <svg *ngIf="showPass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A11 11 0 0112 20C5 20 1 12 1 12a21 21 0 015.06-6.06M9.9 4.24A11 11 0 0112 4c7 0 11 8 11 8a21 21 0 01-3.17 4.19M14.12 14.12A3 3 0 119.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                </button>
-              </div>
-              <span class="err-msg" *ngIf="passwordError">6 أحرف على الأقل</span>
+          <!-- ═══════════════════════════════════════ -->
+          <!-- Section 3: العنوان                    -->
+          <!-- ═══════════════════════════════════════ -->
+          <div class="form-section">
+            <div class="form-section__header">
+              <span class="form-section__num">٣</span>
+              <span class="form-section__title">العنوان والموقع</span>
+              <span class="form-section__sub">لتقديم الخدمات المناسبة</span>
             </div>
-            <div class="field">
-              <label>تأكيد كلمة المرور</label>
-              <div class="input-wrap" [class.has-error]="confirmError">
-                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <input [type]="showConfirm ? 'text' : 'password'" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="••••••••" (blur)="validateConfirm()" />
-                <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm">
-                  <svg *ngIf="!showConfirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                  <svg *ngIf="showConfirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A11 11 0 0112 20C5 20 1 12 1 12a21 21 0 015.06-6.06M9.9 4.24A11 11 0 0112 4c7 0 11 8 11 8a21 21 0 01-3.17 4.19M14.12 14.12A3 3 0 119.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                </button>
+
+            <!-- المحافظة + الحي -->
+            <div class="field-row">
+              <div class="field">
+                <label>المحافظة</label>
+                <div class="input-wrap" [class.has-error]="cityError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-7.5 7-12a7 7 0 10-14 0c0 4.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                  <input type="text" [(ngModel)]="city" name="city" placeholder="القاهرة" (blur)="validateCity()" />
+                </div>
+                <span class="err-msg" *ngIf="cityError">المحافظة مطلوبة</span>
               </div>
-              <span class="err-msg" *ngIf="confirmError">كلمتا المرور غير متطابقتين</span>
+              <div class="field">
+                <label>الحي</label>
+                <div class="input-wrap" [class.has-error]="districtError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+                  <input type="text" [(ngModel)]="district" name="district" placeholder="مدينة نصر" (blur)="validateDistrict()" />
+                </div>
+                <span class="err-msg" *ngIf="districtError">الحي مطلوب</span>
+              </div>
+            </div>
+
+            <!-- الشارع -->
+            <div class="field">
+              <label>الشارع</label>
+              <div class="input-wrap" [class.has-error]="streetError">
+                <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21h16M6 21V9l6-5 6 5v12M10 21v-5h4v5"/></svg>
+                <input type="text" [(ngModel)]="street" name="street" placeholder="شارع التحرير" (blur)="validateStreet()" />
+              </div>
+              <span class="err-msg" *ngIf="streetError">الشارع مطلوب</span>
+            </div>
+
+            <!-- رقم المبنى + الطابق + الشقة + الرمز -->
+            <div class="field-row">
+              <div class="field">
+                <label>رقم المبنى</label>
+                <div class="input-wrap" [class.has-error]="buildingNumberError">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/></svg>
+                  <input type="text" [(ngModel)]="buildingNumber" name="buildingNumber" placeholder="12" (blur)="validateBuildingNumber()" />
+                </div>
+                <span class="err-msg" *ngIf="buildingNumberError">رقم المبنى مطلوب</span>
+              </div>
+              <div class="field">
+                <label>رقم الطابق <span class="optional-label">(اختياري)</span></label>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/><path d="M9 21v-4h6v4"/></svg>
+                  <input type="text" [(ngModel)]="floorNumber" name="floorNumber" placeholder="3" />
+                </div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>رقم الشقة <span class="optional-label">(اختياري)</span></label>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 21V9h6v12"/></svg>
+                  <input type="text" [(ngModel)]="apartmentNumber" name="apartmentNumber" placeholder="5" />
+                </div>
+              </div>
+              <div class="field">
+                <label>الرمز البريدي <span class="optional-label">(اختياري)</span></label>
+                <div class="input-wrap">
+                  <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9-5 9 5-9 5-9-5zM3 8v8l9 5 9-5V8"/></svg>
+                  <input type="text" [(ngModel)]="postalCode" name="postalCode" placeholder="11511" />
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- الشروط والأحكام -->
+          <!-- Server error -->
+          <div class="server-error" *ngIf="serverError">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ serverError }}</span>
+          </div>
+
+          <!-- الموافقة -->
           <label class="terms-label">
             <input type="checkbox" [(ngModel)]="agreed" name="agreed" />
             <span>أوافق على <a href="#">شروط الاستخدام</a> و<a href="#">سياسة الخصوصية</a>.</span>
           </label>
 
-          <!-- زر إنشاء الحساب -->
-          <button type="submit" class="btn-submit" [disabled]="isLoading">
+          <!-- زر الإرسال -->
+          <button id="btn-signup-submit" type="submit" class="btn-submit" [disabled]="isLoading">
             <span class="spinner" *ngIf="isLoading"></span>
-            {{ isLoading ? 'جارٍ إنشاء الحساب…' : 'إنشاء الحساب' }}
+            <i class="fas fa-user-check" *ngIf="!isLoading"></i>
+            {{ isLoading ? 'جارٍ إنشاء الحساب…' : 'إنشاء الحساب والبدء' }}
           </button>
 
         </form>
@@ -225,8 +301,8 @@
         <p class="signin-link">لديك حساب بالفعل؟ <a routerLink="/login">تسجيل الدخول</a></p>
       </div>
 
-      <p class="legal-footer">محمي بتشفير حكومي · © 2026 خدمتك</p>
+      <p class="legal-footer">محمي بتشفير آمن · © 2026 Khedmetak AI</p>
     </div>
-  </div>
+  </main>
 
 </div>

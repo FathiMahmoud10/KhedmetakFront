@@ -15,6 +15,7 @@ export interface ChatRequest {
 }
 
 export interface CurrentServiceDetails {
+  id?: number;
   serviceName: string;
   categoryName: string;
   requiredDocumentsCount: number;

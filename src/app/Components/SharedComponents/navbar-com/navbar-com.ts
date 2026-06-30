@@ -66,12 +66,17 @@ export class NavbarCom implements OnInit, OnDestroy {
     }
 
     // تفعيل وضع الأدمن الداخلي فقط في لوحة التحكم الإدارية الحقيقية (السايد بار الداخلي)
-    this.isAdminPage = currentUrl.includes('/admin-dashboard') || currentUrl.includes('/admin/manage');
+    this.isAdminPage = currentUrl.includes('admin-dashboard') || 
+                       currentUrl.includes('manage-') || 
+                       currentUrl.includes('admin-categories') ||
+                       currentUrl.includes('admin-steps') ||
+                       currentUrl.includes('admin-service-detail') ||
+                       currentUrl.includes('admin-fees') ||
+                       currentUrl.includes('admin-required-documents') ||
+                       currentUrl.includes('admin-portal-log');
 
-    // تفعيل وضع لوحة المستخدم فقط داخل الصفحات الداخلية الخاصة بالـ Dashboard
-    this.isUserDashboardPage = currentUrl.includes('/user-dashboard') || 
-                               currentUrl.includes('my-requests') || 
-                               currentUrl.includes('my-files');
+    // وضع لوحة المستخدم العادي (طلباتي - ملفاتي)
+    this.isUserDashboardPage = currentUrl.includes('/user-dashboard') || currentUrl.includes('/my-requests') || currentUrl.includes('/my-files');
   }
 
   // خاصية ترجع true إذا كنا داخل لوحة تحكم داخلية مستقلة (أدمن أو مستخدم)

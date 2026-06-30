@@ -36,7 +36,7 @@
   display: flex;
   flex-direction: column;
   position: fixed;
-  top: 70px;
+  top: 58px;
   /* global navbar height */
   left: 0;
   right: 0;
@@ -3311,13 +3311,46 @@
 }
 
 .fawry-logo {
-  background: #fff3e0;
-  color: #e65100;
+  background: linear-gradient(135deg, #ffde00 0%, #ffc107 100%);
+  color: #0d47a1;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+}
+
+.fawry-brand-icon {
+  display: flex;
+  align-items: baseline;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: -0.5px;
+  
+  .f-brand-text {
+    color: #0d47a1;
+  }
+  
+  .f-brand-dot {
+    width: 4px;
+    height: 4px;
+    background-color: #0d47a1;
+    border-radius: 50%;
+    margin-left: 1px;
+    margin-bottom: 2px;
+  }
 }
 
 .vodafone-logo {
-  background: #fce4ec;
-  color: #c62828;
+  background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(230, 0, 0, 0.3);
+}
+
+.voda-brand-icon {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
 }
 
 .pcm-info {
@@ -3636,4 +3669,437 @@
     color: var(--green);
     font-weight: 800;
   }
-}
+}
+
+/*==========================================
+=      REQUEST SUBMISSION MULTI-STEP FORM  =
+==========================================*/
+
+.request-submit-card {
+  max-width: 460px !important;
+  border: none;
+  background: var(--surface);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0,0,0,0.04);
+}
+
+.request-submit-header {
+  background: linear-gradient(135deg, #0e8a5e 0%, #10b981 100%) !important;
+  color: #fff !important;
+  padding: 22px 24px !important;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -20%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+    border-radius: 50%;
+  }
+
+  .pc-icon {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .pc-title {
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .pc-subtitle {
+    font-size: 12px;
+    opacity: 0.95;
+    font-weight: 600;
+  }
+}
+
+/* Stepper Progress Bar */
+.request-submit-progress-bar {
+  width: 100%;
+  height: 5px;
+  background: rgba(16, 185, 129, 0.15);
+  position: relative;
+}
+
+.request-submit-progress-fill {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.request-submit-section {
+  padding: 20px !important;
+  border-bottom: none !important;
+}
+
+.request-submit-section-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    color: var(--green);
+    font-size: 15px;
+  }
+}
+
+.request-submit-field {
+  margin-bottom: 16px;
+}
+
+.request-submit-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-align: right;
+}
+
+.request-submit-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1.5px solid var(--border2);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: var(--surface2);
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--green);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(41, 139, 100, 0.12);
+  }
+
+  i {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    text-align: right;
+    direction: rtl;
+
+    &::placeholder {
+      color: rgba(107, 122, 141, 0.45);
+    }
+  }
+
+  textarea {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    text-align: right;
+    direction: rtl;
+    resize: none;
+
+    &::placeholder {
+      color: rgba(107, 122, 141, 0.45);
+    }
+  }
+}
+
+.request-submit-textarea-wrap {
+  align-items: flex-start;
+  i {
+    margin-top: 14px;
+  }
+}
+
+/* Document Upload Items */
+.request-submit-docs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.request-submit-doc-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  transition: all 0.25s ease;
+
+  &.uploaded {
+    background: rgba(41, 139, 100, 0.04);
+    border-color: rgba(41, 139, 100, 0.25);
+  }
+}
+
+.rs-doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.rs-doc-status-icon {
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.rs-doc-text {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.rs-doc-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.rs-doc-mandatory {
+  font-size: 9.5px;
+  color: var(--red);
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.rs-doc-action-btn {
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  background: var(--navy);
+  padding: 8px 14px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  &.btn-uploaded {
+    background: var(--green) !important;
+    box-shadow: 0 2px 8px rgba(41, 139, 100, 0.2);
+  }
+}
+
+/* Review Step Card */
+.request-submit-review-card {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+  text-align: right;
+}
+
+.rs-review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border2);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.rs-review-lbl {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.rs-review-val {
+  color: var(--navy);
+  font-weight: 800;
+}
+
+.rs-review-divider {
+  height: 1px;
+  background: var(--border2);
+  margin: 6px 0;
+}
+
+.rs-review-docs-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+
+.rs-review-doc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+
+  i {
+    font-size: 13px;
+  }
+}
+
+.rs-review-doc-name {
+  font-weight: 600;
+  color: var(--text);
+  margin-left: auto;
+}
+
+.rs-review-doc-status {
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.request-submit-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 16px 20px !important;
+  border-top: 1px solid var(--border2) !important;
+  background: var(--surface2);
+}
+
+.request-submit-back-btn {
+  margin-left: auto;
+  background: var(--surface) !important;
+}
+
+.request-submit-confirm-btn {
+  background: var(--green) !important;
+  box-shadow: 0 4px 14px rgba(41, 139, 100, 0.25) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #227a52 0%, var(--green) 100%) !important;
+    box-shadow: 0 6px 18px rgba(41, 139, 100, 0.35) !important;
+  }
+}
+
+/*==========================================
+=        GLOBAL SCALE / DENSITY FIX
+=  تصغير المحتوى عشان يبان مناسب للشاشة
+==========================================*/
+
+// Sidebar: أصغر وأخف
+.sidebar {
+  width: 230px !important;
+  min-width: 230px !important;
+
+  &.collapsed {
+    width: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+// Messages area: مسافات أصغر
+.msgs {
+  padding: 14px 14px !important;
+  gap: 10px !important;
+}
+
+// Bubbles: فونت أصغر ومسافات أقل
+.bub {
+  padding: 10px 14px !important;
+  font-size: 12.5px !important;
+  line-height: 1.65 !important;
+}
+
+// Bot response text داخل الفقاعات
+:host ::ng-deep .bot-response {
+  .bot-p { font-size: 12.5px !important; line-height: 1.7 !important; }
+  .bot-h1 { font-size: 14px !important; }
+  .bot-h2 { font-size: 13px !important; }
+  .bot-h3 { font-size: 12.5px !important; }
+}
+
+// Chat header: أخف
+.chat-top {
+  padding: 8px 14px !important;
+}
+
+// Chips in header: أصغر
+.ct-chip {
+  padding: 3px 8px !important;
+  font-size: 10.5px !important;
+}
+
+// Progress bar strip
+.prog-strip {
+  padding: 6px 14px !important;
+}
+
+// Sidebar info items
+.info-item {
+  padding: 7px 10px !important;
+}
+
+// Session items in sidebar
+.session-item {
+  padding: 8px 10px !important;
+}
+
+.si-preview {
+  font-size: 12px !important;
+}
+
+// Service card in sidebar
+.svc-card {
+  padding: 9px 10px !important;
+}
+
+.svc-name {
+  font-size: 12px !important;
+}
+
+// Toolbar / quick replies
+.toolbar {
+  padding: 6px 12px !important;
+}
+
+// Input area
+.input-row {
+  padding: 8px 12px !important;
+}
+
+// Steps sidebar
+.sb-steps {
+  padding: 10px !important;
+}
+
+.s-body {
+  padding-bottom: 10px !important;
+}
+
+

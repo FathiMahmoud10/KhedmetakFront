@@ -305,6 +305,28 @@ $text:   #1a2535;
   &--default  { background: rgba($navy, 0.1);   color: $navy; }
 }
 
+.udash-btn-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid rgba($blue, 0.35);
+  border-radius: 8px;
+  background: rgba($blue, 0.05);
+  color: $blue;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $blue;
+    border-color: $blue;
+    color: $white;
+  }
+}
+
 // ============== Quick links ==============
 .udash-quick {
   display: grid;

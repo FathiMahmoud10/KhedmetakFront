@@ -114,6 +114,7 @@
               <th>الفئة</th>
               <th>تاريخ البدء</th>
               <th>الحالة</th>
+              <th>الإجراءات</th>
             </tr>
           </thead>
           <tbody>
@@ -125,6 +126,12 @@
                 <span class="udash-badge" [ngClass]="getStatusClass(req.status)">
                   {{ req.statusLabel }}
                 </span>
+              </td>
+              <td>
+                <a [routerLink]="['/chat']" [queryParams]="{ session: req.sessionGuidId }" class="udash-btn-view">
+                  <i class="fas fa-eye"></i>
+                  تفاصيل الطلب
+                </a>
               </td>
             </tr>
           </tbody>

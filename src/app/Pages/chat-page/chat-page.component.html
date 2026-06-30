@@ -212,48 +212,37 @@
               <div class="pc-methods">
 
                 <!-- Fawry -->
-                <button class="pc-method" [class.selected]="selectedPaymentMethod === 'fawry'"
+                <button class="pc-method pc-method--fawry" [class.selected]="selectedPaymentMethod === 'fawry'"
                   (click)="selectPaymentMethod('fawry')">
                   <div class="pcm-logo fawry-logo">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M12 6v6l4 2"/>
-                    </svg>
+                    <div class="fawry-brand-icon">
+                      <span class="f-brand-text">fawry</span>
+                      <span class="f-brand-dot"></span>
+                    </div>
                   </div>
                   <div class="pcm-info">
-                    <span class="pcm-name">فوري</span>
-                    <span class="pcm-desc">ادفع بفيزا أو كود فوري</span>
+                    <span class="pcm-name">فوري (Fawry)</span>
+                    <span class="pcm-desc">فيزا أو كود الدفع السريع</span>
                   </div>
                   <div class="pcm-check" *ngIf="selectedPaymentMethod === 'fawry'">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
+                    <i class="fas fa-check"></i>
                   </div>
                 </button>
 
                 <!-- Vodafone Cash -->
-                <button class="pc-method" [class.selected]="selectedPaymentMethod === 'vodafone'"
+                <button class="pc-method pc-method--vodafone" [class.selected]="selectedPaymentMethod === 'vodafone'"
                   (click)="selectPaymentMethod('vodafone')">
                   <div class="pcm-logo vodafone-logo">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12
-                        19.79 19.79 0 0 1 1 3.18 2 2 0 0 1 3 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7
-                        2.81 2 2 0 0 1-.45 2.11L7.09 8.89a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45
-                        12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                    </svg>
+                    <div class="voda-brand-icon">
+                      <i class="fas fa-quote-right"></i>
+                    </div>
                   </div>
                   <div class="pcm-info">
-                    <span class="pcm-name">فودافون كاش</span>
-                    <span class="pcm-desc">ادفع من محفظتك</span>
+                    <span class="pcm-name">فودافون كاش (Vodafone Cash)</span>
+                    <span class="pcm-desc">دفع مباشر من المحفظة</span>
                   </div>
                   <div class="pcm-check" *ngIf="selectedPaymentMethod === 'vodafone'">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
+                    <i class="fas fa-check"></i>
                   </div>
                 </button>
 
@@ -321,6 +310,138 @@
       </div>
       <!-- ═══ /PAYMENT CARD ═══ -->
 
+      <!-- ═══ SUBMIT REQUEST MULTI-STEP FORM ═══ -->
+      <div class="msg" *ngIf="showSubmitForm" style="margin-top:14px;">
+        <div class="av bot">AI</div>
+        <div class="bub-container bot">
+          <div class="payment-card request-submit-card">
+
+            <!-- Header -->
+            <div class="pc-header request-submit-header">
+              <div class="pc-icon">
+                <i class="fas fa-file-invoice"></i>
+              </div>
+              <div class="pc-header-text">
+                <span class="pc-title">استكمال بيانات تقديم الطلب</span>
+                <span class="pc-subtitle">الخطوة {{ currentRequestStep + 1 }} من ٣</span>
+              </div>
+            </div>
+
+            <!-- Stepper Progress Bar -->
+            <div class="request-submit-progress-bar">
+              <div class="request-submit-progress-fill" [style.width.%]="(currentRequestStep + 1) * 33.3"></div>
+            </div>
+
+            <!-- Step 1: Personal Info -->
+            <div class="pc-section request-submit-section" *ngIf="currentRequestStep === 0">
+              <div class="request-submit-section-title">
+                <i class="fas fa-user-circle"></i>
+                أدخل البيانات الشخصية لمقدّم الطلب
+              </div>
+              
+              <div class="request-submit-field">
+                <label class="request-submit-label">الاسم بالكامل (ثلاثي/رباعي)</label>
+                <div class="request-submit-input-wrap">
+                  <i class="fas fa-user"></i>
+                  <input type="text" [(ngModel)]="submitUserName" placeholder="أحمد محمد علي..." />
+                </div>
+              </div>
+
+              <div class="request-submit-field">
+                <label class="request-submit-label">رقم الهاتف للتواصل</label>
+                <div class="request-submit-input-wrap">
+                  <i class="fas fa-phone"></i>
+                  <input type="tel" [(ngModel)]="submitPhoneNumber" placeholder="01XXXXXXXXX" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Attachments & Notes -->
+            <div class="pc-section request-submit-section" *ngIf="currentRequestStep === 1">
+              <div class="request-submit-section-title">
+                <i class="fas fa-paperclip"></i>
+                الأوراق الرسمية والملاحظات
+              </div>
+
+              <div class="request-submit-field">
+                <label class="request-submit-label">ملاحظات أو تفاصيل إضافية (اختياري)</label>
+                <div class="request-submit-input-wrap request-submit-textarea-wrap">
+                  <i class="fas fa-comment-alt"></i>
+                  <textarea [(ngModel)]="submitNotes" placeholder="أدخل أي ملاحظات ترغب في إبلاغ الموظف بها..." rows="2"></textarea>
+                </div>
+              </div>
+
+              <label class="request-submit-label">المستندات المطلوبة للخدمة</label>
+              <div class="request-submit-docs-list">
+                <div *ngFor="let doc of requiredDocuments" class="request-submit-doc-item" [class.uploaded]="isDocUploaded(doc.id)">
+                  <div class="rs-doc-meta">
+                    <span class="rs-doc-status-icon">
+                      <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check-circle text-success' : 'fa-info-circle text-warning'"></i>
+                    </span>
+                    <div class="rs-doc-text">
+                      <span class="rs-doc-name">{{ doc.documentName }}</span>
+                      <span class="rs-doc-mandatory" *ngIf="doc.isMandatory">مستند إلزامي</span>
+                    </div>
+                  </div>
+                  <button type="button" class="rs-doc-action-btn" [class.btn-uploaded]="isDocUploaded(doc.id)" (click)="triggerFileUpload(doc.id)">
+                    <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check' : 'fa-cloud-upload-alt'"></i>
+                    <span>{{ isDocUploaded(doc.id) ? 'تم الرفع' : 'تحميل' }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Review -->
+            <div class="pc-section request-submit-section" *ngIf="currentRequestStep === 2">
+              <div class="request-submit-section-title">
+                <i class="fas fa-check-double"></i>
+                مراجعة وتأكيد بيانات الطلب
+              </div>
+
+              <div class="request-submit-review-card">
+                <div class="rs-review-row">
+                  <span class="rs-review-lbl">الاسم بالكامل:</span>
+                  <span class="rs-review-val">{{ submitUserName || '—' }}</span>
+                </div>
+                <div class="rs-review-row">
+                  <span class="rs-review-lbl">رقم الهاتف:</span>
+                  <span class="rs-review-val">{{ submitPhoneNumber || '—' }}</span>
+                </div>
+                <div class="rs-review-row">
+                  <span class="rs-review-lbl">الملاحظات:</span>
+                  <span class="rs-review-val">{{ submitNotes || 'لا توجد ملاحظات إضافية' }}</span>
+                </div>
+
+                <div class="rs-review-divider"></div>
+
+                <div class="rs-review-docs-title">المستندات والمرفقات:</div>
+                <div class="rs-review-docs-list">
+                  <div *ngFor="let doc of requiredDocuments" class="rs-review-doc-row">
+                    <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check-circle text-success' : 'fa-times-circle text-danger'"></i>
+                    <span class="rs-review-doc-name">{{ doc.documentName }}</span>
+                    <span class="rs-review-doc-status" [class.text-success]="isDocUploaded(doc.id)" [class.text-danger]="!isDocUploaded(doc.id)">
+                      {{ isDocUploaded(doc.id) ? 'تم الإرفاق بنجاح' : 'معلّق (مطلوب)' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="pc-footer request-submit-footer">
+              <button class="pc-cancel-btn request-submit-back-btn" (click)="prevRequestStep()" *ngIf="currentRequestStep > 0">
+                السابق
+              </button>
+              <button class="pc-confirm-btn request-submit-confirm-btn" [disabled]="submitFormLoading" (click)="nextRequestStep()">
+                <span class="spinner-border spinner-border-sm me-1" *ngIf="submitFormLoading"></span>
+                <span>{{ currentRequestStep === 2 ? 'تأكيد وإرسال الطلب' : 'التالي' }}</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       <!-- ═══ SUCCESS CARD (shown when request is submitted successfully) ═══ -->
       <div class="msg" *ngIf="showSuccessCard" style="margin-top:14px;">
         <div class="av bot">AI</div>
@@ -333,9 +454,15 @@
             </div>
             <div class="sm-title">تم تقديم الطلب بنجاح</div>
             <div class="sm-details">
-              <p>تم تسجيل طلبك بنجاح وجاري مراجعته والعمل عليه.</p>
+              <p>تم تسجيل طلبك بنجاح وجاري مراجعته والعمل عليه من قبل الجهات المختصة.</p>
               <div class="sm-payment-alert">
                 <span>💳 تم تسديد مبلغ بقيمة <strong>{{ successCardPaidAmount }} جنيه</strong> لخدمة <strong>{{ successCardServiceName }}</strong>.</span>
+              </div>
+              <div class="text-center mt-3 pt-2">
+                <a routerLink="/my-requests" class="btn btn-sm text-white px-4 py-2" style="background: var(--green); border: none; border-radius: 8px; font-weight: 700; font-family: 'Cairo', sans-serif; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(41,139,100,0.3);">
+                  <i class="fas fa-list-check"></i>
+                  مراجعة الطلب ومتابعة الحالة
+                </a>
               </div>
             </div>
           </div>

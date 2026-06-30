@@ -1,9 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { UserSidebarService } from '../../Services/user-sidebar.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
+import { LocationService, UserLocation } from '../../Services/location.service';
 
 @Component({
   selector: 'app-user-sidebar',
@@ -18,11 +19,14 @@ export class UserSidebar implements OnInit, OnDestroy {
   userName = 'زائر';
   userEmail = '';
   avatarUrl = 'assets/images/images.jpg';
+  userLocation: UserLocation | null = null;
   private sub?: Subscription;
 
   constructor(
     private userSidebarService: UserSidebarService,
-    private authService: AuthService
+    private authService: AuthService,
+    private locationService: LocationService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +35,7 @@ export class UserSidebar implements OnInit, OnDestroy {
       if (open) this.refreshUserInfo();
     });
     this.refreshUserInfo();
+    this.locationService.getLocation().then(loc => this.userLocation = loc);
   }
 
   private refreshUserInfo(): void {
@@ -61,5 +66,11 @@ export class UserSidebar implements OnInit, OnDestroy {
 
   close(): void {
     this.userSidebarService.close();
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.close();
+    this.router.navigate(['/login']);
   }
 }

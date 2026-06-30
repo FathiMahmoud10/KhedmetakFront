@@ -325,3 +325,119 @@ $white:  #ffffff;
     }
   }
 }
+
+// ============================================================
+// User Profile Card (inside sidebar)
+// ============================================================
+.user-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 16px 20px;
+  padding: 16px;
+  background: rgba($white, 0.06);
+  border: 1px solid rgba($white, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+
+  &__avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  &__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba($green, 0.6);
+  }
+
+  &__online-dot {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: $green;
+    border: 2px solid $navy2;
+    box-shadow: 0 0 6px rgba($green, 0.7);
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__email {
+    font-size: 0.75rem;
+    color: rgba($white, 0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: rgba($green, 0.9);
+    margin-top: 2px;
+
+    i { font-size: 0.7rem; }
+  }
+}
+
+// ============================================================
+// Sidebar Footer Actions (Logout)
+// ============================================================
+.admin-drawer__footer-actions {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid rgba($white, 0.08);
+}
+
+.user-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+  border: 1px solid rgba(#dc3545, 0.4);
+  border-radius: 12px;
+  background: rgba(#dc3545, 0.08);
+  color: rgba(#ff6b6b, 0.9);
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  i { font-size: 0.95rem; }
+
+  &:hover {
+    background: rgba(#dc3545, 0.2);
+    color: #ff6b6b;
+    border-color: rgba(#dc3545, 0.6);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(#dc3545, 0.25);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}

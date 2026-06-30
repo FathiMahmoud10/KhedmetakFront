@@ -14,34 +14,63 @@
     <i class="fas" [ngClass]="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
   </button>
 
-  <!-- Left panel -->
+  <!-- Left panel — Hero -->
   <aside class="login-hero">
     <div class="login-hero__bg"></div>
+    <div class="login-hero__grid"></div>
     <div class="login-hero__inner">
 
       <div class="login-hero__badge">
-        <i class="bi bi-shield-check"></i>
-        <span>جمهورية مصر العربية</span>
+        <i class="fas fa-shield-halved"></i>
+        <span>جمهورية مصر العربية — بوابة رقمية آمنة</span>
       </div>
 
-      <div class="login-hero__icon">
-        <i class="bi bi-building"></i>
+      <div class="login-hero__logo-wrap">
+        <i class="fas fa-landmark"></i>
       </div>
 
-      <h2 class="login-hero__title">مرحباً بك في Khedmetak AI</h2>
-      <p class="login-hero__lead">مساعدك الذكي للخدمات الحكومية المصرية</p>
-      <p class="login-hero__desc">
-        سجّل دخولك للوصول إلى الخدمات الحكومية، متابعة طلباتك، والحصول على مساعدة فورية بالذكاء الاصطناعي.
+      <h2 class="login-hero__title">مرحباً بك في <span>Khedmetak AI</span></h2>
+      <p class="login-hero__lead">
+        مساعدك الذكي للوصول إلى الخدمات الحكومية المصرية بسرعة وسهولة.
       </p>
 
       <ul class="login-hero__features">
-        <li><i class="bi bi-patch-check-fill"></i> خدمات حكومية موثّقة</li>
-        <li><i class="bi bi-lock-fill"></i> تسجيل دخول آمن</li>
-        <li><i class="bi bi-headset"></i> مساعد ذكي 24/7</li>
+        <li>
+          <i class="fas fa-circle-check"></i>
+          خدمات حكومية موثّقة ومعتمدة رسمياً
+        </li>
+        <li>
+          <i class="fas fa-lock"></i>
+          تسجيل دخول آمن بتشفير من الدرجة الأولى
+        </li>
+        <li>
+          <i class="fas fa-robot"></i>
+          مساعد ذكاء اصطناعي متاح على مدار الساعة
+        </li>
+        <li>
+          <i class="fas fa-map-marker-alt"></i>
+          خدمات مقترحة بناءً على موقعك الجغرافي
+        </li>
       </ul>
+
+      <div class="login-hero__stats">
+        <div class="login-hero__stat">
+          <strong>+50</strong>
+          <span>خدمة حكومية</span>
+        </div>
+        <div class="login-hero__stat">
+          <strong>100%</strong>
+          <span>آمن ومشفّر</span>
+        </div>
+        <div class="login-hero__stat">
+          <strong>24/7</strong>
+          <span>مساعد ذكي</span>
+        </div>
+      </div>
 
     </div>
   </aside>
+
 
   <!-- Right panel — form -->
   <main class="login-main">

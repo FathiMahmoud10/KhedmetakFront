@@ -1,11 +1,11 @@
 // ============================================================
 // المتغيرات المأخوذة من مشروعكِ (Theme Variables)
 // ============================================================
-$navy:   #023264;
-$navy2:  #012050; // اللون الكحلي الغامق المعتمد للسايد بار
-$blue:   #487fb9;
-$white:  #ffffff;
-$green:  #298b64;
+$navy: #023264;
+$navy2: #012050; // اللون الكحلي الغامق المعتمد للسايد بار
+$blue: #487fb9;
+$white: #ffffff;
+$green: #298b64;
 $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز الشكل الزجاجي
 
 .app-navbar {
@@ -14,9 +14,9 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   left: 0;
   right: 0;
   z-index: 1050;
-  height: 70px;
+  height: 58px;
   /* دمج لون السايد بار الكحلي الغامق مع نسبة شفافية مثالية للزجاج */
-  background: rgba($navy2, 0.55); 
+  background: rgba($navy2, 0.55);
   /* تأثير التغبيش الزجاجي الكثيف لرؤية انسيابية للأهرامات من خلفه */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -27,7 +27,9 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   transition: background 0.3s ease, backdrop-filter 0.3s ease;
 
   &--admin {
-    background: linear-gradient(180deg, $white 0%, #f8fafc 100%);
+    background: linear-gradient(180deg, $navy2 0%, $navy 100%) !important;
+    border-bottom: 1px solid rgba($white, 0.12);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
   }
 
   &__inner {
@@ -35,7 +37,8 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px; /* مسافة أفقية مريحة تمنع اكتظاظ العناصر وتداخلها */
+    gap: 24px;
+    /* مسافة أفقية مريحة تمنع اكتظاظ العناصر وتداخلها */
     padding: 0 24px;
   }
 
@@ -48,7 +51,8 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   &__end {
     display: flex;
     align-items: center;
-    gap: 16px; /* توسيع المسافة الداخلية بين أزرار تسجيل الدخول، الوضع الداكن، وملف الأدمن */
+    gap: 16px;
+    /* توسيع المسافة الداخلية بين أزرار تسجيل الدخول، الوضع الداكن، وملف الأدمن */
     flex-shrink: 0;
   }
 
@@ -88,7 +92,9 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
       border-radius: 2px;
       transition: width 0.2s;
 
-      &:nth-child(2) { width: 75%; }
+      &:nth-child(2) {
+        width: 75%;
+      }
     }
   }
 
@@ -118,7 +124,7 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   }
 
   &__brand-name {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 800;
     color: $white;
     letter-spacing: -0.2px;
@@ -154,7 +160,7 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
     display: inline-block;
     padding: 8px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: rgba($white, 0.8);
     text-decoration: none;
@@ -188,13 +194,13 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
 
   // زر الوضع الداكن (Dark Mode) الدائري الزجاجي المتناسق
   &__icon-btn {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border: 1px solid rgba($white, 0.15);
     border-radius: 50%;
     background: rgba($white, 0.05);
     color: $white;
-    font-size: 15px;
+    font-size: 13px;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -233,7 +239,8 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   &__auth {
     display: flex;
     align-items: center;
-    gap: 8px; /* تقليص المسافة لمنع تشتت أزرار الحساب الواحد */
+    gap: 8px;
+    /* تقليص المسافة لمنع تشتت أزرار الحساب الواحد */
     list-style: none;
     margin: 0;
     padding: 0;
@@ -244,8 +251,9 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    border-radius: 20px; /* تحويل الروابط لكبسولات انسيابية كاملة دائرية */
-    font-size: 13px;
+    border-radius: 20px;
+    /* تحويل الروابط لكبسولات انسيابية كاملة دائرية */
+    font-size: 12px;
     font-weight: 600;
     color: rgba($white, 0.9);
     text-decoration: none;
@@ -283,8 +291,10 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
     gap: 12px;
     padding: 0 16px;
   }
+
   .app-navbar__auth-link {
-    padding: 8px 12px; /* تقليص الحشو الداخلي طردياً لحماية المساحة ومنع تراكم النصوص */
+    padding: 8px 12px;
+    /* تقليص الحشو الداخلي طردياً لحماية المساحة ومنع تراكم النصوص */
   }
 }
 
@@ -292,12 +302,14 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   .app-navbar__center {
     display: none;
   }
+
   .app-navbar__menu-label {
     display: none;
   }
 }
 
 @media (max-width: 768px) {
+
   /* إخفاء زر ملف الأدمن والوضع الداكن على التابلت والهواتف لتوحيد المساحة */
   .app-navbar__return-btn,
   .app-navbar__icon-btn {
@@ -306,6 +318,7 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
 }
 
 @media (max-width: 650px) {
+
   /* إخفاء خيارات الـ Auth النصية الثانوية في الشاشات الصغيرة جداً والاحتفاظ بالزر الأساسي لضمان التباين وعدم الخروج عن النطاق */
   .app-navbar__auth-link:not(.app-navbar__auth-link--primary) {
     display: none;
@@ -314,9 +327,11 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
 
 @media (max-width: 576px) {
   .app-navbar {
-    background: $navy2; /* اعتماد نفس اللون الكحلي للسايد بار بشكل مصمت على الهواتف لتأمين مقروئية تامة */
+    background: $navy2;
+    /* اعتماد نفس اللون الكحلي للسايد بار بشكل مصمت على الهواتف لتأمين مقروئية تامة */
     backdrop-filter: none;
   }
+
   .app-navbar__brand-tag {
     display: none;
   }

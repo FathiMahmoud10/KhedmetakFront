@@ -17,6 +17,7 @@ import { MyRequests } from './Pages/my-requests/my-requests';
 import { MyFiles } from './Pages/my-files/my-files';
 import { AdminFeesComponent } from './Pages/admin-fees/admin-fees';
 import { AdminRequiredDocumentsComponent } from './Pages/admin-required-documents/admin-required-documents';
+import { AdminPortalLogComponent } from './Pages/admin-portal-log/admin-portal-log';
 
 import { guestGuard } from './Guards/guest.guard';
 import { adminGuard } from './Guards/admin.guard';
@@ -46,6 +47,7 @@ export const routes: Routes = [
   { path: 'admin-service-detail/:id', component: ServiceDetailComponent, canActivate: [adminGuard] },
   { path: 'admin-fees',            component: AdminFeesComponent,     canActivate: [adminGuard] },
   { path: 'admin-required-documents', component: AdminRequiredDocumentsComponent, canActivate: [adminGuard] },
+  { path: 'admin-portal-log',       component: AdminPortalLogComponent,        canActivate: [adminGuard] },
 
   // ==============================
   // صفحات المستخدم العادي فقط
