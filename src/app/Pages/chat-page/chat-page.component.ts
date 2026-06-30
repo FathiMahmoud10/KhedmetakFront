@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { ChatApiService, ChatResponse, CurrentServiceDetails } from '../../APIServices/SharedServices/chat-api.service';
@@ -155,6 +155,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   constructor(
     private http: HttpClient,
     private route: ActivatedRoute,
+    private router: Router,
     private chatApiService: ChatApiService,
     private authService: AuthService,
     private dashboardService: UserDashboardService
@@ -667,6 +668,11 @@ doSubmitRequest(): void {
         this.isCollectingRequestInfo = false;
         this.loadUserSessions();
         this.scrollToBottom();
+
+        // توجيه المستخدم لصفحة "طلباتي" بعد 3 ثوانٍ ليتمكن من رؤية طلبه ومتابعته
+        setTimeout(() => {
+          this.router.navigate(['/my-requests']);
+        }, 3000);
       } else {
         const msg = res?.message || 'فشل إرسال الطلب.';
         this.appendBotMsg(`❌ ${msg}`);
