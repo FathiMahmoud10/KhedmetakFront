@@ -185,6 +185,26 @@ export class AdminDashboard implements OnInit, AfterViewInit {
         this.updateMessage  = res?.message ?? `تم تحديث الحالة إلى [${newStatus}] بنجاح ✅`;
         this.updateSuccess  = true;
         this.issuanceResult = res?.data?.issuanceResult ?? null;
+
+        // إضافة المستند الصادر الجديد إلى قائمة الملفات المعروضة في المودال فوراً
+        if (this.issuanceResult && this.issuanceResult.success && this.issuanceResult.filePath) {
+          if (!this.selectedRequest.documents) {
+            this.selectedRequest.documents = [];
+          }
+          const alreadyExists = this.selectedRequest.documents.some(
+            (d: any) => d.filePath === this.issuanceResult.filePath
+          );
+          if (!alreadyExists) {
+            this.selectedRequest.documents.push({
+              fileName: this.issuanceResult.issuedDocument?.fileName || 'مستند_رسمي.pdf',
+              filePath: this.issuanceResult.filePath,
+              fileType: this.issuanceResult.issuedDocument?.fileType || 'application/pdf',
+              uploadedAt: new Date().toISOString(),
+              status: 'Issued'
+            });
+          }
+        }
+
         this.isUpdatingStatus = false;
         // تحديث سجل البوابة الرقمية تلقائياً بعد كل إصدار
         this.loadPortalTransactions();
