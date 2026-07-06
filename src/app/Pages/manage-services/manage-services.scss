@@ -383,6 +383,62 @@ $cat-default:    #6b7693;
   }
 }
 
+.ms-field--checkbox {
+  flex-direction: row;
+}
+
+.ms-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border: 1.5px solid $border;
+  border-radius: 10px;
+  background: #fafbfc;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  transition: border-color 0.2s, background 0.2s;
+
+  input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: $blue;
+    cursor: pointer;
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  i {
+    color: $blue;
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  &:hover {
+    border-color: darken($border, 6%);
+    background: $white;
+  }
+}
+
+.ms-field-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: $muted;
+  padding: 6px 2px;
+
+  i {
+    color: $blue;
+  }
+}
+
 .ms-btn-submit {
   margin-top: 6px;
   background: linear-gradient(135deg, $green, darken($green, 6%));

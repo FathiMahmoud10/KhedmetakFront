@@ -45,7 +45,11 @@ export class ManageServices implements OnInit {
     description: '',
     srvFees: 0,
     srvTime: '',
-    estimatedFees: 0
+    estimatedFees: 0,
+    providerEntity: '',
+    targetAudience: '',
+    deliveryMethod: '',
+    needsGuarantee: false
   };
 
   isSaving = false;
@@ -160,7 +164,11 @@ export class ManageServices implements OnInit {
       categoryId: this.newService.categoryId,
       srvFees: this.newService.srvFees,
       srvTime: this.newService.srvTime.trim(),
-      estimatedFees: this.newService.estimatedFees
+      estimatedFees: this.newService.estimatedFees,
+      providerEntity: this.newService.providerEntity.trim(),
+      targetAudience: this.newService.targetAudience.trim(),
+      deliveryMethod: this.newService.deliveryMethod.trim(),
+      needsGuarantee: this.newService.needsGuarantee
     };
 
     this.isSaving = true;
@@ -187,7 +195,11 @@ export class ManageServices implements OnInit {
       description: '',
       srvFees: 0,
       srvTime: '',
-      estimatedFees: 0
+      estimatedFees: 0,
+      providerEntity: '',
+      targetAudience: '',
+      deliveryMethod: '',
+      needsGuarantee: false
     };
   }
 
@@ -200,9 +212,14 @@ export class ManageServices implements OnInit {
     description: '',
     srvFees: 0,
     srvTime: '',
-    estimatedFees: 0
+    estimatedFees: 0,
+    providerEntity: '',
+    targetAudience: '',
+    deliveryMethod: '',
+    needsGuarantee: false
   };
   isSavingEdit = false;
+  isLoadingEditDetails = false;
   editErrorMessage: string | null = null;
 
   openEdit(svc: IService): void {
@@ -213,10 +230,32 @@ export class ManageServices implements OnInit {
       description: svc.srvDesc,
       srvFees: svc.srvFees ?? 0,
       srvTime: svc.srvTime ?? '',
-      estimatedFees: svc.estimatedFees ?? 0
+      estimatedFees: svc.estimatedFees ?? 0,
+      providerEntity: '',
+      targetAudience: '',
+      deliveryMethod: '',
+      needsGuarantee: false
     };
     this.editErrorMessage = null;
     this.showEditModal = true;
+
+    // بيانات الشريط العلوي (الجهة/الفئة المستهدفة/الاستلام/الضمان) مش موجودة في قائمة الخدمات المختصرة
+    // فبنجيبها من endpoint التفاصيل الكاملة عشان تتعبى صح في نموذج التعديل
+    this.isLoadingEditDetails = true;
+    this.adminService.getServiceDetails(svc.id).subscribe({
+      next: (res) => {
+        this.isLoadingEditDetails = false;
+        if (res.success && res.data && this.editingService?.id === svc.id) {
+          this.editServiceForm.providerEntity = res.data.providerEntity ?? '';
+          this.editServiceForm.targetAudience = res.data.targetAudience ?? '';
+          this.editServiceForm.deliveryMethod = res.data.deliveryMethod ?? '';
+          this.editServiceForm.needsGuarantee = res.data.needsGuarantee ?? false;
+        }
+      },
+      error: () => {
+        this.isLoadingEditDetails = false;
+      }
+    });
   }
 
   closeEdit(): void {
@@ -250,7 +289,11 @@ export class ManageServices implements OnInit {
       categoryId: this.editServiceForm.categoryId,
       srvFees: this.editServiceForm.srvFees,
       srvTime: this.editServiceForm.srvTime.trim(),
-      estimatedFees: this.editServiceForm.estimatedFees
+      estimatedFees: this.editServiceForm.estimatedFees,
+      providerEntity: this.editServiceForm.providerEntity.trim(),
+      targetAudience: this.editServiceForm.targetAudience.trim(),
+      deliveryMethod: this.editServiceForm.deliveryMethod.trim(),
+      needsGuarantee: this.editServiceForm.needsGuarantee
     };
 
     this.isSavingEdit = true;

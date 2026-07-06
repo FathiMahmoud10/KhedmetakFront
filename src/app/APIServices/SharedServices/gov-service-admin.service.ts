@@ -17,6 +17,8 @@ export interface ImportServicesResultDto {
   stepsCreated: number;
   documentsCreated: number;
   categoriesCreated: number;
+  feeTiersCreated: number;
+  importantNotesCreated: number;
   errors: ImportRowErrorDto[];
 }
 
@@ -28,6 +30,10 @@ export interface CreateGovServiceDto {
   srvFees: number;
   srvTime: string;
   estimatedFees: number;
+  providerEntity: string;
+  targetAudience: string;
+  deliveryMethod: string;
+  needsGuarantee: boolean;
 }
 
 // مطابق لـ UpdateGovServiceDto (PUT /api/admin/govservices/{id})
@@ -38,6 +44,26 @@ export interface UpdateGovServiceDto {
   srvFees: number;
   srvTime: string;
   estimatedFees: number;
+  providerEntity: string;
+  targetAudience: string;
+  deliveryMethod: string;
+  needsGuarantee: boolean;
+}
+
+// مطابق لـ GovServiceDetailsDto (يرجع كل بيانات الخدمة بما فيها بيانات الشريط العلوي)
+export interface GovServiceAdminDetailsDto {
+  id: number;
+  srvName: string;
+  srvDesc: string;
+  srvFees: number;
+  srvTime: string;
+  estimatedFees: number;
+  categoryName: string;
+  categoryId: number;
+  providerEntity: string;
+  targetAudience: string;
+  deliveryMethod: string;
+  needsGuarantee: boolean;
 }
 
 @Injectable({
@@ -48,6 +74,10 @@ export class GovServiceAdminService {
 
   constructor(private http: HttpClient) { }
 
+  // جلب تفاصيل خدمة واحدة كاملة (لملء نموذج التعديل ببيانات الشريط العلوي)
+  getServiceDetails(id: number): Observable<ApiResponse<GovServiceAdminDetailsDto>> {
+    return this.http.get<ApiResponse<GovServiceAdminDetailsDto>>(`${this.apiUrl}/${id}`);
+  }
 
   importFromExcel(file: File): Observable<ApiResponse<ImportServicesResultDto>> {
     const formData = new FormData();
