@@ -4,19 +4,33 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../Utilities/Interfaces/IService';
-// import { environment } from '../../../environments/environment';
 
 // ── API response shape ────────────────────────────────────────────────────
 interface RequiredDocument {
   id: number;
   documentName: string;
   isMandatory: boolean;
+  note?: string;
 }
 
 interface ServiceStep {
   id: number;
   title: string;
+  description?: string;
   stepOrder: number;
+}
+
+interface ServiceFeeTier {
+  id: number;
+  tierName: string;
+  fees: number;
+  duration: string;
+  isRefundable: boolean;
+}
+
+interface ServiceImportantNote {
+  id: number;
+  note: string;
 }
 
 interface ServiceDetailApi {
@@ -28,12 +42,17 @@ interface ServiceDetailApi {
   estimatedFees: number;
   categoryName: string;
   categoryId: number;
+  providerEntity: string;
+  targetAudience: string;
+  deliveryMethod: string;
+  needsGuarantee: boolean;
   steps: ServiceStep[];
   requiredDocuments: RequiredDocument[];
   options: any[];
   generalDocs: any[];
+  feeTiers: ServiceFeeTier[];
+  importantNotes: ServiceImportantNote[];
 }
-
 
 @Component({
   selector: 'app-service-details',
@@ -56,9 +75,8 @@ export class ServiceDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
-      if (id) {
-        this.fetchService(Number(id));
-      } else {
+      if (id) this.fetchService(Number(id));
+      else {
         this.notFound = true;
         this.isLoading = false;
       }
@@ -73,11 +91,8 @@ export class ServiceDetailsComponent implements OnInit {
       .get<ApiResponse<ServiceDetailApi>>(`${environment.apiUrl}/GovServices/${id}`)
       .subscribe({
         next: (res) => {
-          if (res.success && res.data) {
-            this.service = res.data;
-          } else {
-            this.notFound = true;
-          }
+          if (res.success && res.data) this.service = res.data;
+          else this.notFound = true;
           this.isLoading = false;
         },
         error: () => {
@@ -85,36 +100,56 @@ export class ServiceDetailsComponent implements OnInit {
           this.isLoading = false;
         },
       });
-      console.log(this.service?.steps);
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Getters ──────────────────────────────────────────────────────────────
+  get sortedSteps(): ServiceStep[] {
+    return [...(this.service?.steps ?? [])].sort((a, b) => a.stepOrder - b.stepOrder);
+  }
+  get sortedDocs(): RequiredDocument[] {
+    return [...(this.service?.requiredDocuments ?? [])].sort(
+      (a, b) => (b.isMandatory ? 1 : 0) - (a.isMandatory ? 1 : 0)
+    );
+  }
+  get sortedFeeTiers(): ServiceFeeTier[] { return this.service?.feeTiers ?? []; }
+  get sortedNotes(): ServiceImportantNote[] { return this.service?.importantNotes ?? []; }
 
+  // ── Theme ────────────────────────────────────────────────────────────────
+  /** Main color per category (drives hero, buttons, accents) */
   getCategoryColor(): string {
-    const colorMap: Record<number, string> = {
-      1: '#298b64',
-      2: '#f59e0b',
-      3: '#6366f1',
-      4: '#ef4444',
-      5: '#487fb9',
-      6: '#ec4899',
+    // كل الخدمات تستخدم نفس اللون الأخضر (زي البطاقة)
+    return '#0f6b46';
+  }
+  getCategorySoft(): string {
+    // very light tint of the main color for backgrounds
+    const c = this.getCategoryColor();
+    return c + '14'; // ~8% alpha in hex
+  }
+  getCategoryIcon(): string {
+    const map: Record<number, string> = {
+      1: 'fa-id-card',
+      5: 'fa-car',
     };
-    return colorMap[this.service?.categoryId ?? 0] ?? '#023264';
+    return map[this.service?.categoryId ?? 0] ?? 'fa-briefcase';
+  }
+  getDocIcon(i: number): string {
+    const icons = ['fa-id-card', 'fa-briefcase', 'fa-location-dot', 'fa-camera',
+                   'fa-file-lines', 'fa-stethoscope', 'fa-image', 'fa-graduation-cap',
+                   'fa-shield-halved', 'fa-award'];
+    return icons[i % icons.length];
+  }
+  getStepIcon(i: number): string {
+    const icons = ['fa-pen-to-square', 'fa-circle-check', 'fa-user-tie',
+                   'fa-camera', 'fa-money-check-dollar', 'fa-id-badge'];
+    return icons[i % icons.length];
   }
 
-  goBack(): void {
-    this.router.navigate(['/services']);
-  }
-
+  // ── Actions ──────────────────────────────────────────────────────────────
+  goBack(): void { this.router.navigate(['/services']); }
   startService(): void {
-    if (this.service?.id) {
+    if (this.service?.id)
       this.router.navigate(['/chat'], { queryParams: { serviceId: this.service.id } });
-    }
   }
-
-  askAssistant(): void {
-    if (this.service?.id) {
-      this.router.navigate(['/chat'], { queryParams: { serviceId: this.service.id } });
-    }
-  }
+  askAssistant(): void { this.startService(); }
+  saveFavorite(): void { /* hook up if needed */ }
 }

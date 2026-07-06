@@ -130,6 +130,14 @@
             <span class="ms-import-stat__num">{{ importResult.documentsCreated }}</span>
             <span class="ms-import-stat__lbl">مستند جديد</span>
           </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.feeTiersCreated }}</span>
+            <span class="ms-import-stat__lbl">فئة رسوم جديدة</span>
+          </div>
+          <div class="ms-import-stat">
+            <span class="ms-import-stat__num">{{ importResult.importantNotesCreated }}</span>
+            <span class="ms-import-stat__lbl">ملاحظة جديدة</span>
+          </div>
         </div>
 
         <!-- Errors table -->
@@ -276,6 +284,59 @@
               placeholder="مثال: من 3 إلى 5 أيام عمل"
               required
             />
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-building"></i>
+              الجهة المقدمة للخدمة
+            </label>
+            <input
+              class="ms-field__input"
+              type="text"
+              [(ngModel)]="newService.providerEntity"
+              name="providerEntity"
+              placeholder="مثال: مصلحة الأحوال المدنية"
+            />
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-users"></i>
+              الفئة المستهدفة
+            </label>
+            <input
+              class="ms-field__input"
+              type="text"
+              [(ngModel)]="newService.targetAudience"
+              name="targetAudience"
+              placeholder="مثال: خدمات الأفراد"
+            />
+          </div>
+
+          <div class="ms-field">
+            <label class="ms-field__label">
+              <i class="fas fa-truck"></i>
+              طريقة الاستلام
+            </label>
+            <input
+              class="ms-field__input"
+              type="text"
+              [(ngModel)]="newService.deliveryMethod"
+              name="deliveryMethod"
+              placeholder="مثال: السجل المدني / البريد"
+            />
+          </div>
+
+          <div class="ms-field ms-field--checkbox">
+            <label class="ms-checkbox">
+              <input
+                type="checkbox"
+                [(ngModel)]="newService.needsGuarantee"
+                name="needsGuarantee"
+              />
+              <span><i class="fas fa-shield-alt"></i> تحتاج الخدمة إلى ضامن</span>
+            </label>
           </div>
 
           <!-- Inline feedback -->
@@ -529,6 +590,64 @@
             placeholder="مثال: من 3 إلى 5 أيام عمل"
             required
           />
+        </div>
+
+        <div class="ms-field-hint" *ngIf="isLoadingEditDetails">
+          <i class="fas fa-spinner fa-spin"></i>
+          جارٍ تحميل بيانات الشريط العلوي…
+        </div>
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-building"></i>
+            الجهة المقدمة للخدمة
+          </label>
+          <input
+            class="ms-field__input"
+            type="text"
+            [(ngModel)]="editServiceForm.providerEntity"
+            name="editProviderEntity"
+            placeholder="مثال: مصلحة الأحوال المدنية"
+          />
+        </div>
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-users"></i>
+            الفئة المستهدفة
+          </label>
+          <input
+            class="ms-field__input"
+            type="text"
+            [(ngModel)]="editServiceForm.targetAudience"
+            name="editTargetAudience"
+            placeholder="مثال: خدمات الأفراد"
+          />
+        </div>
+
+        <div class="ms-field">
+          <label class="ms-field__label">
+            <i class="fas fa-truck"></i>
+            طريقة الاستلام
+          </label>
+          <input
+            class="ms-field__input"
+            type="text"
+            [(ngModel)]="editServiceForm.deliveryMethod"
+            name="editDeliveryMethod"
+            placeholder="مثال: السجل المدني / البريد"
+          />
+        </div>
+
+        <div class="ms-field ms-field--checkbox">
+          <label class="ms-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="editServiceForm.needsGuarantee"
+              name="editNeedsGuarantee"
+            />
+            <span><i class="fas fa-shield-alt"></i> تحتاج الخدمة إلى ضامن</span>
+          </label>
         </div>
 
         <div class="ms-import-alert ms-import-alert--error" *ngIf="editErrorMessage">

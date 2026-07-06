@@ -1,199 +1,255 @@
-<!-- Loading State -->
-<div *ngIf="isLoading" class="details-page" dir="rtl">
-  <div class="loading-state">
-    <div class="spinner"></div>
-    <p>جاري تحميل تفاصيل الخدمة...</p>
+<div class="sd" [style.--c]="getCategoryColor()" [style.--c-soft]="getCategorySoft()" dir="rtl">
+
+  <!-- Loading -->
+  <div class="sd__state" *ngIf="isLoading">
+    <div class="sd__spinner"></div>
+    <p>جارٍ تحميل بيانات الخدمة…</p>
   </div>
-</div>
 
-<!-- Service Details -->
-<div class="details-page" dir="rtl" *ngIf="!isLoading && service">
+  <!-- Not found -->
+  <div class="sd__state sd__state--error" *ngIf="notFound && !isLoading">
+    <i class="fas fa-triangle-exclamation"></i>
+    <p>تعذّر تحميل الخدمة</p>
+    <button class="sd__btn sd__btn--primary" (click)="goBack()">العودة للخدمات</button>
+  </div>
 
-  <!-- Hero Header -->
-  <div class="details-hero"
-    [style.background]="'linear-gradient(135deg, ' + getCategoryColor() + 'dd 0%, ' + getCategoryColor() + ' 100%)'">
-    <div class="container">
+  <ng-container *ngIf="service && !isLoading">
 
-      <!-- Breadcrumb -->
-      <nav class="breadcrumb-nav">
-        <a routerLink="/services" class="bc-link">الخدمات</a>
-        <i class="bi bi-chevron-left bc-sep"></i>
-        <span class="bc-link">{{ service.categoryName }}</span>
-        <i class="bi bi-chevron-left bc-sep"></i>
-        <span class="bc-current">{{ service.srvName }}</span>
-      </nav>
+    <!-- ═══ HERO ═══ -->
+    <header class="sd-hero">
+      <div class="sd-hero__inner">
+        <nav class="sd-hero__crumbs">
+          <a [routerLink]="['/']">الرئيسية</a>
+          <i class="fas fa-chevron-left"></i>
+          <a [routerLink]="['/services']">الخدمات</a>
+          <i class="fas fa-chevron-left"></i>
+          <a>{{ service.categoryName }}</a>
+          <i class="fas fa-chevron-left"></i>
+          <span>{{ service.srvName }}</span>
+        </nav>
 
-      <div class="hero-content">
-        <div class="hero-icon-wrap">
-          <i class="bi bi-file-earmark-text-fill"></i>
-        </div>
-        <div class="hero-text">
-          <h1 class="hero-title">{{ service.srvName }}</h1>
-          <p class="hero-desc">{{ service.srvDesc }}</p>
-          <div class="hero-badges">
-            <span class="hero-badge">
-              <i class="bi bi-clock"></i>
-              {{ service.srvTime }}
-            </span>
-            <span class="hero-badge">
-              <i class="bi bi-cash-coin"></i>
-              الرسوم: {{ service.estimatedFees }} ج.م
-            </span>
-            <span class="hero-badge">
-              <i class="bi bi-file-earmark-text"></i>
-              {{ service.requiredDocuments.length }} مستندات مطلوبة
-            </span>
+        <div class="sd-hero__body">
+          <div class="sd-hero__text">
+            <h1>{{ service.srvName }}</h1>
+            <p>{{ service.srvDesc }}</p>
+          </div>
+          <div class="sd-hero__icon">
+            <i class="fas" [ngClass]="getCategoryIcon()"></i>
           </div>
         </div>
       </div>
-    </div>
-  </div>
+      <div class="sd-hero__wave"></div>
+    </header>
 
-  <!-- Content -->
-  <div class="container details-container">
-    <div class="details-grid">
+    <!-- ═══ TOP INFO STRIP ═══ -->
+    <section class="sd-strip">
+      <div class="sd-strip__card">
+        <div class="sd-strip__item">
+          <i class="fas fa-users"></i>
+          <div><span>الفئة المستهدفة</span><strong>{{ service.targetAudience || 'الأفراد' }}</strong></div>
+        </div>
+        <div class="sd-strip__item">
+          <i class="fas fa-clock"></i>
+          <div><span>المدة المتوقعة</span><strong>{{ service.srvTime }}</strong></div>
+        </div>
+        <div class="sd-strip__item">
+          <i class="fas fa-credit-card"></i>
+          <div><span>الرسوم الحكومية</span><strong>{{ service.srvFees | number }} ج.م</strong></div>
+        </div>
+        <div class="sd-strip__item">
+          <i class="fas fa-truck"></i>
+          <div><span>طريقة الاستلام</span><strong>{{ service.deliveryMethod || 'وحدة المرور' }}</strong></div>
+        </div>
+        <div class="sd-strip__item" *ngIf="service.needsGuarantee !== undefined">
+          <i class="fas fa-shield-halved"></i>
+          <div><span>يحتاج ضامن؟</span><strong>{{ service.needsGuarantee ? 'قد يُطلب' : 'لا' }}</strong></div>
+        </div>
+      </div>
+    </section>
 
-      <!-- Left Column: Documents + Steps -->
-      <div class="details-main">
+    <!-- ═══ MAIN GRID ═══ -->
+    <div class="sd-grid">
+
+      <!-- Sidebar Summary -->
+      <aside class="sd-side">
+        <div class="sd-card">
+          <div class="sd-card__head">
+            <h3>ملخص الخدمة</h3>
+            <i class="fas fa-list"></i>
+          </div>
+          <ul class="sd-summary">
+            <li>
+              <i class="fas fa-building"></i>
+              <div><span>الجهة المقدمة للخدمة</span><strong>{{ service.providerEntity || service.categoryName }}</strong></div>
+            </li>
+            <li>
+              <i class="fas fa-user"></i>
+              <div><span>نوع الخدمة</span><strong>{{ service.targetAudience || 'أفراد' }}</strong></div>
+            </li>
+            <li>
+              <i class="fas fa-clock"></i>
+              <div><span>المدة المتوقعة</span><strong>{{ service.srvTime }}</strong></div>
+            </li>
+            <li>
+              <i class="fas fa-credit-card"></i>
+              <div><span>الرسوم الحكومية</span><strong>{{ service.srvFees | number }} ج.م</strong></div>
+            </li>
+            <li>
+              <i class="fas fa-truck"></i>
+              <div><span>طريقة الاستلام</span><strong>{{ service.deliveryMethod || 'وحدة المرور' }}</strong></div>
+            </li>
+            <li>
+              <i class="fas fa-file-lines"></i>
+              <div><span>عدد المستندات المطلوبة</span><strong>{{ sortedDocs.length }} مستندات</strong></div>
+            </li>
+            <li>
+              <i class="fas fa-star"></i>
+              <div><span>إمكانية التقديم أونلاين</span><span class="sd-pill">متاح</span></div>
+            </li>
+          </ul>
+        </div>
+
+        <button class="sd__btn sd__btn--primary sd__btn--block" (click)="startService()">
+          <span>ابدأ الخدمة الآن</span>
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <button class="sd__btn sd__btn--ghost sd__btn--block" (click)="saveFavorite()">
+          <span>حفظ الخدمة للمفضلة</span>
+          <i class="far fa-star"></i>
+        </button>
+      </aside>
+
+      <!-- Right column -->
+      <div class="sd-main">
 
         <!-- Required Documents -->
-        <div class="details-card">
-          <div class="card-header">
-            <div class="card-header-icon" style="background:#eff6ff; color:#2563eb">
-              <i class="bi bi-file-earmark-check-fill"></i>
-            </div>
-            <h2 class="card-header-title">المستندات المطلوبة</h2>
+        <div class="sd-card">
+          <div class="sd-card__head">
+            <h3>المستندات المطلوبة</h3>
+            <i class="fas fa-file-lines"></i>
           </div>
 
-          <div *ngIf="service.requiredDocuments.length > 0; else noDocs" class="documents-list">
-            <div
-              *ngFor="let doc of service.requiredDocuments"
-              class="document-item"
-              [class.required]="doc.isMandatory"
-              [class.optional]="!doc.isMandatory"
-            >
-              <div class="doc-check">
-                <i class="bi"
-                  [class.bi-check-circle-fill]="doc.isMandatory"
-                  [class.bi-circle]="!doc.isMandatory">
-                </i>
-              </div>
-              <span class="doc-name">{{ doc.documentName }}</span>
-              <span class="doc-tag" *ngIf="!doc.isMandatory">اختياري</span>
+          <div class="sd-docs" *ngIf="sortedDocs.length; else emptyDocs">
+            <div class="sd-doc" *ngFor="let doc of sortedDocs; let i = index">
+              <div class="sd-doc__icon"><i class="fas" [ngClass]="getDocIcon(i)"></i></div>
+              <h4>{{ doc.documentName }}</h4>
+              <span class="sd-badge" [class.sd-badge--opt]="!doc.isMandatory">
+                {{ doc.isMandatory ? 'إجباري' : 'اختياري' }}
+              </span>
+              <p *ngIf="doc.note">{{ doc.note }}</p>
+              <button class="sd-doc__help" aria-label="مساعدة"><i class="far fa-circle-question"></i></button>
             </div>
           </div>
-
-          <ng-template #noDocs>
-            <p class="empty-note">لا توجد مستندات مطلوبة لهذه الخدمة.</p>
+          <ng-template #emptyDocs>
+            <div class="sd-empty"><i class="fas fa-folder-open"></i> لا توجد مستندات مطلوبة</div>
           </ng-template>
+
+          <p class="sd-docs__hint">
+            الملفات المسموح بها: JPG, PNG, PDF – الحد الأقصى لكل ملف 5 ميجابايت
+          </p>
         </div>
 
-        <!-- Steps -->
-        <div class="details-card">
-          <div class="card-header">
-            <div class="card-header-icon" style="background:#f0fdf4; color:#10b981">
-              <i class="bi bi-list-ol"></i>
+        <!-- Fees + Duration + Steps -->
+        <div class="sd-row-3">
+
+          <!-- Fees -->
+          <div class="sd-card">
+            <div class="sd-card__head">
+              <h3>الرسوم والتكاليف</h3>
+              <i class="fas fa-credit-card"></i>
             </div>
-            <h2 class="card-header-title">خطوات تقديم الخدمة</h2>
+            <table class="sd-table" *ngIf="sortedFeeTiers.length; else feesFallback">
+              <thead><tr><th>نوع الاستمارة</th><th>الرسوم</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let t of sortedFeeTiers">
+                  <td>{{ t.tierName }}</td>
+                  <td>{{ t.fees | number }} ج.م</td>
+                </tr>
+              </tbody>
+            </table>
+            <ng-template #feesFallback>
+              <table class="sd-table">
+                <thead><tr><th>نوع الاستمارة</th><th>الرسوم</th></tr></thead>
+                <tbody>
+                  <tr><td>عادية</td><td>{{ service.srvFees | number }} ج.م</td></tr>
+                </tbody>
+              </table>
+            </ng-template>
+            <p class="sd-note sd-note--soft">
+              <i class="fas fa-circle-info"></i> الرسوم غير قابلة للاسترداد
+            </p>
           </div>
 
-          <div *ngIf="service.steps.length > 0; else noSteps" class="steps-list">
-            <div class="step-item" *ngFor="let step of service.steps">
-              <div class="step-number">{{ step.stepOrder }}</div>
-              <div class="step-content">
-                <p class="step-desc">{{ step.title }}</p>
-              </div>
+          <!-- Duration table -->
+          <div class="sd-card" *ngIf="sortedFeeTiers.length">
+            <div class="sd-card__head">
+              <h3>المدة المطلوبة للاستلام</h3>
+              <i class="fas fa-clock"></i>
             </div>
+            <table class="sd-table">
+              <thead><tr><th>نوع الاستمارة</th><th>المدة</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let t of sortedFeeTiers">
+                  <td>{{ t.tierName }}</td>
+                  <td>{{ t.duration }}</td>
+                </tr>
+              </tbody>
+            </table>
+            <p class="sd-note"><i class="fas fa-circle-info"></i> تحسب المدة من تاريخ قبول الطلب</p>
           </div>
 
-          <ng-template #noSteps>
-            <p class="empty-note">لم يتم تحديد خطوات لهذه الخدمة بعد.</p>
-          </ng-template>
+          <!-- Requirements icons list (fallback slot when no duration) -->
+          <div class="sd-card" *ngIf="!sortedFeeTiers.length">
+            <div class="sd-card__head">
+              <h3>الاحتياجات</h3>
+              <i class="fas fa-list-check"></i>
+            </div>
+            <ul class="sd-needs">
+              <li *ngFor="let d of sortedDocs.slice(0,3)">
+                <i class="fas fa-check-circle"></i>
+                <div><strong>{{ d.documentName }}</strong><span *ngIf="d.note">{{ d.note }}</span></div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Steps -->
+          <div class="sd-card">
+            <div class="sd-card__head">
+              <h3>خطوات تنفيذ الخدمة</h3>
+              <i class="fas fa-list-ol"></i>
+            </div>
+            <ol class="sd-steps" *ngIf="sortedSteps.length; else emptySteps">
+              <li *ngFor="let s of sortedSteps; let i = index">
+                <div class="sd-steps__num">{{ s.stepOrder }}</div>
+                <div class="sd-steps__body">
+                  <strong>{{ s.title }}</strong>
+                  <span *ngIf="s.description">{{ s.description }}</span>
+                </div>
+                <div class="sd-steps__icon"><i class="fas" [ngClass]="getStepIcon(i)"></i></div>
+              </li>
+            </ol>
+            <ng-template #emptySteps>
+              <div class="sd-empty"><i class="fas fa-route"></i> لا توجد خطوات مسجلة</div>
+            </ng-template>
+          </div>
+
         </div>
       </div>
+    </div>
 
-      <!-- Right Column: Summary + Actions -->
-      <div class="details-sidebar">
-
-        <!-- Service Summary -->
-        <div class="details-card summary-card">
-          <h3 class="summary-title">ملخص الخدمة</h3>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="bi bi-tag-fill"></i>
-              الفئة
-            </span>
-            <span class="summary-value">{{ service.categoryName }}</span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="bi bi-clock-fill"></i>
-              المدة المتوقعة
-            </span>
-            <span class="summary-value">{{ service.srvTime }}</span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="bi bi-cash-coin"></i>
-              الرسوم الرسمية
-            </span>
-            <span class="summary-value fees">{{ service.srvFees }} ج.م</span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="bi bi-wallet2"></i>
-              الرسوم التقديرية
-            </span>
-            <span class="summary-value fees">{{ service.estimatedFees }} ج.م</span>
-          </div>
-
-          <div class="summary-row">
-            <span class="summary-label">
-              <i class="bi bi-file-earmark-text-fill"></i>
-              عدد المستندات
-            </span>
-            <span class="summary-value">{{ service.requiredDocuments.length }} مستند</span>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <button class="btn-primary-action" (click)="startService()">
-            <i class="bi bi-play-circle-fill"></i>
-            <span>ابدأ الخدمة</span>
-          </button>
-
-          <button class="btn-ai-action" (click)="askAssistant()">
-            <i class="bi bi-stars"></i>
-            <span>اسأل المساعد الذكي</span>
-          </button>
-        </div>
-
-        <!-- Back Button -->
-        <button class="btn-back" (click)="goBack()">
-          <i class="bi bi-arrow-right"></i>
-          العودة للخدمات
-        </button>
+    <!-- ═══ IMPORTANT NOTES ═══ -->
+    <section class="sd-notes" *ngIf="sortedNotes.length">
+      <div class="sd-notes__head">
+        <i class="fas fa-circle-info"></i>
+        <h3>معلومات مهمة</h3>
       </div>
-    </div>
-  </div>
-</div>
+      <div class="sd-notes__grid">
+        <div class="sd-notes__item" *ngFor="let n of sortedNotes">
+          <i class="fas fa-check-circle"></i>
+          <span>{{ n.note }}</span>
+        </div>
+      </div>
+    </section>
 
-<!-- 404 Template -->
-<div *ngIf="!isLoading && notFound" class="not-found-page" dir="rtl">
-  <div class="not-found-content">
-    <div class="not-found-icon">
-      <i class="bi bi-exclamation-circle"></i>
-    </div>
-    <h2>الخدمة غير موجودة</h2>
-    <p>لم نتمكن من العثور على هذه الخدمة. يرجى التحقق من الرابط أو تصفح الخدمات المتاحة.</p>
-    <button class="btn-primary-action" routerLink="/services">
-      <i class="bi bi-grid-fill"></i>
-      تصفح جميع الخدمات
-    </button>
-  </div>
+  </ng-container>
 </div>
