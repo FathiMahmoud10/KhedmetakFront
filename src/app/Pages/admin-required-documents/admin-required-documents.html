@@ -143,6 +143,33 @@
             </div>
 
             <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-image"></i>
+                المستند القياسي (نموذج/صورة)
+              </label>
+              <input
+                class="rd-field__input"
+                type="file"
+                (change)="onNewFileSelected($event)"
+                accept="image/*,application/pdf"
+              />
+            </div>
+
+            <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-gavel"></i>
+                القاعدة العامة / الإرشادات
+              </label>
+              <textarea
+                class="rd-field__input"
+                [(ngModel)]="newDocRule"
+                name="newDocRule"
+                placeholder="مثال: يجب أن تكون الصورة واضحة والاسم ظاهر بالكامل"
+                rows="2"
+              ></textarea>
+            </div>
+
+            <div class="rd-field">
               <label class="rd-field__label rd-field__label--toggle">
                 <span>
                   <i class="fas fa-star"></i>
@@ -326,6 +353,33 @@
             </select>
             <i class="fas fa-chevron-down rd-select-wrap__arrow"></i>
           </div>
+        </div>
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-image"></i>
+            المستند القياسي الجديد (اختياري)
+          </label>
+          <input
+            class="rd-field__input"
+            type="file"
+            (change)="onEditFileSelected($event)"
+            accept="image/*,application/pdf"
+          />
+        </div>
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-gavel"></i>
+            القاعدة العامة / الإرشادات
+          </label>
+          <textarea
+            class="rd-field__input"
+            [(ngModel)]="editDocRule"
+            name="editDocRule"
+            placeholder="مثال: يجب أن تكون الصورة واضحة والاسم ظاهر بالكامل"
+            rows="2"
+          ></textarea>
         </div>
 
         <div class="rd-field">

@@ -10,6 +10,7 @@ export interface RequiredDocumentDto {
   documentName: string;
   isMandatory: boolean;
   documentType: number;
+  standardDocument?: any;
 }
 
 export interface CreateRequiredDocumentDto {
@@ -65,6 +66,8 @@ export class AdminRequiredDocumentsComponent implements OnInit {
     isMandatory: true,
     documentType: 3
   };
+  newDocFile: File | null = null;
+  newDocRule: string = '';
 
   isSaving = false;
   formSuccessMessage: string | null = null;
@@ -78,6 +81,8 @@ export class AdminRequiredDocumentsComponent implements OnInit {
     isMandatory: true,
     documentType: 3
   };
+  editDocFile: File | null = null;
+  editDocRule: string = '';
 
   isSavingEdit = false;
   editErrorMessage: string | null = null;
@@ -167,6 +172,20 @@ export class AdminRequiredDocumentsComponent implements OnInit {
   // ==========================================
   // إضافة مستند جديد للخدمة المحددة عبر الـ AdminService
   // ==========================================
+  onNewFileSelected(event: any): void {
+    const file = event.target?.files?.[0];
+    if (file) {
+      this.newDocFile = file;
+    }
+  }
+
+  onEditFileSelected(event: any): void {
+    const file = event.target?.files?.[0];
+    if (file) {
+      this.editDocFile = file;
+    }
+  }
+
   saveDocument(): void {
     this.formSuccessMessage = null;
     this.formErrorMessage = null;
@@ -180,7 +199,18 @@ export class AdminRequiredDocumentsComponent implements OnInit {
 
     this.isSaving = true;
 
-    this.adminService.createRequiredDocument(this.selectedServiceId, this.newDoc).subscribe({
+    const formData = new FormData();
+    formData.append('documentName', this.newDoc.documentName);
+    formData.append('isMandatory', String(this.newDoc.isMandatory));
+    formData.append('documentType', String(this.newDoc.documentType));
+    if (this.newDocFile) {
+      formData.append('standardDocumentFile', this.newDocFile);
+    }
+    if (this.newDocRule) {
+      formData.append('generalRule', this.newDocRule);
+    }
+
+    this.adminService.createRequiredDocument(this.selectedServiceId, formData).subscribe({
       next: (response: any) => {
         this.isSaving = false;
         if (response?.success || response?.id || response) {
@@ -204,6 +234,8 @@ export class AdminRequiredDocumentsComponent implements OnInit {
       isMandatory: true,
       documentType: 3
     };
+    this.newDocFile = null;
+    this.newDocRule = '';
   }
 
   openEdit(doc: RequiredDocumentDto): void {
@@ -213,6 +245,8 @@ export class AdminRequiredDocumentsComponent implements OnInit {
       isMandatory: doc.isMandatory,
       documentType: doc.documentType
     };
+    this.editDocFile = null;
+    this.editDocRule = doc.standardDocument?.generalRule ?? '';
     this.editErrorMessage = null;
     this.showEditModal = true;
   }
@@ -232,7 +266,18 @@ export class AdminRequiredDocumentsComponent implements OnInit {
     this.isSavingEdit = true;
     this.editErrorMessage = null;
 
-    this.adminService.updateRequiredDocument(this.selectedServiceId, this.editingDoc.id, this.editDocForm).subscribe({
+    const formData = new FormData();
+    formData.append('documentName', this.editDocForm.documentName);
+    formData.append('isMandatory', String(this.editDocForm.isMandatory));
+    formData.append('documentType', String(this.editDocForm.documentType));
+    if (this.editDocFile) {
+      formData.append('standardDocumentFile', this.editDocFile);
+    }
+    if (this.editDocRule) {
+      formData.append('generalRule', this.editDocRule);
+    }
+
+    this.adminService.updateRequiredDocument(this.selectedServiceId, this.editingDoc.id, formData).subscribe({
       next: (response: any) => {
         this.isSavingEdit = false;
         if (response?.success || response?.id || response) {

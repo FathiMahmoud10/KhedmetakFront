@@ -383,10 +383,16 @@
                       <span class="rs-doc-mandatory" *ngIf="doc.isMandatory">مستند إلزامي</span>
                     </div>
                   </div>
-                  <button type="button" class="rs-doc-action-btn" [class.btn-uploaded]="isDocUploaded(doc.id)" (click)="triggerFileUpload(doc.id)">
-                    <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check' : 'fa-cloud-upload-alt'"></i>
-                    <span>{{ isDocUploaded(doc.id) ? 'تم الرفع' : 'تحميل' }}</span>
-                  </button>
+                  <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" class="btn btn-sm btn-outline-info" *ngIf="doc.standardDocument" (click)="viewStandardDocument(doc.standardDocument)" style="display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; font-size: 12px; border-radius: 6px; font-family: 'Cairo', sans-serif; border: 1px solid var(--primary); color: var(--primary); background: transparent; cursor: pointer;">
+                      <i class="fas fa-eye"></i>
+                      <span>النموذج القياسي</span>
+                    </button>
+                    <button type="button" class="rs-doc-action-btn" [class.btn-uploaded]="isDocUploaded(doc.id)" (click)="triggerFileUpload(doc.id)">
+                      <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check' : 'fa-cloud-upload-alt'"></i>
+                      <span>{{ isDocUploaded(doc.id) ? 'تم الرفع' : 'تحميل' }}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -585,5 +591,34 @@
 
 
   </div><!-- /sidebar -->
+
+  <!-- ══════════════ STANDARD DOCUMENT MODAL ══════════════ -->
+  <div class="overlay" *ngIf="showStandardModal" style="z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+    <div class="login-card standard-doc-modal" style="max-width: 500px; width: 90%; background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center;">
+      <div class="lc-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; border-bottom: 1px solid #eef2f6; padding-bottom: 12px; margin-bottom: 16px;">
+        <div class="lc-title" style="margin: 0; font-size: 18px; font-weight: 700; color: #1a1a2e; font-family: 'Cairo', sans-serif;">النموذج القياسي: {{ selectedStandardDoc?.documentName }}</div>
+        <button class="pc-close" (click)="closeStandardModal()" style="background: none; border: none; cursor: pointer; color: #888; font-size: 24px; padding: 0 4px; line-height: 1;">&times;</button>
+      </div>
+      
+      <div class="sd-content" style="text-align: center; width: 100%;">
+        <div *ngIf="selectedStandardDoc?.imagePath; else noImage" style="margin-bottom: 16px;">
+          <img [src]="getAbsoluteUrl(selectedStandardDoc?.imagePath)" alt="النموذج القياسي" style="max-width: 100%; max-height: 300px; border-radius: 8px; border: 1px solid #eef2f6; object-fit: contain;" />
+        </div>
+        <ng-template #noImage>
+          <div style="padding: 24px; background: #f8fafc; border-radius: 8px; margin-bottom: 16px; border: 1px dashed #cbd5e1; color: #64748b;">
+            <i class="fas fa-image" style="font-size: 32px; display: block; margin-bottom: 8px;"></i>
+            لا يوجد ملف معاينة لهذا النموذج
+          </div>
+        </ng-template>
+        
+        <div class="sd-rule" *ngIf="selectedStandardDoc?.generalRule" style="text-align: right; background: rgba(26,110,245,0.05); padding: 16px; border-right: 4px solid #1a6ef5; border-radius: 4px; font-size: 14px; line-height: 1.6; color: #334155; font-family: 'Cairo', sans-serif;">
+          <strong>الإرشادات والقواعد:</strong>
+          <p style="margin: 6px 0 0 0;">{{ selectedStandardDoc?.generalRule }}</p>
+        </div>
+      </div>
+      
+      <button class="lc-btn" (click)="closeStandardModal()" style="margin-top: 20px; width: 100%; background: #1a6ef5; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; font-family: 'Cairo', sans-serif;">إغلاق</button>
+    </div>
+  </div>
 
 </div><!-- /main -->

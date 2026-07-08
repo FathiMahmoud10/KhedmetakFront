@@ -11,10 +11,18 @@ import { LocationService, UserLocation } from '../../Services/location.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../Utilities/Interfaces/IService';
 
+interface StandardDocument {
+  id: number;
+  documentName: string;
+  imagePath: string;
+  generalRule?: string;
+}
+
 interface RequiredDocument {
   id: number;
   documentName: string;
   isMandatory: boolean;
+  standardDocument?: StandardDocument;
 }
 
 interface ServiceDetailApi {
@@ -145,6 +153,27 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   uploadProgress: number | null = null;
   uploadSuccessMessage = '';
   uploadErrorMessage = '';
+
+  // Standard Document Modal State
+  showStandardModal = false;
+  selectedStandardDoc: StandardDocument | null = null;
+
+  viewStandardDocument(doc: StandardDocument): void {
+    this.selectedStandardDoc = doc;
+    this.showStandardModal = true;
+  }
+
+  closeStandardModal(): void {
+    this.showStandardModal = false;
+    this.selectedStandardDoc = null;
+  }
+
+  getAbsoluteUrl(path?: string): string {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    const cleanPath = path.startsWith('/') ? path : '/' + path;
+    return `${environment.apiUrl}${cleanPath}`;
+  }
 
   fallbackDocuments: RequiredDocument[] = [
     { id: 1, documentName: 'بطاقة الرقم القومي', isMandatory: true },
