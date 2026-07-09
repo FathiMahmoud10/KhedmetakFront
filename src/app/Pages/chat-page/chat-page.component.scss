@@ -723,6 +723,149 @@
   }
 }
 
+/* Pay-to-continue button (replaces plain guest) */
+.lc-pay-guest {
+  width: 100%;
+  padding: 11px 14px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b91c1c;
+  background: rgba(239, 68, 68, .07);
+  border: 1.5px solid rgba(239, 68, 68, .3);
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all .15s;
+
+  &:hover {
+    background: rgba(239, 68, 68, .14);
+    border-color: rgba(239, 68, 68, .5);
+  }
+
+  .lpg-badge {
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+}
+
+/* Back button inside payment view */
+.lc-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: 'Cairo', sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 14px;
+  transition: color .15s;
+
+  &:hover { color: var(--blue); }
+}
+
+/* Fee display row */
+.lc-fee-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px 0 18px;
+
+  .lc-fee-num {
+    font-size: 40px;
+    font-weight: 900;
+    color: #b91c1c;
+    letter-spacing: -.03em;
+    line-height: 1;
+  }
+
+  .lc-fee-cur {
+    font-size: 14px;
+    font-weight: 700;
+    color: #b91c1c;
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+/* Section label */
+.lc-pay-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: right;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+/* Payment method buttons */
+.lc-pay-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lc-pay-method {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Cairo', sans-serif;
+  text-align: right;
+
+  &.selected {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+
+  &:hover:not(.selected) {
+    border-color: var(--blue-light);
+    background: rgba(26, 110, 245, .04);
+  }
+
+  .lpm-logo {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .lpm-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .lpm-check {
+    color: var(--blue);
+    font-size: 13px;
+  }
+}
+
+
+
 .lc-note {
   font-size: 11px;
   color: var(--hint);

@@ -57,6 +57,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   isLoggedIn = false;
   isSending = false;
   showLoginPopup = false;
+  showGuestPayment = false;         // toggle to payment view inside the popup
+  guestPayMethod: 'fawry' | 'vodafone' | null = null;
   loginLoading = false;
   loginError = '';
 
@@ -734,6 +736,37 @@ confirmPayment(): void {
     this.appendBotMsg('✅ تم الدفع بنجاح! تم تفعيل المحادثة غير المحدودة لك كضيف.');
     return;
   }
+}
+
+/**
+ * Switches the login popup to the "pay to continue" view
+ */
+switchToGuestPayment(): void {
+  this.showGuestPayment = true;
+  this.guestPayMethod = null;
+}
+
+/**
+ * Goes back to the login view from the payment view in the popup
+ */
+backToLogin(): void {
+  this.showGuestPayment = false;
+  this.guestPayMethod = null;
+}
+
+/**
+ * Confirms guest payment from inside the login popup
+ */
+confirmGuestPayment(): void {
+  if (!this.guestPayMethod) return;
+  this.hasPaidForChat = true;
+  localStorage.setItem('has_paid_for_chat', 'true');
+  this.freeRemaining = 9999;
+  this.showLoginPopup = false;
+  this.showGuestPayment = false;
+  this.guestPayMethod = null;
+  this.appendBotMsg('✅ تم الدفع بنجاح! تم تفعيل المحادثة غير المحدودة لك كضيف.');
+  this.scrollToBottom();
 }
 
 /**

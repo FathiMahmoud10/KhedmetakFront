@@ -1,30 +1,100 @@
 <!-- ══════════════ LOGIN OVERLAY ══════════════ -->
 <div class="overlay" *ngIf="showLoginPopup">
   <div class="login-card">
-    <div class="lc-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2"
-        stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-        <circle cx="12" cy="7" r="4" />
-      </svg>
-    </div>
-    <div class="lc-title">سجّل دخولك للمتابعة</div>
-    <div class="lc-sub">استخدمت الرسائل المجانية الـ 3.<br>سجّل دخولك للاستمرار في استخدام المساعد.</div>
-    <input class="lc-field" type="email" placeholder="البريد الإلكتروني" [(ngModel)]="loginEmail" dir="ltr" />
-    <input class="lc-field" type="password" placeholder="كلمة المرور" [(ngModel)]="loginPassword" dir="ltr"
-      (keyup.enter)="doLogin()" />
-    <div class="lc-error" *ngIf="loginError"
-      style="color: var(--red-dk); font-size: 12px; margin-bottom: 12px; text-align: right;">
-      {{ loginError }}
-    </div>
-    <button class="lc-btn" [disabled]="loginLoading" (click)="doLogin()">
-      {{ loginLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
-    </button>
-    <div class="lc-divider">أو</div>
-    <button class="lc-guest" (click)="continueAsGuest()">متابعة كضيف (3 رسائل فقط)</button>
-    <div class="lc-note">بتسجيل الدخول توافق على شروط الاستخدام وسياسة الخصوصية</div>
+
+    <!-- ── VIEW 1: Login Form ── -->
+    <ng-container *ngIf="!showGuestPayment">
+      <div class="lc-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a6ef5" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
+      <div class="lc-title">سجّل دخولك للمتابعة</div>
+      <div class="lc-sub">استخدمت الرسائل المجانية الـ 3.<br>سجّل دخولك للاستمرار في استخدام المساعد.</div>
+      <input class="lc-field" type="email" placeholder="البريد الإلكتروني" [(ngModel)]="loginEmail" dir="ltr" />
+      <input class="lc-field" type="password" placeholder="كلمة المرور" [(ngModel)]="loginPassword" dir="ltr"
+        (keyup.enter)="doLogin()" />
+      <div class="lc-error" *ngIf="loginError"
+        style="color: var(--red-dk); font-size: 12px; margin-bottom: 12px; text-align: right;">
+        {{ loginError }}
+      </div>
+      <button class="lc-btn" [disabled]="loginLoading" (click)="doLogin()">
+        {{ loginLoading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول' }}
+      </button>
+      <div class="lc-divider">أو</div>
+      <!-- Pay 50 EGP button instead of plain guest -->
+      <button class="lc-pay-guest" (click)="switchToGuestPayment()">
+        <span class="lpg-badge">50 جنيه</span>
+        متابعة كضيف بعد الدفع — رسائل غير محدودة
+      </button>
+      <div class="lc-note">بتسجيل الدخول توافق على شروط الاستخدام وسياسة الخصوصية</div>
+    </ng-container>
+
+    <!-- ── VIEW 2: Guest Payment Form ── -->
+    <ng-container *ngIf="showGuestPayment">
+      <!-- Back arrow -->
+      <button class="lc-back" (click)="backToLogin()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        رجوع
+      </button>
+
+      <!-- Header -->
+      <div class="lc-icon" style="background: rgba(239,68,68,.1);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+          <line x1="1" y1="10" x2="23" y2="10"/>
+        </svg>
+      </div>
+      <div class="lc-title">الدفع للمتابعة كضيف</div>
+      <div class="lc-sub">ادفع مرة واحدة فقط للحصول على <strong style="color:#b91c1c;">رسائل غير محدودة</strong> كضيف.</div>
+
+      <!-- Fee badge -->
+      <div class="lc-fee-row">
+        <span class="lc-fee-num">{{ CHAT_PAYMENT_FEE }}</span>
+        <span class="lc-fee-cur">جنيه مصري</span>
+      </div>
+
+      <!-- Payment method selector -->
+      <div class="lc-pay-section-label">اختار طريقة الدفع</div>
+      <div class="lc-pay-methods">
+        <button class="lc-pay-method" [class.selected]="guestPayMethod === 'fawry'" (click)="guestPayMethod = 'fawry'">
+          <div class="lpm-logo fawry-logo">
+            <div class="fawry-brand-icon">
+              <span class="f-brand-text">fawry</span>
+              <span class="f-brand-dot"></span>
+            </div>
+          </div>
+          <span class="lpm-name">فوري (Fawry)</span>
+          <i class="fas fa-check lpm-check" *ngIf="guestPayMethod === 'fawry'"></i>
+        </button>
+        <button class="lc-pay-method" [class.selected]="guestPayMethod === 'vodafone'" (click)="guestPayMethod = 'vodafone'">
+          <div class="lpm-logo vodafone-logo">
+            <div class="voda-brand-icon"><i class="fas fa-quote-right"></i></div>
+          </div>
+          <span class="lpm-name">فودافون كاش</span>
+          <i class="fas fa-check lpm-check" *ngIf="guestPayMethod === 'vodafone'"></i>
+        </button>
+      </div>
+
+      <!-- Confirm pay button -->
+      <button class="lc-btn lc-pay-confirm" [disabled]="!guestPayMethod" (click)="confirmGuestPayment()"
+        style="background: #ef4444; margin-top: 16px;">
+        💳 &nbsp; تأكيد الدفع والاستمرار
+      </button>
+      <div class="lc-note" style="margin-top: 10px;">
+        الدفع محاكاة تجريبية — لن يُخصم أي مبلغ حقيقي
+      </div>
+    </ng-container>
+
   </div>
 </div>
+
 
 
 
