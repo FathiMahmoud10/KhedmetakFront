@@ -15,8 +15,8 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
   right: 0;
   z-index: 1050;
   height: 58px;
-  /* دمج لون السايد بار الكحلي الغامق مع نسبة شفافية مثالية للزجاج */
-  background: rgba($navy2, 0.55);
+  /* لون كحلي غامق ثابت متناسق مع باقي تصميم الموقع */
+  background: $navy2;
   /* تأثير التغبيش الزجاجي الكثيف لرؤية انسيابية للأهرامات من خلفه */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);

@@ -202,7 +202,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.isLoggedIn = this.checkLoggedInStatus();
     this.initGuestLimits();
-    this.fetchRequiredDocuments();
     if (this.isLoggedIn) {
       this.loadUserSessions();
     }
@@ -218,6 +217,9 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         this.govServiceId = null;
       }
     }
+
+    // جلب المستندات المطلوبة — لازم يكون بعد ما govServiceId يتحدد من الـ query params
+    this.fetchRequiredDocuments();
 
     if (resumeGuid) {
       this.sessionGuid = resumeGuid;

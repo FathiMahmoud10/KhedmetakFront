@@ -73,6 +73,7 @@ export class NavbarCom implements OnInit, OnDestroy {
                        currentUrl.includes('admin-service-detail') ||
                        currentUrl.includes('admin-fees') ||
                        currentUrl.includes('admin-required-documents') ||
+                       currentUrl.includes('admin-standard-documents') ||
                        currentUrl.includes('admin-portal-log');
 
     // وضع لوحة المستخدم العادي (طلباتي - ملفاتي)
