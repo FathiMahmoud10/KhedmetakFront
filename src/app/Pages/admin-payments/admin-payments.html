@@ -1,0 +1,187 @@
+<div class="dash-page container-fluid py-4" dir="rtl">
+
+  <!-- Hero Header -->
+  <header class="dash-hero">
+    <div class="dash-hero__bg"></div>
+    <div class="dash-hero__inner">
+      <div class="dash-hero__text">
+        <span class="dash-hero__tag">
+          <i class="fas fa-credit-card"></i>
+          نظام الدفع
+        </span>
+        <h1 class="dash-hero__title">المدفوعات المستلمة</h1>
+        <p class="dash-hero__sub">متابعة الفواتير وعمليات الدفع المستلمة عبر فوري وبطاقات الائتمان وفودافون كاش</p>
+      </div>
+      <div class="dash-hero__meta">
+        <div class="dash-hero__date">
+          <i class="fas fa-calendar-alt"></i>
+          <span>{{ todayLabel }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Statistics Cards -->
+  <section class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="stats-card stats-card--revenue">
+        <div class="stats-card__icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div class="stats-card__info">
+          <span class="stats-card__label">إجمالي الإيرادات</span>
+          <h3 class="stats-card__value">{{ totalRevenue | number:'1.2-2' }} جنيه</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="stats-card stats-card--success">
+        <div class="stats-card__icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stats-card__info">
+          <span class="stats-card__label">المعاملات المدفوعة</span>
+          <h3 class="stats-card__value">{{ paidCount }} عملية</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="stats-card stats-card--pending">
+        <div class="stats-card__icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stats-card__info">
+          <span class="stats-card__label">المعاملات المعلقة</span>
+          <h3 class="stats-card__value">{{ pendingCount }} عملية</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Search and Filters Panel -->
+  <section class="dash-panel mb-4">
+    <div class="search-actions-bar">
+      <!-- Search Input -->
+      <div class="search-box-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="ابحث باسم العميل، البريد الإلكتروني، كود مرجع التاجر..." 
+          [(ngModel)]="searchText"
+          (input)="applyFilter()"
+        />
+        <button class="clear-search-btn" *ngIf="searchText" (click)="searchText = ''; applyFilter()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Filters Group -->
+      <div class="filters-group">
+        <!-- Status Filter -->
+        <select class="filter-select" [(ngModel)]="selectedStatus" (change)="applyFilter()">
+          <option value="">جميع الحالات</option>
+          <option value="PAID">مدفوع</option>
+          <option value="PENDING">قيد الانتظار</option>
+          <option value="UNPAID">غير مدفوع</option>
+          <option value="EXPIRED">منتهي الصلاحية</option>
+        </select>
+
+        <!-- Method Filter -->
+        <select class="filter-select" [(ngModel)]="selectedMethod" (change)="applyFilter()">
+          <option value="">جميع الطرق</option>
+          <option value="PAYATFAWRY">كود فوري</option>
+          <option value="CARD">فيزا / كارت بنكي</option>
+          <option value="VODAFONE_CASH">فودافون كاش</option>
+        </select>
+
+        <button id="btn-refresh-payments" class="refresh-btn" (click)="loadPayments()">
+          <i class="fas fa-sync-alt"></i>
+          تحديث البيانات
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Payments Table Panel -->
+  <section class="dash-panel">
+    <div class="dash-panel__head">
+      <div>
+        <h2 class="dash-panel__title">سجل العمليات المالية</h2>
+        <p class="dash-panel__sub">إجمالي المدفوعات المطابقة للبحث: {{ filteredPayments.length }} من أصل {{ payments.length }}</p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="d-flex align-items-center justify-content-center py-5">
+      <div class="spinner-border text-primary me-3" role="status" style="width: 2.5rem; height: 2.5rem;"></div>
+      <span class="text-muted font-weight-bold">جاري تحميل المعاملات والمدفوعات من قاعدة البيانات...</span>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredPayments.length === 0" class="text-center py-5 text-muted">
+      <i class="fas fa-search-minus fa-3x mb-3 d-block opacity-25"></i>
+      <p class="fs-5 fw-bold mb-1">لم يتم العثور على أي مدفوعات</p>
+      <p class="small text-muted">تأكد من اختيار فلاتر البحث الصحيحة أو اضغط تحديث لمزامنة البيانات</p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="dash-table-wrap" *ngIf="!loading && filteredPayments.length > 0">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>العميل</th>
+            <th>كود التاجر (المرجع)</th>
+            <th>كود فوري</th>
+            <th>طريقة الدفع</th>
+            <th>المبلغ</th>
+            <th>تاريخ الإنشاء</th>
+            <th>تاريخ الدفع</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of filteredPayments; let i = index" 
+              [class.row-success]="p.status === 'PAID' || p.status === 'SUCCESS'" 
+              [class.row-warning]="p.status === 'PENDING'"
+              [class.row-danger]="p.status === 'UNPAID' || p.status === 'EXPIRED'">
+            <td class="text-muted">{{ i + 1 }}</td>
+            <td>
+              <div class="client-info">
+                <span class="client-name">{{ p.userName || 'مستخدم زائر' }}</span>
+                <span class="client-email">{{ p.userEmail || '—' }}</span>
+              </div>
+            </td>
+            <td>
+              <code class="tx-code-badge" [title]="p.merchantRefNum">{{ p.merchantRefNum }}</code>
+            </td>
+            <td>
+              <span class="fawry-ref" *ngIf="p.fawryRefNumber">{{ p.fawryRefNumber }}</span>
+              <span class="text-muted" *ngIf="!p.fawryRefNumber">—</span>
+            </td>
+            <td>
+              <span class="payment-method-badge" [ngClass]="p.paymentMethod?.toLowerCase()">
+                <i class="fas" [ngClass]="p.paymentMethod === 'CARD' ? 'fa-credit-card' : p.paymentMethod === 'PAYATFAWRY' ? 'fa-barcode' : 'fa-mobile-alt'"></i>
+                {{ getMethodLabel(p.paymentMethod) }}
+              </span>
+            </td>
+            <td class="amount-cell">
+              <strong>{{ p.amount | number:'1.2-2' }}</strong>
+              <span class="currency">ج.م</span>
+            </td>
+            <td>{{ formatDate(p.createdAt) }}</td>
+            <td>{{ formatDate(p.paidAt) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="p.status?.toLowerCase()">
+                <span class="status-dot"></span>
+                {{ getStatusLabel(p.status) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>

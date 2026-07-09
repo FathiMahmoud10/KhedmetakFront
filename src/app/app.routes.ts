@@ -19,6 +19,7 @@ import { AdminFeesComponent } from './Pages/admin-fees/admin-fees';
 import { AdminRequiredDocumentsComponent } from './Pages/admin-required-documents/admin-required-documents';
 import { AdminPortalLogComponent } from './Pages/admin-portal-log/admin-portal-log';
 import { AdminStandardDocumentsComponent } from './Pages/admin-standard-documents/admin-standard-documents';
+import { AdminPaymentsComponent } from './Pages/admin-payments/admin-payments';
 
 import { guestGuard } from './Guards/guest.guard';
 import { adminGuard } from './Guards/admin.guard';
@@ -50,6 +51,7 @@ export const routes: Routes = [
   { path: 'admin-required-documents', component: AdminRequiredDocumentsComponent, canActivate: [adminGuard] },
   { path: 'admin-standard-documents', component: AdminStandardDocumentsComponent, canActivate: [adminGuard] },
   { path: 'admin-portal-log',       component: AdminPortalLogComponent,        canActivate: [adminGuard] },
+  { path: 'admin-payments',         component: AdminPaymentsComponent,          canActivate: [adminGuard] },
 
   // ==============================
   // صفحات المستخدم العادي فقط

@@ -106,6 +106,10 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   successCardPaidAmount = 0;
   successCardServiceName = '';
 
+  isPayingForChat = false;
+  hasPaidForChat = false;
+  readonly CHAT_PAYMENT_FEE = 50;
+
   // Session list sidebar state
   sessionsLoading = false;
   historyCollapsed = false;
@@ -278,10 +282,11 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   }
 
   private initGuestLimits(): void {
+    this.hasPaidForChat = localStorage.getItem('has_paid_for_chat') === 'true';
     if (!this.isLoggedIn) {
       const storedCount = localStorage.getItem('guest_msg_count');
       this.guestMessageCount = storedCount ? parseInt(storedCount, 10) : 0;
-      this.freeRemaining = Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
+      this.freeRemaining = this.hasPaidForChat ? 9999 : Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
     } else {
       this.freeRemaining = 0;
     }
@@ -494,9 +499,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     if (!text) return;
 
     // Check guest quota limits
-    if (!this.isLoggedIn) {
+    if (!this.isLoggedIn && !this.hasPaidForChat) {
       if (this.freeRemaining <= 0) {
-        this.openLoginPopup();
         return;
       }
       this.guestMessageCount++;
@@ -564,7 +568,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       });
 
       // Refund the message count on fail
-      if (!this.isLoggedIn && this.guestMessageCount > 0) {
+      if (!this.isLoggedIn && !this.hasPaidForChat && this.guestMessageCount > 0) {
         this.guestMessageCount--;
         this.freeRemaining = Math.min(this.MAX_FREE_MSGS, this.MAX_FREE_MSGS - this.guestMessageCount);
         localStorage.setItem('guest_msg_count', this.guestMessageCount.toString());
@@ -572,11 +576,6 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     } finally {
       this.isSending = false;
       this.scrollToBottom();
-    }
-
-    // Trigger popup after bot reply if guest quota reached
-    if (!this.isLoggedIn && this.freeRemaining <= 0) {
-      setTimeout(() => this.openLoginPopup(), 800);
     }
   }
 
@@ -634,13 +633,70 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
  * Opens the submit request form and starts collecting request info.
  */
 openSubmitForm(): void {
-  // Show payment card first with service fee
-  this.paymentCardServiceFee = this.serviceFee;
-  this.selectedPaymentMethod = null;
-  this.fawrySubMethod = null;
-  this.paymentSuccess = false;
-  this.showPaymentCard = true;
+  // Bypass showing the payment card and immediately show the multi-step form overlay
+  this.submitUserName = this.authService.getUserName() || '';
+  this.submitPhoneNumber = '';
+  this.submitNotes = '';
+  this.submitFiles = [];
+  this.uploadedDocIds.clear();
+  this.currentRequestStep = 0;
+  this.isCollectingRequestInfo = false; // Using form overlay instead of chat collection
+  this.showSubmitForm = true;
+
+  // Extract entities from chat history
+  this.extractEntitiesFromChat();
+
+  this.appendBotMsg(`برجاء إتمام ملء بيانات الطلب ورفع الملفات من نافذة التقديم.`);
   this.scrollToBottom();
+}
+
+/**
+ * Automatically extracts citizen name and phone number from conversation history
+ */
+extractEntitiesFromChat(): void {
+  const phoneRegex = /\b(01[0125]\d{8})\b/;
+  const namePatterns = [
+    /اسمي\s+([أ-ي\u0621-\u064A\s]{3,30})/i,
+    /أنا\s+([أ-ي\u0621-\u064A\s]{3,30})/i,
+    /الاسم\s*:\s*([أ-ي\u0621-\u064A\s]{3,30})/i,
+    /اسم\s+مقدم\s+الطلب\s*:\s*([أ-ي\u0621-\u064A\s]{3,30})/i
+  ];
+
+  let extractedPhone = '';
+  let extractedName = '';
+
+  const userMessages = this.messages.filter(m => m.sender === 'user').map(m => m.text);
+
+  for (const text of userMessages) {
+    const phoneMatch = text.match(phoneRegex);
+    if (phoneMatch && !extractedPhone) {
+      extractedPhone = phoneMatch[1];
+    }
+
+    for (const pattern of namePatterns) {
+      const nameMatch = text.match(pattern);
+      if (nameMatch && !extractedName) {
+        extractedName = nameMatch[1].trim();
+        break;
+      }
+    }
+  }
+
+  if (extractedPhone) {
+    this.submitPhoneNumber = extractedPhone;
+  }
+  
+  if (extractedName) {
+    this.submitUserName = extractedName;
+  }
+
+  if (extractedPhone || extractedName) {
+    const details = [];
+    if (extractedName) details.push(`الاسم: <strong>${extractedName}</strong>`);
+    if (extractedPhone) details.push(`الهاتف: <strong>${extractedPhone}</strong>`);
+    
+    this.appendBotMsg(`🤖 <strong>مستخرج البيانات الذكي:</strong> تم رصد وتعبئة البيانات تلقائياً من المحادثة السابقة (${details.join(' - ')}).`);
+  }
 }
 
 /**
@@ -670,19 +726,26 @@ confirmPayment(): void {
   this.showPaymentCard = false;
   this.paymentProcessing = false;
 
-  // Now start collecting request info after payment selection (using multi-step form overlay)
-  this.submitUserName = this.authService.getUserName() || '';
-  this.submitPhoneNumber = '';
-  this.submitNotes = '';
-  this.submitFiles = [];
-  this.uploadedDocIds.clear();
-  this.currentRequestStep = 0;
-  this.isCollectingRequestInfo = false; // Using form overlay instead of chat collection
-  this.showSubmitForm = true;
-  const methodLabel = this.selectedPaymentMethod === 'fawry'
-    ? (this.fawrySubMethod === 'visa' ? 'فوري - فيزا/ماستركارد' : 'فوري - كود فوري')
-    : 'فودافون كاش';
-  this.appendBotMsg(`✅ تم اختيار طريقة الدفع: <strong>${methodLabel}</strong>.<br>برجاء إتمام ملء بيانات الطلب ورفع الملفات من نافذة التقديم.`);
+  if (this.isPayingForChat) {
+    this.hasPaidForChat = true;
+    localStorage.setItem('has_paid_for_chat', 'true');
+    this.freeRemaining = 9999;
+    this.isPayingForChat = false;
+    this.appendBotMsg('✅ تم الدفع بنجاح! تم تفعيل المحادثة غير المحدودة لك كضيف.');
+    return;
+  }
+}
+
+/**
+ * Opens payment flow specifically for extending guest chat message limits.
+ */
+openChatPayment(): void {
+  this.isPayingForChat = true;
+  this.selectedPaymentMethod = null;
+  this.fawrySubMethod = null;
+  this.paymentSuccess = false;
+  this.showPaymentCard = true;
+  this.scrollToBottom();
 }
 
 isDocUploaded(docId: number): boolean {

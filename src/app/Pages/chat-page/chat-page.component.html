@@ -175,7 +175,7 @@
           <div class="payment-card">
 
             <!-- Header -->
-            <div class="pc-header">
+            <div class="pc-header" [style.background]="isPayingForChat ? 'linear-gradient(135deg, #ef4444, #f87171)' : null">
               <div class="pc-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -184,8 +184,8 @@
                 </svg>
               </div>
               <div class="pc-header-text">
-                <span class="pc-title">تفاصيل الدفع</span>
-                <span class="pc-subtitle">اختار طريقة الدفع لإتمام الطلب</span>
+                <span class="pc-title">{{ isPayingForChat ? 'دفع رسوم استكمال المحادثة' : 'تفاصيل الدفع' }}</span>
+                <span class="pc-subtitle">{{ isPayingForChat ? 'اختار طريقة الدفع لتفعيل الرسائل غير المحدودة' : 'اختار طريقة الدفع لإتمام الطلب' }}</span>
               </div>
               <button class="pc-close" (click)="cancelPayment()" title="إلغاء">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -197,13 +197,13 @@
             </div>
 
             <!-- Service Fee Banner -->
-            <div class="pc-fee-banner">
-              <div class="pc-fee-label">تكلفة الخدمة</div>
+            <div class="pc-fee-banner" [style.background]="isPayingForChat ? 'linear-gradient(180deg, rgba(239,68,68,0.06), transparent)' : null">
+              <div class="pc-fee-label">{{ isPayingForChat ? 'رسوم استكمال المحادثة' : 'تكلفة الخدمة' }}</div>
               <div class="pc-fee-amount">
-                <span class="pc-fee-num">{{ paymentCardServiceFee !== null ? paymentCardServiceFee : serviceFee !== null ? serviceFee : 370 }}</span>
-                <span class="pc-fee-currency">جنيه مصري</span>
+                <span class="pc-fee-num" [style.color]="isPayingForChat ? '#b91c1c' : null">{{ isPayingForChat ? CHAT_PAYMENT_FEE : (paymentCardServiceFee !== null ? paymentCardServiceFee : serviceFee !== null ? serviceFee : 370) }}</span>
+                <span class="pc-fee-currency" [style.color]="isPayingForChat ? '#b91c1c' : null">جنيه مصري</span>
               </div>
-              <div class="pc-fee-note">💡 الرسوم الحكومية الرسمية شاملة جميع الخدمات</div>
+              <div class="pc-fee-note" [style.color]="isPayingForChat ? '#b91c1c' : null">{{ isPayingForChat ? '💡 دفع لمرة واحدة للحصول على رسائل غير محدودة' : '💡 الرسوم الحكومية الرسمية شاملة جميع الخدمات' }}</div>
             </div>
 
             <!-- Step 1: Payment Method Selection -->
@@ -461,8 +461,8 @@
             <div class="sm-title">تم تقديم الطلب بنجاح</div>
             <div class="sm-details">
               <p>تم تسجيل طلبك بنجاح وجاري مراجعته والعمل عليه من قبل الجهات المختصة.</p>
-              <div class="sm-payment-alert">
-                <span>💳 تم تسديد مبلغ بقيمة <strong>{{ successCardPaidAmount }} جنيه</strong> لخدمة <strong>{{ successCardServiceName }}</strong>.</span>
+              <div class="sm-success-alert" style="background: rgba(16, 185, 129, 0.08); border-right: 4px solid var(--green); padding: 12px; border-radius: 8px; color: #15803d; font-size: 13px; margin-top: 12px; font-family: 'Cairo', sans-serif; text-align: right;">
+                <span>📝 تم تسجيل طلبك لخدمة <strong>{{ successCardServiceName }}</strong> بنجاح وجاري العمل عليه.</span>
               </div>
               <div class="text-center mt-3 pt-2">
                 <a routerLink="/my-requests" class="btn btn-sm text-white px-4 py-2" style="background: var(--green); border: none; border-radius: 8px; font-weight: 700; font-family: 'Cairo', sans-serif; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(41,139,100,0.3);">
@@ -475,6 +475,40 @@
         </div>
       </div>
       <!-- ═══ /SUCCESS CARD ═══ -->
+
+      <!-- Chat message limit prompt card -->
+      <div class="msg" *ngIf="!isLoggedIn && freeRemaining <= 0 && !hasPaidForChat" style="margin-top:14px;">
+        <div class="av bot">AI</div>
+        <div class="bub-container bot">
+          <div class="payment-card chat-limit-card" style="border: 1px solid rgba(239,68,68,0.2); background: #fffdfd; max-width: 420px; width: 100%; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, .06);">
+            <div class="pc-header" style="background: linear-gradient(135deg, #ef4444, #f87171); display: flex; align-items: center; gap: 12px; padding: 16px 18px; color: #fff; position: relative;">
+              <div class="pc-icon" style="width: 42px; height: 42px; border-radius: 12px; background: rgba(255, 255, 255, .18); display: flex; align-items: center; justify-content: center; flex-shrink: 0; backdrop-filter: blur(4px);">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div class="pc-header-text" style="display: flex; flex-direction: column; gap: 2px; flex: 1;">
+                <span class="pc-title" style="font-size: 15px; font-weight: 800; font-family: 'Cairo', sans-serif;">انتهت الرسائل المجانية</span>
+                <span class="pc-subtitle" style="font-size: 11px; opacity: .85; font-weight: 500; font-family: 'Cairo', sans-serif;">لقد استهلكت الـ 3 رسائل المجانية المتاحة لك كزائر</span>
+              </div>
+            </div>
+            <div class="pc-fee-banner" style="text-align: center; padding: 20px 18px 16px; background: linear-gradient(180deg, rgba(239,68,68,0.06), transparent); border-bottom: 1px solid #eef2f6;">
+              <div class="pc-fee-label" style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; font-family: 'Cairo', sans-serif;">رسوم استكمال المحادثة</div>
+              <div class="pc-fee-amount" style="display: flex; align-items: baseline; justify-content: center; gap: 6px;">
+                <span class="pc-fee-num" style="font-size: 36px; font-weight: 900; color: #b91c1c; letter-spacing: -.02em; line-height: 1;">{{ CHAT_PAYMENT_FEE }}</span>
+                <span class="pc-fee-currency" style="font-size: 14px; font-weight: 700; color: #b91c1c; font-family: 'Cairo', sans-serif;">جنيه مصري</span>
+              </div>
+              <div class="pc-fee-note" style="font-size: 11px; color: #b91c1c; margin-top: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: 'Cairo', sans-serif;">💡 دفع لمرة واحدة للحصول على رسائل غير محدودة</div>
+            </div>
+            <div class="pc-footer" style="display: flex; gap: 12px; padding: 16px; background: #fafafa; border-top: 1px solid #eef2f6; justify-content: stretch;">
+              <button class="pc-confirm-btn" (click)="openChatPayment()" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ef4444; border: none; color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; font-family: 'Cairo', sans-serif; cursor: pointer; transition: background .15s; box-shadow: 0 4px 12px rgba(239,68,68,0.25);">
+                💳 الدفع الآن
+              </button>
+              <button class="pc-cancel-btn" (click)="openLoginPopup()" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #fff; border: 1px solid #cbd5e1; color: #475569; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 13px; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all .15s;">
+                🔑 تسجيل الدخول
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
 
@@ -493,7 +527,7 @@
 
     <!-- input bar -->
     <div class="ibar">
-      <button class="ibar-attach" (click)="triggerFileUpload()">
+      <button class="ibar-attach" (click)="triggerFileUpload()" [disabled]="!isLoggedIn && freeRemaining <= 0 && !hasPaidForChat">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path
@@ -501,9 +535,11 @@
         </svg>
       </button>
       <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)">
-      <textarea class="ibar-input" placeholder="اكتب سؤالك هنا..." rows="1" [(ngModel)]="msgText"
-        (keydown)="onKey($event)"></textarea>
-      <button class="ibar-send" [disabled]="isSending || !msgText.trim()" (click)="sendMsg()">
+      <textarea class="ibar-input" 
+        [placeholder]="(!isLoggedIn && freeRemaining <= 0 && !hasPaidForChat) ? 'لقد استنفدت رسائلك المجانية. يرجى الدفع للاستمرار.' : 'اكتب سؤالك هنا...'" 
+        [disabled]="!isLoggedIn && freeRemaining <= 0 && !hasPaidForChat"
+        rows="1" [(ngModel)]="msgText" (keydown)="onKey($event)"></textarea>
+      <button class="ibar-send" [disabled]="isSending || !msgText.trim() || (!isLoggedIn && freeRemaining <= 0 && !hasPaidForChat)" (click)="sendMsg()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"
           stroke-linecap="round" stroke-linejoin="round">
           <line x1="22" y1="2" x2="11" y2="13" />

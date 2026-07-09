@@ -106,4 +106,9 @@ export class AdminService {
   deleteRequiredDocument(serviceId: number, docId: number): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.baseGovServicesUrl}/${serviceId}/required-documents/${docId}`);
   }
+
+  // جلب جميع المدفوعات المستلمة
+  getAllPayments(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${environment.apiUrl}/Admin/Payments`);
+  }
 }
