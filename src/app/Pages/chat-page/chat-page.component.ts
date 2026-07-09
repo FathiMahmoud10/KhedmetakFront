@@ -172,7 +172,13 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     if (!path) return '';
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
     const cleanPath = path.startsWith('/') ? path : '/' + path;
-    return `${environment.apiUrl}${cleanPath}`;
+    
+    // إزالة /api من نهاية العنوان للحصول على الرابط الرئيسي للموقع لعرض الصور الاستاتيكية
+    const baseUrl = environment.apiUrl.endsWith('/api') 
+      ? environment.apiUrl.substring(0, environment.apiUrl.length - 4) 
+      : environment.apiUrl;
+
+    return `${baseUrl}${cleanPath}`;
   }
 
   fallbackDocuments: RequiredDocument[] = [
