@@ -1,0 +1,124 @@
+.emergency-numbers {
+  padding: 60px 0;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  background-color: var(--brand-bg, #f4f6f9);
+  transition: background-color 0.3s ease;
+
+  &__title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--foreground, #023264);
+    position: relative;
+    display: inline-block;
+    padding-bottom: 12px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background-color: var(--brand-teal, #2e90a8);
+      border-radius: 2px;
+    }
+  }
+}
+
+.emergency-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 24px;
+  text-decoration: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: rgba(46, 144, 168, 0.2);
+
+    .emergency-card__number {
+      color: var(--brand-teal, #2e90a8);
+      transform: scale(1.05);
+    }
+  }
+
+  &__number {
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: #1a2d3d;
+    line-height: 1;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 16px;
+
+    &--police {
+      background-color: #ce1126;
+      box-shadow: 0 4px 10px rgba(206, 17, 38, 0.2);
+    }
+
+    &--ambulance {
+      background-color: #298b64;
+      box-shadow: 0 4px 10px rgba(41, 139, 100, 0.2);
+    }
+
+    &--electricity {
+      background-color: #c9a227;
+      box-shadow: 0 4px 10px rgba(201, 162, 39, 0.2);
+    }
+  }
+
+  &__label {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--foreground, #1a2d3d);
+    transition: color 0.3s ease;
+  }
+}
+
+// ─── Dark Mode overrides ──────────────────────────────────────────
+:host-context(.dark-theme) {
+  .emergency-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    &__number {
+      color: #eef5fa;
+    }
+
+    &__label {
+      color: #eef5fa;
+    }
+  }
+}

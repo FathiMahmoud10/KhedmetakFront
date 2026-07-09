@@ -1,0 +1,206 @@
+<section class="quick-links">
+  <div class="container py-5">
+    <div class="row g-5">
+      
+      <!-- كارت الدعم والمساعدة على اليسار (ترتيب col-lg-4) -->
+      <div class="col-lg-4 order-lg-1 order-2">
+        <div class="help-card">
+          <div class="help-card__header">
+            <div class="help-card__icon-wrap">
+              <i class="bi bi-telephone-fill"></i>
+            </div>
+            <div class="help-card__info">
+              <h3 class="help-card__title">تحب نساعدك إزاي؟</h3>
+              <a href="tel:10999" class="help-card__phone">10999</a>
+            </div>
+          </div>
+          <div class="help-card__divider"></div>
+          <ul class="help-card__list">
+            <li>
+              <a routerLink="/chat" class="help-card__link">
+                <span>الدعم والمساعدة</span>
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li>
+              <a routerLink="/chat" class="help-card__link">
+                <span>الأسئلة الشائعة</span>
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li>
+              <a routerLink="/chat" class="help-card__link">
+                <span>الشكاوى والمقترحات</span>
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- قوائم روابط الخدمات على اليمين (ترتيب col-lg-8) -->
+      <div class="col-lg-8 order-lg-2 order-1">
+        <div class="row g-4">
+          
+          <!-- الخدمات الأكثر استخداماً -->
+          <div class="col-md-6">
+            <div class="links-group">
+              <h3 class="links-group__title">الخدمات الأكثر استخداماً</h3>
+              <ul class="links-group__list">
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'استعلام عن مخالفات رخص القيادة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>استعلام عن مخالفات رخص القيادة</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'الاستعلام عن صرف معاشات' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>الاستعلام عن صرف معاشات</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'الاستعلام عن آخر مدة تأمينية' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>الاستعلام عن آخر مدة تأمينية</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'الاستعلام عن مدد الاشتراك في التأمين الاجتماعي' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>الاستعلام عن مدد الاشتراك في التأمين الاجتماعي</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'استعلام عن الرقم التأميني' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>استعلام عن الرقم التأميني</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- الخدمات المضافة حديثاً -->
+          <div class="col-md-6">
+            <div class="links-group">
+              <h3 class="links-group__title">الخدمات المضافة حديثاً</h3>
+              <ul class="links-group__list">
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'طلب مستخرج سجل تجاري' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>طلب مستخرج سجل تجاري</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'استعلام عن سجل تجاري' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>استعلام عن سجل تجاري</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'إصدار بدل تالف رخصة قيادة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>إصدار بدل تالف رخصة قيادة</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'إصدار بدل فاقد رخصة قيادة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>إصدار بدل فاقد رخصة قيادة</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'تجديد رخصة مركبة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>تجديد رخصة مركبة</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- خدمات السجل التجاري -->
+          <div class="col-md-6">
+            <div class="links-group">
+              <h3 class="links-group__title">خدمات السجل التجاري</h3>
+              <ul class="links-group__list">
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'استعلام عن سجل تجاري' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>استعلام عن سجل تجاري</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'طلب تجديد سجل تجاري' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>طلب تجديد سجل تجاري</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'طلب شهادة بيانات' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>طلب شهادة بيانات</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'تحديث بيانات الشركة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>تحديث بيانات الشركة</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'إضافة منشأة مسجلة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>إضافة منشأة مسجلة</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- خدمات التوثيق -->
+          <div class="col-md-6">
+            <div class="links-group">
+              <h3 class="links-group__title">خدمات التوثيق</h3>
+              <ul class="links-group__list">
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'استعلام عن سريان محرر مميكن' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>استعلام عن سريان محرر مميكن</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'تحرير عقد بيع مركبة' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>تحرير عقد بيع مركبة</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'تحرير إقرار بالشطب' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>تحرير إقرار بالشطب (عن نفسه)</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'تحرير توكيل في الأمور الزوجية' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>تحرير توكيل في الأمور الزوجية</span>
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/chat" [queryParams]="{ query: 'تحرير إقرار رسمي' }">
+                    <i class="bi bi-arrow-left-circle-fill"></i>
+                    <span>تحرير إقرار رسمي (عن نفسه)</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

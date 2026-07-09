@@ -1,0 +1,126 @@
+$navy: #023264;
+$navy2: #012050;
+$blue: #487fb9;
+$green: #298b64;
+$gold: #c9a227;
+$white: #ffffff;
+
+.egypt-digital {
+  padding: 80px 0;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+  background-color: var(--brand-bg, #f4f6f9);
+  transition: background-color 0.3s ease;
+
+  &__content {
+    text-align: right;
+  }
+
+  &__title {
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 800;
+    line-height: 1.4;
+    color: var(--foreground, #023264);
+    margin-bottom: 24px;
+    transition: color 0.3s ease;
+  }
+
+  &__desc {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--muted, #6b7a8d);
+    margin-bottom: 32px;
+    transition: color 0.3s ease;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #023264;
+    background: transparent;
+    border: 2px solid #023264;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #023264;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(2, 50, 100, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  &__image-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 24px;
+    overflow: hidden;
+    &::before {
+      content: '';
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(72, 127, 185, 0.15) 0%, transparent 70%);
+      top: 10%;
+      left: 10%;
+      z-index: 0;
+      pointer-events: none;
+    }
+  }
+
+  &__img {
+    position: relative;
+    z-index: 1;
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.08));
+
+    &--dark {
+      display: none;
+    }
+  }
+}
+
+// ─── Dark Mode overrides ──────────────────────────────────────────
+:host-context(.dark-theme) {
+  .egypt-digital {
+    &__title {
+      color: #eef5fa;
+    }
+
+    &__desc {
+      color: #9fb0c2;
+    }
+
+    &__btn {
+      color: #eef5fa;
+      border-color: #eef5fa;
+
+      &:hover {
+        background: #eef5fa;
+        color: #0f1720;
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    &__img {
+      &--light {
+        display: none !important;
+      }
+      &--dark {
+        display: block !important;
+      }
+    }
+  }
+}
