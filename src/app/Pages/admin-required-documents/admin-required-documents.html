@@ -144,30 +144,27 @@
 
             <div class="rd-field">
               <label class="rd-field__label">
-                <i class="fas fa-image"></i>
-                المستند القياسي (نموذج/صورة)
+                <i class="fas fa-link"></i>
+                المستند القياسي (نموذج مرجعي)
               </label>
-              <input
-                class="rd-field__input"
-                type="file"
-                (change)="onNewFileSelected($event)"
-                accept="image/*,application/pdf"
-              />
+              <div class="rd-select-wrap">
+                <select
+                  class="rd-field__input rd-field__input--select"
+                  [(ngModel)]="newSelectedStandardDocId"
+                  name="newSelectedStandardDocId"
+                >
+                  <option [ngValue]="null">-- بدون مستند قياسي --</option>
+                  <option *ngFor="let std of standardDocuments" [ngValue]="std.id">
+                    {{ std.documentName }}
+                  </option>
+                </select>
+                <i class="fas fa-chevron-down rd-select-wrap__arrow"></i>
+              </div>
+              <p class="rd-field__hint" *ngIf="isLoadingStdDocs">
+                <i class="fas fa-spinner fa-spin"></i> جاري تحميل المستندات القياسية...
+              </p>
             </div>
 
-            <div class="rd-field">
-              <label class="rd-field__label">
-                <i class="fas fa-gavel"></i>
-                القاعدة العامة / الإرشادات
-              </label>
-              <textarea
-                class="rd-field__input"
-                [(ngModel)]="newDocRule"
-                name="newDocRule"
-                placeholder="مثال: يجب أن تكون الصورة واضحة والاسم ظاهر بالكامل"
-                rows="2"
-              ></textarea>
-            </div>
 
             <div class="rd-field">
               <label class="rd-field__label rd-field__label--toggle">
@@ -276,6 +273,10 @@
                 <i class="fas fa-tag"></i>
                 نوع {{ doc.documentType }}
               </span>
+              <span class="rd-doc-card__type" *ngIf="doc.standardDocument">
+                <i class="fas fa-link"></i>
+                {{ doc.standardDocument.documentName }}
+              </span>
             </div>
 
             <div class="rd-doc-card__footer">
@@ -357,30 +358,24 @@
 
         <div class="rd-field">
           <label class="rd-field__label">
-            <i class="fas fa-image"></i>
-            المستند القياسي الجديد (اختياري)
+            <i class="fas fa-link"></i>
+            المستند القياسي (نموذج مرجعي)
           </label>
-          <input
-            class="rd-field__input"
-            type="file"
-            (change)="onEditFileSelected($event)"
-            accept="image/*,application/pdf"
-          />
+          <div class="rd-select-wrap">
+            <select
+              class="rd-field__input rd-field__input--select"
+              [(ngModel)]="editSelectedStandardDocId"
+              name="editSelectedStandardDocId"
+            >
+              <option [ngValue]="null">-- بدون مستند قياسي --</option>
+              <option *ngFor="let std of standardDocuments" [ngValue]="std.id">
+                {{ std.documentName }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down rd-select-wrap__arrow"></i>
+          </div>
         </div>
 
-        <div class="rd-field">
-          <label class="rd-field__label">
-            <i class="fas fa-gavel"></i>
-            القاعدة العامة / الإرشادات
-          </label>
-          <textarea
-            class="rd-field__input"
-            [(ngModel)]="editDocRule"
-            name="editDocRule"
-            placeholder="مثال: يجب أن تكون الصورة واضحة والاسم ظاهر بالكامل"
-            rows="2"
-          ></textarea>
-        </div>
 
         <div class="rd-field">
           <label class="rd-field__label rd-field__label--toggle">

@@ -54,19 +54,36 @@ export class AdminService {
   // ==========================================
   // 3. العمليات الخاصة بالمستندات المطلوبة (Required Documents)
   // ==========================================
-  
+
+  // جلب كافة المستندات القياسية (للـ dropdown)
+  getStandardDocuments(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/StandardDocuments`);
+  }
+
   // جلب كافة المستندات المطلوبة المقترنة بخدمة معينة
   getRequiredDocuments(serviceId: number): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseGovServicesUrl}/${serviceId}/required-documents`);
   }
 
-  // إضافة مستند مطلوب جديد لخدمة حكومية محددة
-  createRequiredDocument(serviceId: number, dto: any): Observable<ApiResponse<any>> {
+  // إضافة مستند مطلوب جديد لخدمة حكومية محددة — يرسل JSON لأن الباك إند يستخدم [FromBody]
+  createRequiredDocument(serviceId: number, dto: {
+    documentName: string;
+    isMandatory: boolean;
+    documentType: number;
+    govServiceId: number;
+    standardDocumentId?: number | null;
+  }): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.baseGovServicesUrl}/${serviceId}/required-documents`, dto);
   }
 
-  // تعديل بيانات مستند مطلوب مضاف مسبقاً (الاسم، النوع، الإلزامية)
-  updateRequiredDocument(serviceId: number, docId: number, dto: any): Observable<ApiResponse<any>> {
+  // تعديل بيانات مستند مطلوب — يرسل JSON لأن الباك إند يستخدم [FromBody]
+  updateRequiredDocument(serviceId: number, docId: number, dto: {
+    id: number;
+    documentName: string;
+    isMandatory: boolean;
+    documentType: number;
+    standardDocumentId?: number | null;
+  }): Observable<ApiResponse<any>> {
     return this.http.put<ApiResponse<any>>(`${this.baseGovServicesUrl}/${serviceId}/required-documents/${docId}`, dto);
   }
 

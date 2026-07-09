@@ -5,6 +5,13 @@ import { AdminService } from '../../APIServices/SharedServices/admin';
 import { GovServicesService } from '../../APIServices/SharedServices/gov-services-service'; // مستخدمة فقط لجلب قائمة الخدمات العامة
 import { IService } from '../../Utilities/Interfaces/IService';
 
+export interface StandardDocumentItem {
+  id: number;
+  documentName: string;
+  imagePath: string;
+  generalRule?: string;
+}
+
 export interface RequiredDocumentDto {
   id: number;
   documentName: string;
@@ -17,12 +24,16 @@ export interface CreateRequiredDocumentDto {
   documentName: string;
   isMandatory: boolean;
   documentType: number;
+  govServiceId: number;
+  standardDocumentId?: number | null;
 }
 
 export interface UpdateRequiredDocumentDto {
+  id: number;
   documentName: string;
   isMandatory: boolean;
   documentType: number;
+  standardDocumentId?: number | null;
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -60,14 +71,19 @@ export class AdminRequiredDocumentsComponent implements OnInit {
   isLoadingDocs = false;
   docsErrorMessage: string | null = null;
 
+  // قائمة المستندات القياسية للـ dropdown
+  standardDocuments: StandardDocumentItem[] = [];
+  isLoadingStdDocs = false;
+
   // نماذج الإدخال والتعديل والحذف
   newDoc: CreateRequiredDocumentDto = {
     documentName: '',
     isMandatory: true,
-    documentType: 3
+    documentType: 3,
+    govServiceId: 0,
+    standardDocumentId: null
   };
-  newDocFile: File | null = null;
-  newDocRule: string = '';
+  newSelectedStandardDocId: number | null = null;
 
   isSaving = false;
   formSuccessMessage: string | null = null;
@@ -77,12 +93,13 @@ export class AdminRequiredDocumentsComponent implements OnInit {
   editingDoc: RequiredDocumentDto | null = null;
 
   editDocForm: UpdateRequiredDocumentDto = {
+    id: 0,
     documentName: '',
     isMandatory: true,
-    documentType: 3
+    documentType: 3,
+    standardDocumentId: null
   };
-  editDocFile: File | null = null;
-  editDocRule: string = '';
+  editSelectedStandardDocId: number | null = null;
 
   isSavingEdit = false;
   editErrorMessage: string | null = null;
@@ -101,6 +118,28 @@ export class AdminRequiredDocumentsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadServices();
+    this.loadStandardDocuments();
+  }
+
+  loadStandardDocuments(): void {
+    this.isLoadingStdDocs = true;
+    this.adminService.getStandardDocuments().subscribe({
+      next: (res: any) => {
+        this.isLoadingStdDocs = false;
+        // الـ API قد يرجع array مباشرة أو object { data: [...] }
+        if (Array.isArray(res)) {
+          this.standardDocuments = res;
+        } else if (res?.data && Array.isArray(res.data)) {
+          this.standardDocuments = res.data;
+        } else {
+          this.standardDocuments = [];
+        }
+      },
+      error: () => {
+        this.isLoadingStdDocs = false;
+        this.standardDocuments = [];
+      }
+    });
   }
 
   get selectedService(): IService | null {
@@ -143,6 +182,11 @@ export class AdminRequiredDocumentsComponent implements OnInit {
     }
   }
 
+  getStandardDocName(id: number | null | undefined): string {
+    if (!id) return '—';
+    return this.standardDocuments.find(s => s.id === id)?.documentName || '—';
+  }
+
   // ==========================================
   // جلب المستندات المطلوبة للخدمة عبر الـ AdminService الخاصة بكِ
   // ==========================================
@@ -172,20 +216,6 @@ export class AdminRequiredDocumentsComponent implements OnInit {
   // ==========================================
   // إضافة مستند جديد للخدمة المحددة عبر الـ AdminService
   // ==========================================
-  onNewFileSelected(event: any): void {
-    const file = event.target?.files?.[0];
-    if (file) {
-      this.newDocFile = file;
-    }
-  }
-
-  onEditFileSelected(event: any): void {
-    const file = event.target?.files?.[0];
-    if (file) {
-      this.editDocFile = file;
-    }
-  }
-
   saveDocument(): void {
     this.formSuccessMessage = null;
     this.formErrorMessage = null;
@@ -199,18 +229,15 @@ export class AdminRequiredDocumentsComponent implements OnInit {
 
     this.isSaving = true;
 
-    const formData = new FormData();
-    formData.append('documentName', this.newDoc.documentName);
-    formData.append('isMandatory', String(this.newDoc.isMandatory));
-    formData.append('documentType', String(this.newDoc.documentType));
-    if (this.newDocFile) {
-      formData.append('standardDocumentFile', this.newDocFile);
-    }
-    if (this.newDocRule) {
-      formData.append('generalRule', this.newDocRule);
-    }
+    const payload = {
+      documentName: this.newDoc.documentName,
+      isMandatory: this.newDoc.isMandatory,
+      documentType: Number(this.newDoc.documentType),
+      govServiceId: this.selectedServiceId,
+      standardDocumentId: this.newSelectedStandardDocId || null
+    };
 
-    this.adminService.createRequiredDocument(this.selectedServiceId, formData).subscribe({
+    this.adminService.createRequiredDocument(this.selectedServiceId, payload).subscribe({
       next: (response: any) => {
         this.isSaving = false;
         if (response?.success || response?.id || response) {
@@ -232,21 +259,23 @@ export class AdminRequiredDocumentsComponent implements OnInit {
     this.newDoc = {
       documentName: '',
       isMandatory: true,
-      documentType: 3
+      documentType: 3,
+      govServiceId: this.selectedServiceId || 0,
+      standardDocumentId: null
     };
-    this.newDocFile = null;
-    this.newDocRule = '';
+    this.newSelectedStandardDocId = null;
   }
 
   openEdit(doc: RequiredDocumentDto): void {
     this.editingDoc = doc;
     this.editDocForm = {
+      id: doc.id,
       documentName: doc.documentName,
       isMandatory: doc.isMandatory,
-      documentType: doc.documentType
+      documentType: doc.documentType,
+      standardDocumentId: doc.standardDocument?.id ?? null
     };
-    this.editDocFile = null;
-    this.editDocRule = doc.standardDocument?.generalRule ?? '';
+    this.editSelectedStandardDocId = doc.standardDocument?.id ?? null;
     this.editErrorMessage = null;
     this.showEditModal = true;
   }
@@ -266,18 +295,15 @@ export class AdminRequiredDocumentsComponent implements OnInit {
     this.isSavingEdit = true;
     this.editErrorMessage = null;
 
-    const formData = new FormData();
-    formData.append('documentName', this.editDocForm.documentName);
-    formData.append('isMandatory', String(this.editDocForm.isMandatory));
-    formData.append('documentType', String(this.editDocForm.documentType));
-    if (this.editDocFile) {
-      formData.append('standardDocumentFile', this.editDocFile);
-    }
-    if (this.editDocRule) {
-      formData.append('generalRule', this.editDocRule);
-    }
+    const payload = {
+      id: this.editingDoc.id,
+      documentName: this.editDocForm.documentName,
+      isMandatory: this.editDocForm.isMandatory,
+      documentType: Number(this.editDocForm.documentType),
+      standardDocumentId: this.editSelectedStandardDocId || null
+    };
 
-    this.adminService.updateRequiredDocument(this.selectedServiceId, this.editingDoc.id, formData).subscribe({
+    this.adminService.updateRequiredDocument(this.selectedServiceId, this.editingDoc.id, payload).subscribe({
       next: (response: any) => {
         this.isSavingEdit = false;
         if (response?.success || response?.id || response) {

@@ -807,11 +807,53 @@ doSubmitRequest(): void {
     this.uploadProgress = 0;
     this.uploadSuccessMessage = '';
     this.uploadErrorMessage = '';
-    this.appendBotMsg(`جاري رفع ملف: <strong>${file.name}</strong> كـ <strong>${docName}</strong>...`);
 
-    // FIX: uploadDocument's 2nd param is sent to the backend as SessionGuidId (a Guid),
-    // so it must always be the actual session GUID — never the numeric chatSessionId,
-    // which previously took priority here and would fail to parse as a Guid server-side.
+    // ── خطوة 1: التحقق من المستند أولاً ─────────────────────────────────────
+    this.appendBotMsg(`🔍 جاري التحقق من ملف <strong>${file.name}</strong>...`);
+
+    let validationPassed = false;
+    try {
+      const validationResult = await firstValueFrom(
+        this.chatApiService.validateDocument(file, docId)
+      );
+
+      if (validationResult && validationResult.isValid === true) {
+        validationPassed = true;
+        this.appendBotMsg(`✅ تم التحقق من المستند بنجاح. جاري الرفع...`);
+      } else {
+        // عرض أخطاء التحقق في الشات
+        const errors: string[] = validationResult?.validationErrors || [];
+        const warnings: string[] = validationResult?.warnings || [];
+
+        let errorHtml = `❌ <strong>فشل التحقق من المستند "${docName}":</strong><br>`;
+        if (errors.length > 0) {
+          errorHtml += `<ul style="margin:6px 0 0 0;padding-right:18px;">`;
+          errors.forEach(e => { errorHtml += `<li>${e}</li>`; });
+          errorHtml += `</ul>`;
+        }
+        if (warnings.length > 0) {
+          errorHtml += `<br>⚠️ <strong>تحذيرات:</strong><br><ul style="margin:4px 0 0 0;padding-right:18px;">`;
+          warnings.forEach(w => { errorHtml += `<li>${w}</li>`; });
+          errorHtml += `</ul>`;
+        }
+        this.appendBotMsg(errorHtml);
+        this.uploadProgress = null;
+        event.target.value = '';
+        return;
+      }
+    } catch (validationErr: any) {
+      // إذا فشل الـ endpoint نفسه (خطأ شبكة / سيرفر)، نعرض تحذيراً ونكمل الرفع
+      console.warn('Document validation endpoint failed, proceeding with upload:', validationErr);
+      this.appendBotMsg(`⚠️ تعذّر التحقق من المستند، سيتم الرفع مباشرة.`);
+      validationPassed = true;
+    }
+
+    if (!validationPassed) {
+      event.target.value = '';
+      return;
+    }
+
+    // ── خطوة 2: رفع المستند بعد نجاح التحقق ─────────────────────────────────
     if (!this.sessionGuid) {
       this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
       this.appendBotMsg(`فشل الرفع: ${this.uploadErrorMessage}`);

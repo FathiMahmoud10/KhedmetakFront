@@ -65,6 +65,15 @@ export class ChatApiService {
     return this.http.get<any>(`${this.apiUrl}/Session/SessionMsgs/${sessionGuidId}`);
   }
 
+  // التحقق من صحة مستند قبل رفعه — بيروح على DocumentValidationController
+  // بيرجع DocumentValidationResult: { isValid, documentType, validationErrors, extractedFields, warnings }
+  validateDocument(file: File, requiredDocumentId: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('UserDocument', file);
+    formData.append('RequiredDocumentId', requiredDocumentId.toString());
+    return this.http.post<any>(`${this.apiUrl}/DocumentValidation/validate`, formData);
+  }
+
   // رفع ملف من الشات — بيروح على ChatController اللي مش محتاج token
   // بيشتغل مع guests و logged-in users عبر الـ SessionGuidId
   uploadDocument(file: File, sessionGuidId: string, requiredDocumentId: number): Observable<any> {
