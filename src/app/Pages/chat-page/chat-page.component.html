@@ -206,8 +206,8 @@
               <div class="pc-fee-note" [style.color]="isPayingForChat ? '#b91c1c' : null">{{ isPayingForChat ? '💡 دفع لمرة واحدة للحصول على رسائل غير محدودة' : '💡 الرسوم الحكومية الرسمية شاملة جميع الخدمات' }}</div>
             </div>
 
-            <!-- Step 1: Payment Method Selection -->
-            <div class="pc-section">
+            <!-- Step 1: Payment Method Selection (only for service requests, not chat payment) -->
+            <div class="pc-section" *ngIf="!isPayingForChat">
               <div class="pc-section-label">اختار طريقة الدفع</div>
               <div class="pc-methods">
 
@@ -249,8 +249,8 @@
               </div>
             </div>
 
-            <!-- Step 2: Fawry Sub-method (only if Fawry selected) -->
-            <div class="pc-section pc-fawry-sub" *ngIf="selectedPaymentMethod === 'fawry'">
+            <!-- Step 2: Fawry Sub-method (only if Fawry selected, and not chat payment) -->
+            <div class="pc-section pc-fawry-sub" *ngIf="!isPayingForChat && selectedPaymentMethod === 'fawry'">
               <div class="pc-section-label">اختار نوع الدفع بفوري</div>
               <div class="pc-sub-methods">
 
@@ -294,13 +294,14 @@
             <!-- Confirm Button -->
             <div class="pc-footer">
               <button class="pc-confirm-btn"
-                [disabled]="!selectedPaymentMethod || (selectedPaymentMethod === 'fawry' && !fawrySubMethod)"
+                [disabled]="!isPayingForChat && (!selectedPaymentMethod || (selectedPaymentMethod === 'fawry' && !fawrySubMethod))"
                 (click)="confirmPayment()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
+                <svg *ngIf="!isPayingForChat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
                   stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                تأكيد وإتمام الطلب
+                <span *ngIf="isPayingForChat">💳 &nbsp;</span>
+                {{ isPayingForChat ? 'ادفع ' + CHAT_PAYMENT_FEE + ' جنيه والاستمرار' : 'تأكيد وإتمام الطلب' }}
               </button>
               <button class="pc-cancel-btn" (click)="cancelPayment()">إلغاء</button>
             </div>
