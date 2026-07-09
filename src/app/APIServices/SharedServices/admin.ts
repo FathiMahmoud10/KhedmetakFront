@@ -60,6 +60,21 @@ export class AdminService {
     return this.http.get<any[]>(`${environment.apiUrl}/StandardDocuments`);
   }
 
+  // إضافة مستند قياسي جديد (Multipart/Form-Data)
+  createStandardDocument(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/StandardDocuments`, formData);
+  }
+
+  // تعديل مستند قياسي (Multipart/Form-Data)
+  updateStandardDocument(id: number, formData: FormData): Observable<any> {
+    return this.http.put<any>(`${environment.apiUrl}/StandardDocuments/${id}`, formData);
+  }
+
+  // حذف مستند قياسي
+  deleteStandardDocument(id: number): Observable<any> {
+    return this.http.delete<any>(`${environment.apiUrl}/StandardDocuments/${id}`);
+  }
+
   // جلب كافة المستندات المطلوبة المقترنة بخدمة معينة
   getRequiredDocuments(serviceId: number): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.baseGovServicesUrl}/${serviceId}/required-documents`);

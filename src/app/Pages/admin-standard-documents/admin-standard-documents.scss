@@ -1,0 +1,858 @@
+// ============================================================
+// Design tokens — نفس لوحة الألوان manage-services و admin-required-documents
+// ============================================================
+$navy:   #1e2a52;
+$navy2:  #141c3a;
+$navy3:  #34468a;
+$green:  #0d9488;
+$green2: #0b7a70;
+$blue:   #6d5ce8;
+$red:    #e0294b;
+$amber:  #d97a1f;
+$bg:     #f3f5fb;
+$white:  #ffffff;
+$border: #e3e7f2;
+$muted:  #69708a;
+$text:   #1c2238;
+
+// ============================================================
+// Step badge
+// ============================================================
+.rd-step-badge {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $navy, $navy3);
+  color: $white;
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba($navy2, 0.25);
+
+  &--inline {
+    display: inline-flex;
+    margin-inline-end: 8px;
+    vertical-align: middle;
+  }
+}
+
+// ============================================================
+// Page shell
+// ============================================================
+.rd-page {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  background: $bg;
+  padding-top: calc(70px + 1.5rem) !important;
+  font-family: 'Cairo', sans-serif;
+  direction: rtl;
+  box-sizing: border-box;
+}
+
+.rd-shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 0 15px;
+}
+
+// ============================================================
+// Hero header
+// ============================================================
+.rd-hero {
+  position: relative;
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba($navy2, 0.18);
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, $navy2 0%, $navy 45%, $green 100%);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      background: rgba($white, 0.05);
+    }
+
+    &::before {
+      width: 280px;
+      height: 280px;
+      top: -90px;
+      left: -60px;
+    }
+
+    &::after {
+      width: 200px;
+      height: 200px;
+      bottom: -70px;
+      right: 8%;
+    }
+  }
+
+  &__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 32px;
+  }
+
+  &__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba($white, 0.12);
+    color: rgba($white, 0.9);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    backdrop-filter: blur(4px);
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 800;
+    color: $white;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+
+  &__sub {
+    font-size: 14px;
+    color: rgba($white, 0.78);
+    margin: 0;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  &__stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba($white, 0.12);
+    border: 1px solid rgba($white, 0.18);
+    border-radius: 16px;
+    padding: 16px 22px;
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+  }
+
+  &__stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba($white, 0.15);
+    color: $white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  &__stat-num {
+    display: block;
+    font-size: 28px;
+    font-weight: 800;
+    color: $white;
+    line-height: 1;
+  }
+
+  &__stat-lbl {
+    display: block;
+    font-size: 12px;
+    color: rgba($white, 0.75);
+    margin-top: 4px;
+  }
+}
+
+// ============================================================
+// Alert / Retry
+// ============================================================
+.rd-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+
+  &--error {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+  }
+
+  &--success {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    color: #166534;
+  }
+  
+  &--warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+  }
+}
+
+.rd-retry-btn {
+  background: $navy3;
+  color: $white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  margin-inline-start: auto;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $navy;
+  }
+}
+
+// ============================================================
+// Main Grid Layout
+// ============================================================
+.rd-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 26px;
+  align-items: start;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ============================================================
+// Add Document Form Card
+// ============================================================
+.rd-form-panel {
+  position: relative;
+  background: $white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba($navy2, 0.04);
+  border: 1px solid $border;
+
+  &__accent {
+    height: 6px;
+    background: linear-gradient(to left, $navy, $green);
+  }
+
+  &__body {
+    padding: 24px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba($navy, 0.08);
+    color: $navy;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 2px;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: $muted;
+    margin: 0;
+  }
+}
+
+// ============================================================
+// Forms UI
+// ============================================================
+.rd-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.rd-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__label {
+    font-size: 13px;
+    font-weight: 700;
+    color: $navy;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__input {
+    width: 100%;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: $text;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: $blue;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba($blue, 0.12);
+    }
+  }
+
+  textarea.rd-field__input {
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+  }
+}
+
+// ============================================================
+// Premium Upload Zone
+// ============================================================
+.rd-file-upload-zone {
+  position: relative;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    border-color: $blue;
+    background: #f5f3ff;
+  }
+
+  .rd-file-upload-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .rd-file-upload-lbl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: $muted;
+    font-size: 12px;
+    width: 100%;
+    cursor: pointer;
+
+    .upload-zone-icon {
+      font-size: 28px;
+      color: $blue;
+      margin-bottom: 2px;
+    }
+  }
+
+  &.has-preview {
+    padding: 10px;
+    border-style: solid;
+  }
+
+  .upload-zone-preview {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+    object-fit: contain;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  .upload-zone-filename {
+    font-size: 11px;
+    color: $navy;
+    font-weight: 700;
+    margin-top: 4px;
+    word-break: break-all;
+  }
+}
+
+.rd-btn-submit {
+  width: 100%;
+  background: linear-gradient(135deg, $navy, $navy3);
+  color: $white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba($navy, 0.2);
+
+  &:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+}
+
+// ============================================================
+// Documents List Section
+// ============================================================
+.rd-list-panel {
+  background: $white;
+  border-radius: 20px;
+  border: 1px solid $border;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba($navy2, 0.04);
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid $border;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 800;
+    color: $navy;
+    margin: 0 0 2px;
+  }
+
+  &__sub {
+    font-size: 12.5px;
+    color: $muted;
+    margin: 0;
+  }
+
+  &__count {
+    background: rgba($navy, 0.08);
+    color: $navy;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 12px;
+  }
+}
+
+// Loading & Empty States
+.rd-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 60px 0;
+  color: $navy3;
+  font-size: 14px;
+  font-weight: bold;
+
+  i {
+    font-size: 32px;
+  }
+}
+
+.rd-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  margin: auto 0;
+
+  &__circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    margin-bottom: 16px;
+  }
+
+  &__text {
+    font-size: 16px;
+    font-weight: 700;
+    color: $navy;
+    margin: 0 0 4px;
+  }
+
+  &__hint {
+    font-size: 13px;
+    color: $muted;
+    margin: 0;
+  }
+}
+
+// ============================================================
+// Documents Grid & Cards
+// ============================================================
+.rd-docs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.rd-doc-card {
+  position: relative;
+  background: $white;
+  border-radius: 16px;
+  border: 1px solid $border;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba($navy2, 0.02);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: cardFadeIn 0.4s ease-out forwards;
+  opacity: 0;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba($navy2, 0.08);
+    border-color: #cbd5e1;
+  }
+
+  &__accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: $navy3;
+  }
+
+  &__image-container {
+    width: 100%;
+    height: 150px;
+    background: #f8fafc;
+    border-bottom: 1px solid $border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    .rd-doc-card__img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+    }
+
+    &.no-image {
+      flex-direction: column;
+      gap: 6px;
+      color: $muted;
+      font-size: 12px;
+
+      .placeholder-icon {
+        font-size: 24px;
+        color: #cbd5e1;
+      }
+    }
+  }
+
+  &__body {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__name {
+    font-size: 15px;
+    font-weight: 750;
+    color: $navy;
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+
+  &__rules {
+    margin-top: auto;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+
+    .rules-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: $muted;
+      margin-bottom: 6px;
+    }
+
+    .rules-list {
+      margin: 0;
+      padding-inline-start: 16px;
+      font-size: 12px;
+      color: $text;
+      line-height: 1.5;
+
+      li {
+        margin-bottom: 4px;
+      }
+    }
+  }
+
+  &__footer {
+    display: flex;
+    border-top: 1px solid $border;
+    background: #f8fafc;
+
+    button {
+      flex: 1;
+      border: none;
+      background: none;
+      padding: 10px;
+      font-size: 12.5px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+
+      &:hover {
+        background: #f1f5f9;
+      }
+    }
+
+    .rd-btn-edit {
+      color: $navy3;
+      border-inline-end: 1px solid $border;
+    }
+
+    .rd-btn-delete {
+      color: $red;
+    }
+  }
+}
+
+// ============================================================
+// Modal Component
+// ============================================================
+.rd-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba($navy2, 0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  &__dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 500px;
+    background: $white;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba($navy2, 0.15);
+    padding: 30px;
+    animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    box-sizing: border-box;
+    direction: rtl;
+  }
+
+  &__close {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: none;
+    cursor: pointer;
+    color: $muted;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+      background: #e2e8f0;
+      color: $navy;
+    }
+  }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 16px;
+
+    &--edit {
+      background: rgba($navy, 0.08);
+      color: $navy;
+    }
+
+    &--danger {
+      background: #fef2f2;
+      color: $red;
+    }
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 800;
+    color: $navy;
+    text-align: center;
+    margin: 0 0 4px;
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: $muted;
+    text-align: center;
+    margin: 0 0 24px;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+  }
+}
+
+.rd-modal-btn {
+  padding: 11px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 750;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background 0.2s, transform 0.1s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, $navy, $navy3);
+    color: $white;
+
+    &:hover {
+      opacity: 0.95;
+    }
+  }
+
+  &--danger {
+    background: $red;
+    color: $white;
+
+    &:hover {
+      background: darken($red, 5%);
+    }
+  }
+
+  &--ghost {
+    background: #f1f5f9;
+    color: $navy;
+
+    &:hover {
+      background: #e2e8f0;
+    }
+  }
+}
+
+// Animations
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

@@ -1,0 +1,335 @@
+<div class="rd-page container-fluid py-4">
+  <div class="rd-shell">
+
+    <!-- Hero Header -->
+    <header class="rd-hero">
+      <div class="rd-hero__bg"></div>
+      <div class="rd-hero__inner">
+        <div class="rd-hero__text">
+          <span class="rd-hero__tag">
+            <i class="fas fa-file-signature"></i>
+            لوحة الإدارة
+          </span>
+          <h1 class="rd-hero__title">إدارة المستندات القياسية</h1>
+          <p class="rd-hero__sub">إدارة النماذج المرجعية والقواعد العامة للتحقق التلقائي من الأوراق الرسمية</p>
+        </div>
+        <div class="rd-hero__stat">
+          <div class="rd-hero__stat-icon">
+            <i class="fas fa-copy"></i>
+          </div>
+          <div class="rd-hero__stat-info">
+            <span class="rd-hero__stat-num">{{ documents.length }}</span>
+            <span class="rd-hero__stat-lbl">مستند قياسي مسجّل</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Global load error -->
+    <div class="rd-alert rd-alert--error" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ errorMessage }}</span>
+      <button type="button" class="rd-retry-btn" (click)="loadDocuments()">
+        <i class="fas fa-rotate-right"></i> إعادة المحاولة
+      </button>
+    </div>
+
+    <!-- Global success -->
+    <div class="rd-alert rd-alert--success" *ngIf="successMessage">
+      <i class="fas fa-check-circle"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- Documents Layout -->
+    <div class="rd-layout">
+
+      <!-- Add Form Panel -->
+      <aside class="rd-form-panel">
+        <div class="rd-form-panel__accent"></div>
+        <div class="rd-form-panel__body">
+          <div class="rd-form-panel__head">
+            <span class="rd-step-badge">١</span>
+            <div class="rd-form-panel__icon">
+              <i class="fas fa-plus"></i>
+            </div>
+            <div>
+              <h2 class="rd-form-panel__title">إضافة مستند قياسي</h2>
+              <p class="rd-form-panel__hint">أضف نموذجًا جديدًا وقواعد التحقق الخاصة به</p>
+            </div>
+          </div>
+
+          <form (ngSubmit)="saveDocument()" class="rd-form">
+
+            <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-file-alt"></i>
+                اسم المستند القياسي
+              </label>
+              <input
+                class="rd-field__input"
+                type="text"
+                [(ngModel)]="newDocName"
+                name="newDocName"
+                placeholder="مثال: بطاقة الرقم القومي المصرية"
+                required
+              />
+            </div>
+
+            <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-gavel"></i>
+                قواعد التحقق (قاعدة في كل سطر)
+              </label>
+              <textarea
+                class="rd-field__input"
+                [(ngModel)]="newGeneralRule"
+                name="newGeneralRule"
+                placeholder="مثال:
+يجب أن تكون الصورة ملونة وواضحة
+يجب أن يكون الاسم واللقب مقروءين
+البطاقة يجب أن تكون سارية الصلاحية"
+                rows="5"
+              ></textarea>
+            </div>
+
+            <div class="rd-field">
+              <label class="rd-field__label">
+                <i class="fas fa-image"></i>
+                النموذج القياسي (صورة مرجعية)
+              </label>
+              <div class="rd-file-upload-zone" [class.has-preview]="newFilePreview">
+                <input
+                  class="rd-file-upload-input"
+                  type="file"
+                  (change)="onNewFileSelected($event)"
+                  accept="image/*"
+                  id="newFileEl"
+                />
+                <label for="newFileEl" class="rd-file-upload-lbl">
+                  <ng-container *ngIf="!newFilePreview">
+                    <i class="fas fa-cloud-upload-alt upload-zone-icon"></i>
+                    <span>اسحب الصورة هنا أو اضغط للاختيار</span>
+                  </ng-container>
+                  <ng-container *ngIf="newFilePreview">
+                    <img [src]="newFilePreview" class="upload-zone-preview" alt="Preview" />
+                    <span class="upload-zone-filename">{{ newFile?.name }}</span>
+                  </ng-container>
+                </label>
+              </div>
+            </div>
+
+            <div class="rd-form-actions">
+              <button type="submit" class="rd-btn-submit" [disabled]="isSaving">
+                <i class="fas fa-spinner fa-spin" *ngIf="isSaving"></i>
+                <i class="fas fa-save" *ngIf="!isSaving"></i>
+                {{ isSaving ? 'جاري الحفظ...' : 'حفظ المستند القياسي' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </aside>
+
+      <!-- Documents List Panel -->
+      <main class="rd-list-panel">
+
+        <div class="rd-list-panel__head">
+          <div class="rd-list-panel__head-text">
+            <span class="rd-step-badge rd-step-badge--inline">٢</span>
+            <h2 class="rd-list-panel__title">المستندات القياسية المتاحة</h2>
+            <p class="rd-list-panel__sub">جميع النماذج القياسية التي يمكن ربطها بالأوراق المطلوبة</p>
+          </div>
+          <span class="rd-list-panel__count">{{ documents.length }} مستند</span>
+        </div>
+
+        <!-- Loading state -->
+        <div class="rd-loading" *ngIf="isLoading">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>جاري تحميل المستندات القياسية...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div class="rd-empty" *ngIf="!isLoading && documents.length === 0">
+          <div class="rd-empty__circle">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <p class="rd-empty__text">لا توجد مستندات قياسية مسجلة بعد</p>
+          <p class="rd-empty__hint">استخدم نموذج الإضافة على اليمين لتسجيل أول نموذج قياسي</p>
+        </div>
+
+        <!-- Documents Grid -->
+        <div class="rd-docs-grid" *ngIf="!isLoading && documents.length > 0">
+          <article
+            class="rd-doc-card"
+            *ngFor="let doc of documents; let i = index"
+            [style.animation-delay]="(i * 0.05) + 's'"
+          >
+            <div class="rd-doc-card__accent"></div>
+
+            <div class="rd-doc-card__image-container" *ngIf="doc.imagePath">
+              <img [src]="getAbsoluteUrl(doc.imagePath)" alt="{{ doc.documentName }}" class="rd-doc-card__img" />
+            </div>
+            
+            <div class="rd-doc-card__image-container no-image" *ngIf="!doc.imagePath">
+              <i class="fas fa-image placeholder-icon"></i>
+              <span>لا يوجد نموذج صوري</span>
+            </div>
+
+            <div class="rd-doc-card__body">
+              <h3 class="rd-doc-card__name">{{ doc.documentName }}</h3>
+              
+              <div class="rd-doc-card__rules" *ngIf="doc.generalRule">
+                <span class="rules-label"><i class="fas fa-gavel"></i> قواعد التحقق:</span>
+                <ul class="rules-list">
+                  <li *ngFor="let rule of parseRules(doc.generalRule)">{{ rule }}</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="rd-doc-card__footer">
+              <button class="rd-btn-edit" (click)="openEdit(doc)" type="button">
+                <i class="fas fa-pen"></i>
+                تعديل
+              </button>
+              <button class="rd-btn-delete" (click)="openDelete(doc)" type="button">
+                <i class="fas fa-trash-alt"></i>
+                حذف
+              </button>
+            </div>
+          </article>
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- ===== Edit Modal ===== -->
+  <div class="rd-modal" *ngIf="showEditModal">
+    <div class="rd-modal__backdrop" (click)="closeEdit()"></div>
+    <div class="rd-modal__dialog">
+      <button class="rd-modal__close" (click)="closeEdit()" type="button" [disabled]="isSavingEdit">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="rd-modal__icon rd-modal__icon--edit">
+        <i class="fas fa-pen"></i>
+      </div>
+
+      <h3 class="rd-modal__title">تعديل المستند القياسي</h3>
+      <p class="rd-modal__sub">عدّل اسم النموذج وقواعد التحقق أو الصورة ثم احفظ التعديلات</p>
+
+      <form class="rd-form rd-modal__form" (ngSubmit)="saveEdit()">
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-file-alt"></i>
+            اسم المستند
+          </label>
+          <input
+            class="rd-field__input"
+            type="text"
+            [(ngModel)]="editDocName"
+            name="editDocName"
+            required
+          />
+        </div>
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-gavel"></i>
+            قواعد التحقق (قاعدة في كل سطر)
+          </label>
+          <textarea
+            class="rd-field__input"
+            [(ngModel)]="editGeneralRule"
+            name="editGeneralRule"
+            rows="5"
+          ></textarea>
+        </div>
+
+        <div class="rd-field">
+          <label class="rd-field__label">
+            <i class="fas fa-image"></i>
+            تغيير الصورة المرجعية (اختياري)
+          </label>
+          
+          <div class="rd-file-upload-zone" [class.has-preview]="editFilePreview || editingDoc?.imagePath">
+            <input
+              class="rd-file-upload-input"
+              type="file"
+              (change)="onEditFileSelected($event)"
+              accept="image/*"
+              id="editFileEl"
+            />
+            <label for="editFileEl" class="rd-file-upload-lbl">
+              <ng-container *ngIf="!editFilePreview && !editingDoc?.imagePath">
+                <i class="fas fa-cloud-upload-alt upload-zone-icon"></i>
+                <span>اسحب الصورة هنا أو اضغط للاختيار</span>
+              </ng-container>
+              <ng-container *ngIf="editFilePreview">
+                <img [src]="editFilePreview" class="upload-zone-preview" alt="Preview" />
+                <span class="upload-zone-filename">{{ editFile?.name }}</span>
+              </ng-container>
+              <ng-container *ngIf="!editFilePreview && editingDoc?.imagePath">
+                <img [src]="getAbsoluteUrl(editingDoc?.imagePath)" class="upload-zone-preview" alt="Current Image" />
+                <span class="upload-zone-filename">الصورة الحالية (اضغط لتغييرها)</span>
+              </ng-container>
+            </label>
+          </div>
+        </div>
+
+        <div class="rd-alert rd-alert--error" *ngIf="editErrorMessage">
+          <i class="fas fa-exclamation-circle"></i>
+          <span>{{ editErrorMessage }}</span>
+        </div>
+
+        <div class="rd-modal__actions">
+          <button class="rd-modal-btn rd-modal-btn--ghost" (click)="closeEdit()" type="button" [disabled]="isSavingEdit">إلغاء</button>
+          <button class="rd-modal-btn rd-modal-btn--primary" type="submit" [disabled]="isSavingEdit">
+            <i class="fas" [ngClass]="isSavingEdit ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+            {{ isSavingEdit ? 'جارٍ الحفظ...' : 'حفظ التعديلات' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Delete Modal ===== -->
+  <div class="rd-modal" *ngIf="showDeleteModal">
+    <div class="rd-modal__backdrop" (click)="closeDelete()"></div>
+    <div class="rd-modal__dialog">
+      <button class="rd-modal__close" (click)="closeDelete()" type="button" [disabled]="isDeleting">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="rd-modal__icon rd-modal__icon--danger">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+
+      <h3 class="rd-modal__title">تأكيد حذف المستند القياسي</h3>
+      <p class="rd-modal__sub">
+        هل أنت متأكد من حذف مستند "<strong>{{ selectedDoc?.documentName }}</strong>"؟
+      </p>
+      
+      <div class="rd-alert rd-alert--warning" style="margin: 15px 0;">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>حذف هذا المستند القياسي سيفك ارتباطه بجميع المستندات المطلوبة المرتبطة به.</span>
+      </div>
+
+      <div class="rd-alert rd-alert--error" *ngIf="deleteErrorMessage">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ deleteErrorMessage }}</span>
+      </div>
+
+      <div class="rd-modal__actions">
+        <button class="rd-modal-btn rd-modal-btn--ghost" (click)="closeDelete()" type="button" [disabled]="isDeleting">إلغاء</button>
+        <button class="rd-modal-btn rd-modal-btn--danger" (click)="confirmDelete()" type="button" [disabled]="isDeleting">
+          <i class="fas" [ngClass]="isDeleting ? 'fa-spinner fa-spin' : 'fa-trash-alt'"></i>
+          {{ isDeleting ? 'جارٍ الحذف...' : 'حذف المستند' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
