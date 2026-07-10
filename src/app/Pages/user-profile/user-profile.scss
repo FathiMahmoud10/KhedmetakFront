@@ -113,32 +113,6 @@ $text:   #1a2535;
     padding: 10px 18px;
     border-radius: 12px;
     flex-shrink: 0;
-    text-decoration: none;
-    cursor: pointer;
-    font-family: 'Cairo', sans-serif;
-    transition: transform 0.15s ease, background 0.2s ease;
-
-    &:hover {
-      transform: translateY(-1px);
-      background: rgba($green, 0.3);
-    }
-
-    &--ghost {
-      background: rgba($white, 0.1);
-      border-color: rgba($white, 0.25);
-
-      &:hover {
-        background: rgba($white, 0.18);
-      }
-    }
-  }
-
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
   }
 }
 
@@ -451,6 +425,8 @@ $text:   #1a2535;
 
 .prof-form__actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   justify-content: flex-start;
   margin-top: 24px;
   padding-top: 20px;

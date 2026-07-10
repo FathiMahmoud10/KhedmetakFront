@@ -129,5 +129,31 @@ export class AuthService {
     cookies.forEach((name) => {
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`;
     });
+    this.disableUserPreview();
+  }
+
+  // ===================================================================
+  // معاينة الأدمن لواجهة المستخدم (Preview as User)
+  // تسمح للأدمن بتصفح صفحات المستخدم العادي دون تسجيل خروج،
+  // من غير أي تعديل في الراوتس أو صلاحيات المستخدم العادي.
+  // ===================================================================
+  enableUserPreview(): void {
+    try {
+      sessionStorage.setItem('previewAsUser', '1');
+    } catch (e) {}
+  }
+
+  disableUserPreview(): void {
+    try {
+      sessionStorage.removeItem('previewAsUser');
+    } catch (e) {}
+  }
+
+  isUserPreview(): boolean {
+    try {
+      return sessionStorage.getItem('previewAsUser') === '1';
+    } catch (e) {
+      return false;
+    }
   }
 }

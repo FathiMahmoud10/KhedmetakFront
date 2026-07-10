@@ -37,23 +37,23 @@
         سجّل حسابك للوصول الفوري إلى الخدمات الحكومية المصرية وإدارتها بذكاء.
       </p>
 
-      <!-- Decorative Steps -->
+      <!-- خطوات ديناميكية حقيقية: تعكس الخطوة الحالية وتسمح بالتنقل -->
       <div class="signup-hero__steps">
-        <div class="signup-hero__step">
-          <div class="signup-hero__step-num">١</div>
+        <div class="signup-hero__step" [class.is-active]="currentStep === 1" [class.is-done]="currentStep > 1" (click)="goToStep(1)">
+          <div class="signup-hero__step-num"><i class="fas fa-check" *ngIf="currentStep > 1"></i><span *ngIf="currentStep <= 1">١</span></div>
           <div>
             <div class="signup-hero__step-text">المعلومات الشخصية</div>
             <div class="signup-hero__step-sub">الاسم، الرقم القومي، الهاتف</div>
           </div>
         </div>
-        <div class="signup-hero__step">
-          <div class="signup-hero__step-num">٢</div>
+        <div class="signup-hero__step" [class.is-active]="currentStep === 2" [class.is-done]="currentStep > 2" (click)="goToStep(2)">
+          <div class="signup-hero__step-num"><i class="fas fa-check" *ngIf="currentStep > 2"></i><span *ngIf="currentStep <= 2">٢</span></div>
           <div>
             <div class="signup-hero__step-text">بيانات التواصل</div>
             <div class="signup-hero__step-sub">البريد الإلكتروني وكلمة المرور</div>
           </div>
         </div>
-        <div class="signup-hero__step">
+        <div class="signup-hero__step" [class.is-active]="currentStep === 3" (click)="goToStep(3)">
           <div class="signup-hero__step-num">٣</div>
           <div>
             <div class="signup-hero__step-text">العنوان والموقع</div>
@@ -87,23 +87,30 @@
 
         <form (ngSubmit)="onSubmit()" #signupForm="ngForm" novalidate>
 
-          <!-- Google -->
-          <button type="button" class="btn-google" (click)="signUpWithGoogle()">
-            <svg width="18" height="18" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            إنشاء حساب بـ Google
-          </button>
+          <!-- Google (يظهر فقط في الخطوة الأولى) -->
+          <ng-container *ngIf="currentStep === 1">
+            <button type="button" class="btn-google" (click)="signUpWithGoogle()">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              إنشاء حساب بـ Google
+            </button>
+            <div class="divider"><span>أو سجّل بالبريد الإلكتروني</span></div>
+          </ng-container>
 
-          <div class="divider"><span>أو سجّل بالبريد الإلكتروني</span></div>
+          <!-- شريط تقدم ديناميكي -->
+          <div class="wizard-progress">
+            <div class="wizard-progress__bar" [style.width.%]="(currentStep - 1) / (totalSteps - 1) * 100"></div>
+          </div>
+          <div class="wizard-progress__label">الخطوة {{ currentStep }} من {{ totalSteps }}</div>
 
           <!-- ═══════════════════════════════════════ -->
           <!-- Section 1: المعلومات الشخصية          -->
           <!-- ═══════════════════════════════════════ -->
-          <div class="form-section">
+          <div class="form-section" *ngIf="currentStep === 1">
             <div class="form-section__header">
               <span class="form-section__num">١</span>
               <span class="form-section__title">المعلومات الشخصية</span>
@@ -154,7 +161,7 @@
           <!-- ═══════════════════════════════════════ -->
           <!-- Section 2: بيانات التواصل             -->
           <!-- ═══════════════════════════════════════ -->
-          <div class="form-section">
+          <div class="form-section" *ngIf="currentStep === 2">
             <div class="form-section__header">
               <span class="form-section__num">٢</span>
               <span class="form-section__title">بيانات التواصل والأمان</span>
@@ -203,7 +210,7 @@
           <!-- ═══════════════════════════════════════ -->
           <!-- Section 3: العنوان                    -->
           <!-- ═══════════════════════════════════════ -->
-          <div class="form-section">
+          <div class="form-section" *ngIf="currentStep === 3">
             <div class="form-section__header">
               <span class="form-section__num">٣</span>
               <span class="form-section__title">العنوان والموقع</span>
@@ -277,24 +284,52 @@
             </div>
           </div>
 
-          <!-- Server error -->
-          <div class="server-error" *ngIf="serverError">
-            <i class="fas fa-exclamation-circle"></i>
-            <span>{{ serverError }}</span>
-          </div>
-
-          <!-- الموافقة -->
-          <label class="terms-label">
+          <!-- الموافقة (تظهر فقط في الخطوة الأخيرة) -->
+          <label class="terms-label" *ngIf="currentStep === 3">
             <input type="checkbox" [(ngModel)]="agreed" name="agreed" />
             <span>أوافق على <a href="#">شروط الاستخدام</a> و<a href="#">سياسة الخصوصية</a>.</span>
           </label>
 
-          <!-- زر الإرسال -->
-          <button id="btn-signup-submit" type="submit" class="btn-submit" [disabled]="isLoading">
-            <span class="spinner" *ngIf="isLoading"></span>
-            <i class="fas fa-user-check" *ngIf="!isLoading"></i>
-            {{ isLoading ? 'جارٍ إنشاء الحساب…' : 'إنشاء الحساب والبدء' }}
-          </button>
+          <!-- Server error -->
+          <div class="server-error" *ngIf="serverError">
+            <i class="fas fa-circle-exclamation"></i>
+            <span>{{ serverError }}</span>
+          </div>
+
+          <!-- أزرار التنقل بين الخطوات -->
+          <div class="wizard-actions">
+            <button
+              type="button"
+              class="btn-back"
+              *ngIf="currentStep > 1"
+              (click)="prevStep()"
+            >
+              <i class="fas fa-arrow-right"></i>
+              السابق
+            </button>
+
+            <button
+              type="button"
+              class="btn-next"
+              *ngIf="currentStep < totalSteps"
+              (click)="nextStep()"
+            >
+              التالي
+              <i class="fas fa-arrow-left"></i>
+            </button>
+
+            <button
+              id="btn-signup-submit"
+              type="submit"
+              class="btn-submit"
+              *ngIf="currentStep === totalSteps"
+              [disabled]="isLoading || !agreed"
+            >
+              <span class="spinner" *ngIf="isLoading"></span>
+              <i class="fas fa-user-check" *ngIf="!isLoading"></i>
+              {{ isLoading ? 'جارٍ إنشاء الحساب…' : 'إنشاء الحساب والبدء' }}
+            </button>
+          </div>
 
         </form>
 

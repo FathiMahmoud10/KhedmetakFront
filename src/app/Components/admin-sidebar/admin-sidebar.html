@@ -48,17 +48,28 @@
             <span class="admin-drawer__link-text">إدارة الخدمات</span>
           </a>
         </li>
-        <!-- ملف الأدمن مخفي حسب الطلب -->
+      </ul>
+
+      <span class="admin-drawer__nav-label">الحساب</span>
+      <ul class="admin-drawer__list">
+        <li>
+          <a routerLink="/admin-profile" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-user-gear"></i></span>
+            <span class="admin-drawer__link-text">إدارة حسابي</span>
+          </a>
+        </li>
+        <li>
+          <a href="javascript:void(0)" class="admin-drawer__link" (click)="previewAsUser()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-eye"></i></span>
+            <span class="admin-drawer__link-text">معاينة كمستخدم</span>
+          </a>
+        </li>
       </ul>
 
       <!-- Collapsible: الخدمات -->
       <div class="admin-drawer__collapsible">
-        <button
-          class="admin-drawer__nav-label admin-drawer__collapsible-btn"
-          (click)="toggleServicesCollapse()"
-          [class.admin-drawer__collapsible-btn--open]="!isServicesCollapsed"
-          type="button"
-        >
+        <button class="admin-drawer__nav-label admin-drawer__collapsible-btn" (click)="toggleServicesCollapse()"
+          [class.admin-drawer__collapsible-btn--open]="!isServicesCollapsed" type="button">
           <span class="admin-drawer__collapsible-label">الخدمات</span>
           <i class="fas fa-chevron-down admin-drawer__collapsible-icon" aria-hidden="true"></i>
         </button>
@@ -77,23 +88,20 @@
             </a>
           </li>
           <li>
-            <a routerLink="/admin-required-documents" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <a routerLink="/admin-required-documents" routerLinkActive="is-active" class="admin-drawer__link"
+              (click)="close()">
               <span class="admin-drawer__link-icon"><i class="fas fa-file-alt"></i></span>
               <span class="admin-drawer__link-text">المستندات المطلوبة</span>
             </a>
           </li>
           <li>
-            <a routerLink="/admin-standard-documents" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <a routerLink="/admin-standard-documents" routerLinkActive="is-active" class="admin-drawer__link"
+              (click)="close()">
               <span class="admin-drawer__link-icon"><i class="fas fa-file-signature"></i></span>
               <span class="admin-drawer__link-text">المستندات القياسية</span>
             </a>
           </li>
-          <li>
-            <a routerLink="/admin-services" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-              <span class="admin-drawer__link-icon"><i class="fas fa-concierge-bell"></i></span>
-              <span class="admin-drawer__link-text">إدارة الخدمات</span>
-            </a>
-          </li>
+
           <li>
             <a routerLink="/admin-steps" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
               <span class="admin-drawer__link-icon"><i class="fas fa-list-ol"></i></span>
@@ -104,25 +112,20 @@
       </div>
     </nav>
 
-    <!-- Footer -->
-    <div class="admin-drawer__footer">
-      <img
-        src="assets/images/images.jpg"
-        alt="Admin"
-        class="admin-drawer__avatar"
-        width="44"
-        height="44"
-        onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=298b64&color=fff'"
-      />
+    <!-- Footer: بيانات الأدمن الحقيقية من التوكن، وضغطة عليها تودي لملف الأدمن -->
+    <a routerLink="/admin-profile" class="admin-drawer__footer admin-drawer__footer--link" (click)="close()">
+      <img [src]="avatarUrl" alt="Admin" class="admin-drawer__avatar" width="44" height="44"
+        (error)="onAvatarError($event)" />
       <div class="admin-drawer__user">
-        <span class="admin-drawer__user-name">مدير النظام</span>
-        <span class="admin-drawer__user-email">admin@khedmetak.gov.eg</span>
+        <span class="admin-drawer__user-name">{{ adminName }}</span>
+        <span class="admin-drawer__user-email">{{ adminEmail }}</span>
       </div>
       <!-- زرار تسجيل الخروج -->
-      <button class="admin-drawer__logout-btn" (click)="logout()" type="button" title="تسجيل الخروج">
+      <button class="admin-drawer__logout-btn" (click)="logout(); $event.stopPropagation()" type="button"
+        title="تسجيل الخروج">
         <i class="fas fa-sign-out-alt"></i>
       </button>
-    </div>
+    </a>
 
   </div>
 </aside>

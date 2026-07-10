@@ -1,23 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 import { ProfileService, UserProfile } from '../../APIServices/SharedServices/profile.service';
 
 type SaveState = 'idle' | 'saving' | 'success' | 'error';
 
 @Component({
-  selector: 'app-admin-profile',
+  selector: 'app-user-profile',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
-  templateUrl: './admin-profile.html',
-  styleUrls: ['./admin-profile.scss']
+  templateUrl: './user-profile.html',
+  styleUrls: ['./user-profile.scss']
 })
-export class AdminProfileComponent implements OnInit {
+export class UserProfileComponent implements OnInit {
   profileForm!: FormGroup;
-
-  // متغير لحمل الصورة الافتراضية أو المرفوعة حديثاً
   selectedAvatar: string = 'assets/images/images.jpg';
 
   isLoading = true;
@@ -27,12 +25,11 @@ export class AdminProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private profileService: ProfileService,
-    private router: Router
+    private profileService: ProfileService
   ) {}
 
   ngOnInit(): void {
-    this.buildForm({ fullName: 'مدير النظام', email: '' });
+    this.buildForm({ fullName: 'مستخدم', email: '' });
 
     // ١) عرض فوري من الـ JWT ريثما يوصل رد السيرفر (تجربة استخدام أسرع)
     const token = this.authService.getTokenFromCookie();
@@ -47,7 +44,7 @@ export class AdminProfileComponent implements OnInit {
       this.patchForm({ fullName: jwtName, email: jwtEmail } as UserProfile);
     }
 
-    // ٢) البيانات الحقيقية المحفوظة فعلياً وقت التسجيل (من GET api/Profile - نفس الإندبوينت المستخدم في بروفايل المستخدم)
+    // ٢) البيانات الحقيقية المحفوظة فعلياً وقت التسجيل (من GET api/Profile)
     this.profileService.getProfile().subscribe({
       next: (res) => {
         if (res?.data) this.patchForm(res.data);
@@ -65,11 +62,14 @@ export class AdminProfileComponent implements OnInit {
       fullName: [seed.fullName || '', [Validators.required, Validators.minLength(3)]],
       email: [{ value: seed.email || '', disabled: true }],
       phone: [seed.phone || '', [Validators.pattern('^01[0125][0-9]{8}$')]],
-      role: [{ value: 'مدير عام بالنظام', disabled: true }],
+      nationalId: [seed.nationalId || '', [Validators.pattern('^\\d{14}$')]],
+      city: [seed.city || ''],
+      district: [seed.district || ''],
+      street: [seed.street || ''],
       currentPassword: ['', [Validators.minLength(6)]],
       newPassword: ['', [Validators.minLength(6)]]
     });
-    this.updateAvatar(seed.fullName || 'Admin');
+    this.updateAvatar(seed.fullName || 'User');
   }
 
   private patchForm(data: UserProfile): void {
@@ -81,7 +81,7 @@ export class AdminProfileComponent implements OnInit {
   }
 
   private updateAvatar(name: string): void {
-    this.selectedAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'Admin')}&background=298b64&color=fff`;
+    this.selectedAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=298b64&color=fff`;
   }
 
   onFileSelected(event: any): void {
@@ -106,7 +106,7 @@ export class AdminProfileComponent implements OnInit {
     const raw = this.profileForm.getRawValue();
 
     this.profileService.updateProfile(raw).subscribe({
-      next: (res: any) => {
+      next: (res) => {
         this.saveState = 'success';
         this.saveMessage = res?.message || 'تم حفظ بياناتك بنجاح';
         this.profileForm.patchValue({ currentPassword: '', newPassword: '' });
@@ -118,11 +118,5 @@ export class AdminProfileComponent implements OnInit {
         setTimeout(() => this.saveState = 'idle', 3200);
       }
     });
-  }
-
-  // تفعيل وضع "معاينة كمستخدم" من داخل صفحة ملف الأدمن، من غير أي تعديل في راوتس المستخدم العادي
-  previewAsUser(): void {
-    this.authService.enableUserPreview();
-    this.router.navigate(['/user-dashboard']);
   }
 }

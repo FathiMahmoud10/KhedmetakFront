@@ -13,6 +13,8 @@ export const adminGuard: CanActivateFn = () => {
 
   const role = authService.getRole();
   if (role === 'Admin') {
+    // رجوع الأدمن لأي صفحة أدمن حقيقية ينهي وضع "معاينة كمستخدم" تلقائياً
+    authService.disableUserPreview();
     return true;
   }
 

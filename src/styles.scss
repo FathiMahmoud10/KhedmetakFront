@@ -88,19 +88,22 @@ body.dark-theme {
 
   // buttons — elegant gold accent
   // buttons — refined contrast and subtle gold rim
-  button, .ms-btn-submit, .ms-btn-delete, .app-navbar__menu-btn {
+  // مستثنى منها بالكامل أزرار الناف بار والسايد بار حتى لا تفقد ألوانها المميزة عند تفعيل الوضع الداكن
+  button:not(.app-navbar button):not(.admin-drawer button):not(.app-navbar__menu-btn),
+  .ms-btn-submit, .ms-btn-delete {
     background: linear-gradient(90deg, rgba(30,36,40,0.88), rgba(20,28,32,0.88)) !important;
     color: var(--foreground) !important;
     border: 1px solid rgba(209,177,110,0.06) !important;
     transition: transform 120ms ease, box-shadow 120ms ease;
   }
 
-  .ms-btn-submit, .app-navbar__menu-btn {
+  .ms-btn-submit {
     background: linear-gradient(90deg, rgba(30,40,45,0.95), rgba(20,30,35,0.95)) !important;
     box-shadow: 0 8px 26px rgba(0,0,0,0.6), 0 4px 18px rgba(198,161,90,0.06) !important;
   }
 
-  button:hover, .ms-btn-submit:hover, .ms-btn-delete:hover {
+  button:not(.app-navbar button):not(.admin-drawer button):hover,
+  .ms-btn-submit:hover, .ms-btn-delete:hover {
     transform: translateY(-2px);
   }
 

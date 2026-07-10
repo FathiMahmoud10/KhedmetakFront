@@ -15,6 +15,9 @@ import { AuthService } from '../../APIServices/SharedServices/auth.service';
 export class AdminSidebar implements OnInit, OnDestroy {
   isOpen = false;
   isServicesCollapsed = false;
+  adminName = 'مدير النظام';
+  adminEmail = '';
+  avatarUrl = 'assets/images/images.jpg';
   private sub?: Subscription;
 
   constructor(
@@ -26,7 +29,29 @@ export class AdminSidebar implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.sub = this.adminSidebarService.isOpen$.subscribe(open => {
       this.isOpen = open;
+      if (open) this.refreshAdminInfo();
     });
+    this.refreshAdminInfo();
+  }
+
+  private refreshAdminInfo(): void {
+    const token = this.authService.getTokenFromCookie();
+    if (!token) return;
+    const payload = this.authService.decodeJwt(token);
+    if (!payload) return;
+
+    this.adminName =
+      payload?.name ||
+      payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+      'مدير النظام';
+    this.adminEmail =
+      payload?.email ||
+      payload?.['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ||
+      '';
+  }
+
+  onAvatarError(event: Event): void {
+    this.avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(this.adminName || 'Admin')}&background=298b64&color=fff`;
   }
 
   ngOnDestroy(): void {
@@ -39,6 +64,13 @@ export class AdminSidebar implements OnInit, OnDestroy {
 
   toggleServicesCollapse(): void {
     this.isServicesCollapsed = !this.isServicesCollapsed;
+  }
+
+  // تفعيل وضع "معاينة كمستخدم" (بدون أي تعديل في الراوتس)، والانتقال لداشبورد المستخدم
+  previewAsUser(): void {
+    this.close();
+    this.authService.enableUserPreview();
+    this.router.navigate(['/user-dashboard']);
   }
 
   logout(): void {

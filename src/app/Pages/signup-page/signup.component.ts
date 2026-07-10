@@ -52,6 +52,10 @@ export class SignupComponent implements OnInit, OnDestroy {
   isDarkMode = false;
   private themeSub?: Subscription;
 
+  // ===== دينامكية الخطوات (Multi-step wizard) =====
+  currentStep = 1;
+  totalSteps = 3;
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -84,6 +88,49 @@ export class SignupComponent implements OnInit, OnDestroy {
   validateDistrict() { this.districtError = !this.district.trim(); }
   validateStreet() { this.streetError = !this.street.trim(); }
   validateBuildingNumber() { this.buildingNumberError = !this.buildingNumber.trim(); }
+
+  // يتحقق فقط من حقول الخطوة الحالية قبل الانتقال للتالية
+  private validateStep(step: number): boolean {
+    if (step === 1) {
+      this.validateName();
+      this.validateNationalId();
+      this.validatePhone();
+      this.validateDateOfBirth();
+      return !(this.nameError || this.nationalIdError || this.phoneError || this.dateOfBirthError);
+    }
+    if (step === 2) {
+      this.validateEmail();
+      this.validatePassword();
+      this.validateConfirm();
+      return !(this.emailError || this.passwordError || this.confirmError);
+    }
+    if (step === 3) {
+      this.validateCity();
+      this.validateDistrict();
+      this.validateStreet();
+      this.validateBuildingNumber();
+      return !(this.cityError || this.districtError || this.streetError || this.buildingNumberError);
+    }
+    return true;
+  }
+
+  nextStep() {
+    if (!this.validateStep(this.currentStep)) return;
+    if (this.currentStep < this.totalSteps) this.currentStep++;
+  }
+
+  prevStep() {
+    if (this.currentStep > 1) this.currentStep--;
+  }
+
+  goToStep(step: number) {
+    // يسمح بالرجوع لأي خطوة سابقة، أو التقدم فقط لو الخطوات السابقة صحيحة
+    if (step < this.currentStep) { this.currentStep = step; return; }
+    for (let s = this.currentStep; s < step; s++) {
+      if (!this.validateStep(s)) return;
+    }
+    this.currentStep = step;
+  }
 
   signUpWithGoogle() {
     // TODO: Google OAuth

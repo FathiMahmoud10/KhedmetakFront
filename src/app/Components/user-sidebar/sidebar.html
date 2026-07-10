@@ -21,7 +21,7 @@
     </div>
 
     <!-- User Profile Card -->
-    <div class="user-profile-card">
+    <a routerLink="/profile" (click)="close()" class="user-profile-card user-profile-card--link" title="تعديل البروفايل">
       <div class="user-profile-card__avatar-wrap">
         <img
           [src]="avatarUrl"
@@ -32,6 +32,7 @@
           (error)="onAvatarError($event)"
         />
         <span class="user-profile-card__online-dot"></span>
+        <span class="user-profile-card__edit-badge"><i class="fas fa-pen"></i></span>
       </div>
       <div class="user-profile-card__info">
         <span class="user-profile-card__name">{{ userName }}</span>
@@ -41,7 +42,8 @@
           {{ userLocation.city || userLocation.governorate || 'مصر' }}
         </span>
       </div>
-    </div>
+      <i class="fas fa-chevron-left user-profile-card__arrow"></i>
+    </a>
 
     <!-- Nav -->
     <nav class="admin-drawer__nav">
@@ -69,6 +71,16 @@
           <a routerLink="/my-files" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
             <span class="admin-drawer__link-icon"><i class="fas fa-folder-open"></i></span>
             <span class="admin-drawer__link-text">ملفاتي</span>
+          </a>
+        </li>
+      </ul>
+
+      <span class="admin-drawer__nav-label">الحساب</span>
+      <ul class="admin-drawer__list">
+        <li>
+          <a routerLink="/profile" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-user-gear"></i></span>
+            <span class="admin-drawer__link-text">إدارة حسابي</span>
           </a>
         </li>
       </ul>

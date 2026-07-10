@@ -340,9 +340,45 @@ $white:  #ffffff;
   border-radius: 16px;
   backdrop-filter: blur(8px);
 
+  &--link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+      background: rgba($white, 0.11);
+      border-color: rgba($green, 0.4);
+      transform: translateY(-1px);
+    }
+  }
+
+  &__arrow {
+    margin-right: auto;
+    font-size: 0.75rem;
+    color: rgba($white, 0.4);
+    flex-shrink: 0;
+  }
+
   &__avatar-wrap {
     position: relative;
     flex-shrink: 0;
+  }
+
+  &__edit-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $green;
+    color: $navy2;
+    font-size: 0.6rem;
+    border: 2px solid $navy2;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
 
   &__avatar {

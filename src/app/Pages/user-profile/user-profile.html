@@ -3,8 +3,9 @@
   <!-- Loading skeleton أثناء جلب البيانات الحقيقية من السيرفر -->
   <div class="prof-loading" *ngIf="isLoading">
     <div class="prof-loading__spinner"></div>
-    <span>جارٍ تحميل بيانات حسابك...</span>
+    <span>جارٍ تحميل بياناتك...</span>
   </div>
+
 
   <!-- Hero -->
   <header class="prof-hero" *ngIf="!isLoading">
@@ -15,19 +16,13 @@
           <i class="fas fa-id-card"></i>
           إدارة حسابي
         </span>
-        <h1 class="prof-hero__title">ملف الأدمن</h1>
-        <p class="prof-hero__sub">إدارة بياناتك الشخصية وكلمة المرور وصورة الحساب</p>
+        <h1 class="prof-hero__title">الملف الشخصي</h1>
+        <p class="prof-hero__sub">عدّل بياناتك الشخصية وصورتك وكلمة المرور بكل سهولة</p>
       </div>
-      <div class="prof-hero__actions">
-        <a routerLink="/admin-dashboard" class="prof-hero__role">
-          <i class="fas fa-gauge-high"></i>
-          <span>العودة للوحة التحكم</span>
-        </a>
-        <button type="button" class="prof-hero__role prof-hero__role--ghost" (click)="previewAsUser()">
-          <i class="fas fa-eye"></i>
-          <span>معاينة كمستخدم</span>
-        </button>
-      </div>
+      <a routerLink="/user-dashboard" class="prof-hero__role">
+        <i class="fas fa-gauge-high"></i>
+        <span>العودة للداشبورد</span>
+      </a>
     </div>
   </header>
 
@@ -42,9 +37,9 @@
           <div class="prof-avatar__ring">
             <img
               [src]="selectedAvatar"
-              alt="Admin Avatar"
+              alt="User Avatar"
               class="prof-avatar__img"
-              onerror="this.src='https://ui-avatars.com/api/?name=Admin&background=298b64&color=fff'"
+              onerror="this.src='https://ui-avatars.com/api/?name=User&background=298b64&color=fff'"
             />
           </div>
           <button class="prof-avatar__btn" type="button" (click)="avatarInput.click()" aria-label="تغيير الصورة">
@@ -54,14 +49,14 @@
         </div>
 
         <h2 class="prof-profile__name">{{ profileForm.get('fullName')?.value }}</h2>
-        <p class="prof-profile__bio">الأدمن المسؤول عن إدارة الخدمات الحكومية الذكية</p>
+        <p class="prof-profile__bio">مستخدم على منصة خدمتك AI</p>
 
         <ul class="prof-meta">
           <li class="prof-meta__item">
             <span class="prof-meta__icon"><i class="fas fa-envelope"></i></span>
-            <span class="prof-meta__text">{{ profileForm.get('email')?.value }}</span>
+            <span class="prof-meta__text">{{ profileForm.get('email')?.value || 'غير مسجل' }}</span>
           </li>
-          <li class="prof-meta__item">
+          <li class="prof-meta__item" *ngIf="profileForm.get('phone')?.value">
             <span class="prof-meta__icon"><i class="fas fa-phone"></i></span>
             <span class="prof-meta__text">{{ profileForm.get('phone')?.value }}</span>
           </li>
@@ -110,16 +105,7 @@
 
             <div class="prof-field">
               <label class="prof-field__label">البريد الإلكتروني</label>
-              <input
-                type="email"
-                class="prof-field__input"
-                formControlName="email"
-                [class.prof-field__input--invalid]="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)"
-              />
-              <div *ngIf="profileForm.get('email')?.invalid && (profileForm.get('email')?.dirty || profileForm.get('email')?.touched)" class="prof-field__error">
-                <small *ngIf="profileForm.get('email')?.errors?.['required']">البريد الإلكتروني مطلوب للاتصال.</small>
-                <small *ngIf="profileForm.get('email')?.errors?.['email']">صيغة البريد غير صحيحة (مثال: name@example.com).</small>
-              </div>
+              <input type="email" class="prof-field__input prof-field__input--disabled" formControlName="email" />
             </div>
           </div>
 
@@ -130,17 +116,53 @@
                 type="text"
                 class="prof-field__input"
                 formControlName="phone"
+                placeholder="01XXXXXXXXX"
                 [class.prof-field__input--invalid]="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)"
               />
               <div *ngIf="profileForm.get('phone')?.invalid && (profileForm.get('phone')?.dirty || profileForm.get('phone')?.touched)" class="prof-field__error">
-                <small *ngIf="profileForm.get('phone')?.errors?.['required']">رقم الهاتف مطلوب للتواصل الطارئ.</small>
-                <small *ngIf="profileForm.get('phone')?.errors?.['pattern']">يجب إدخال رقم هاتف مصري صحيح مكون من 11 رقماً.</small>
+                <small>يجب إدخال رقم هاتف مصري صحيح مكون من 11 رقماً.</small>
               </div>
             </div>
 
             <div class="prof-field">
-              <label class="prof-field__label">الدور / الصلاحية</label>
-              <input type="text" class="prof-field__input prof-field__input--disabled" formControlName="role" />
+              <label class="prof-field__label">الرقم القومي</label>
+              <input
+                type="text"
+                class="prof-field__input"
+                formControlName="nationalId"
+                maxlength="14"
+                placeholder="14 رقم"
+                [class.prof-field__input--invalid]="profileForm.get('nationalId')?.invalid && (profileForm.get('nationalId')?.dirty || profileForm.get('nationalId')?.touched)"
+              />
+              <div *ngIf="profileForm.get('nationalId')?.invalid && (profileForm.get('nationalId')?.dirty || profileForm.get('nationalId')?.touched)" class="prof-field__error">
+                <small>يجب أن يكون الرقم القومي مكوناً من 14 رقماً.</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Address -->
+        <section class="prof-section">
+          <h3 class="prof-section__title">
+            <i class="fas fa-location-dot"></i>
+            العنوان
+          </h3>
+
+          <div class="prof-form__row">
+            <div class="prof-field">
+              <label class="prof-field__label">المحافظة</label>
+              <input type="text" class="prof-field__input" formControlName="city" placeholder="القاهرة" />
+            </div>
+            <div class="prof-field">
+              <label class="prof-field__label">الحي</label>
+              <input type="text" class="prof-field__input" formControlName="district" placeholder="مدينة نصر" />
+            </div>
+          </div>
+
+          <div class="prof-form__row">
+            <div class="prof-field">
+              <label class="prof-field__label">الشارع</label>
+              <input type="text" class="prof-field__input" formControlName="street" placeholder="شارع التحرير" />
             </div>
           </div>
         </section>
@@ -163,7 +185,7 @@
                 [class.prof-field__input--invalid]="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)"
               />
               <div *ngIf="profileForm.get('currentPassword')?.invalid && (profileForm.get('currentPassword')?.dirty || profileForm.get('currentPassword')?.touched)" class="prof-field__error">
-                <small *ngIf="profileForm.get('currentPassword')?.errors?.['minlength']">كلمة المرور يجب ألا تقل عن 6 أحرف.</small>
+                <small>كلمة المرور يجب ألا تقل عن 6 أحرف.</small>
               </div>
             </div>
 
@@ -177,7 +199,7 @@
                 [class.prof-field__input--invalid]="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)"
               />
               <div *ngIf="profileForm.get('newPassword')?.invalid && (profileForm.get('newPassword')?.dirty || profileForm.get('newPassword')?.touched)" class="prof-field__error">
-                <small *ngIf="profileForm.get('newPassword')?.errors?.['minlength']">كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف.</small>
+                <small>كلمة المرور الجديدة يجب ألا تقل عن 6 أحرف.</small>
               </div>
             </div>
           </div>

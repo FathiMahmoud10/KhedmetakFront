@@ -139,6 +139,14 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
       color: $green;
       font-weight: 700;
     }
+
+    &--preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: #ffb020;
+      font-weight: 700;
+    }
   }
 
   &__center {
@@ -233,6 +241,21 @@ $border: rgba($white, 0.08); // حدود فائقة النعومة لإبراز 
       background: rgba($white, 0.15);
       border-color: rgba($white, 0.3);
     }
+
+    &--preview {
+      background: rgba(#ffb020, 0.12);
+      border-color: rgba(#ffb020, 0.5);
+      color: #ffb020;
+
+      &:hover {
+        background: rgba(#ffb020, 0.22);
+        border-color: rgba(#ffb020, 0.7);
+      }
+    }
+  }
+
+  &--preview {
+    border-bottom-color: rgba(#ffb020, 0.4);
   }
 
   // حاوية أزرار الدخول والتسجيل

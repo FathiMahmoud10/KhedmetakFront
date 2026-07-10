@@ -21,7 +21,7 @@
       transform: translateX(-50%);
       width: 60px;
       height: 3px;
-      background-color: var(--brand-teal, #2e90a8);
+      background-color: #023264;
       border-radius: 2px;
     }
   }
@@ -47,7 +47,7 @@
     border-color: rgba(46, 144, 168, 0.2);
 
     .emergency-card__number {
-      color: var(--brand-teal, #2e90a8);
+      color: #023264;
       transform: scale(1.05);
     }
   }
