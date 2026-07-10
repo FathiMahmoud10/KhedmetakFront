@@ -13,8 +13,9 @@ export const userGuard: CanActivateFn = () => {
 
   const role = authService.getRole();
 
-  // لو أدمن مش المفروض يدخل على صفحات اليوزر
-  if (role === 'Admin') {
+  // لو أدمن، مش المفروض يدخل على صفحات اليوزر إلا في وضع "معاينة كمستخدم"
+  // اللي بيفعّله بنفسه من صفحة ملف الأدمن (من غير ما نلمس صلاحيات المستخدم العادي)
+  if (role === 'Admin' && !authService.isUserPreview()) {
     router.navigate(['/admin-dashboard']);
     return false;
   }

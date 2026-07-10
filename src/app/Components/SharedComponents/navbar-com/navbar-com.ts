@@ -19,6 +19,10 @@ export class NavbarCom implements OnInit, OnDestroy {
   isDarkMode = false;
   isAdmin = false;
   isLoggedIn = false;
+  isChatPage = false;
+  isServicesPage = false;
+  isProfilePage = false;
+  isUserPreview = false;
   private routeSub?: Subscription;
   private navigationCount = 0;
 
@@ -52,11 +56,19 @@ export class NavbarCom implements OnInit, OnDestroy {
   private updateAuthState(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
     this.isAdmin = this.authService.getRole() === 'Admin';
+    this.isUserPreview = this.isAdmin && this.authService.isUserPreview();
   }
 
   private checkUrl(url: string): void {
     if (!url) return;
     const currentUrl = url.toLowerCase();
+
+    // تُحسب دائمًا بغض النظر عن باقي الشروط، عشان تفضل صح في كل تنقل
+    this.isChatPage = currentUrl.includes('/chat');
+    this.isServicesPage = currentUrl.includes('/services');
+
+    // صفحات الملف الشخصي (أدمن أو مستخدم): تظهر بمظهر خارجي لكن لازم زر "العودة للموقع" يفضل ظاهر فيها
+    this.isProfilePage = currentUrl.includes('admin-profile') || currentUrl.endsWith('/profile');
 
     // الاستثناء الصريح: عند الدخول لصفحة ملف الأدمن أو الرئيسية أو الحسابات، نلغي تفعيل وضع لوحات التحكم الداخلية
     if (currentUrl.includes('admin-profile') || currentUrl.includes('login') || currentUrl.includes('signup') || currentUrl.endsWith('/home') || currentUrl === '/') {
@@ -66,8 +78,8 @@ export class NavbarCom implements OnInit, OnDestroy {
     }
 
     // تفعيل وضع الأدمن الداخلي فقط في لوحة التحكم الإدارية الحقيقية (السايد بار الداخلي)
-    this.isAdminPage = currentUrl.includes('admin-dashboard') || 
-                       currentUrl.includes('manage-') || 
+    this.isAdminPage = currentUrl.includes('admin-dashboard') ||
+                       currentUrl.includes('manage-') ||
                        currentUrl.includes('admin-categories') ||
                        currentUrl.includes('admin-steps') ||
                        currentUrl.includes('admin-service-detail') ||
@@ -116,5 +128,12 @@ export class NavbarCom implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // إنهاء وضع "معاينة كمستخدم" والرجوع للوحة تحكم الأدمن
+  exitUserPreview(): void {
+    this.authService.disableUserPreview();
+    this.isUserPreview = false;
+    this.router.navigate(['/admin-dashboard']);
   }
 }

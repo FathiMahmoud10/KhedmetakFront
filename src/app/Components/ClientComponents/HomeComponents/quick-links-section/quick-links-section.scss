@@ -148,13 +148,13 @@
 
         i {
           font-size: 15px;
-          color: var(--brand-teal, #2e90a8);
+          color: #023264;
           margin-top: 3px;
           transition: transform 0.25s ease;
         }
 
         &:hover {
-          color: var(--brand-teal, #2e90a8) !important;
+          color: #023264 !important;
 
           i {
             transform: scale(1.1);

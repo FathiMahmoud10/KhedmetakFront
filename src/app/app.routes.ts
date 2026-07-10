@@ -20,6 +20,7 @@ import { AdminRequiredDocumentsComponent } from './Pages/admin-required-document
 import { AdminPortalLogComponent } from './Pages/admin-portal-log/admin-portal-log';
 import { AdminStandardDocumentsComponent } from './Pages/admin-standard-documents/admin-standard-documents';
 import { AdminPaymentsComponent } from './Pages/admin-payments/admin-payments';
+import { UserProfileComponent } from './Pages/user-profile/user-profile';
 
 import { guestGuard } from './Guards/guest.guard';
 import { adminGuard } from './Guards/admin.guard';
@@ -57,6 +58,7 @@ export const routes: Routes = [
   // صفحات المستخدم العادي فقط
   // ==============================
   { path: 'user-dashboard', component: UserDashboard, canActivate: [userGuard] },
+  { path: 'profile',        component: UserProfileComponent, canActivate: [userGuard] },
   { path: 'my-requests',    component: MyRequests,    canActivate: [userGuard] },
   { path: 'my-files',       component: MyFiles,       canActivate: [userGuard] },
   // صفحة الشات للمستخدمين والزوار
