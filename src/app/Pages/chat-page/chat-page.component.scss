@@ -4567,6 +4567,57 @@
   }
 }
 
+/* ═══════════════════════════════════════════
+   PAYMENT CARD OVERLAY — fixed above chat
+   ═══════════════════════════════════════════ */
+.chat-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(1, 18, 40, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: chat-overlay-in 0.2s ease;
+}
+
+@keyframes chat-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.chat-modal-inner {
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  animation: chat-modal-pop 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* تخصيص شريط التمرير */
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: rgba(72, 127, 185, 0.3); border-radius: 4px; }
+
+  /* الـ payment-card جوا الـ modal يأخذ كل العرض */
+  .payment-card {
+    border-radius: 20px;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+  }
+}
+
+@keyframes chat-modal-pop {
+  from { transform: scale(0.9) translateY(16px); opacity: 0; }
+  to   { transform: scale(1) translateY(0);       opacity: 1; }
+}
+
+
 
 
 
