@@ -584,6 +584,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       const replyText = (res.response || '').trim() || 'عذراً، لم أتلق ردًا صالحاً من الخدمة.';
       // Render the full markdown response as a single formatted message
       this.messages.push({ sender: 'bot', text: this.mdToHtml(replyText), isHtml: true });
+      this.initGuestLimits();
     } catch (err: any) {
       this.messages.splice(typingIndicatorIndex, 1);
       this.messages.push({
@@ -597,6 +598,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
         this.guestMessageCount--;
         this.freeRemaining = Math.min(this.MAX_FREE_MSGS, this.MAX_FREE_MSGS - this.guestMessageCount);
         localStorage.setItem('guest_msg_count', this.guestMessageCount.toString());
+      } else if (this.isLoggedIn) {
+        this.initGuestLimits();
       }
     } finally {
       this.isSending = false;
@@ -1119,7 +1122,7 @@ doSubmitRequest(): void {
         document.cookie = `user_email=${userEmail}; expires=${expireDate.toUTCString()}; path=/`;
 
         this.isLoggedIn = true;
-        this.freeRemaining = 0;
+        this.initGuestLimits();
 
         // Reset session on login so we start an authenticated chat session
         this.sessionGuid = null;
@@ -1397,6 +1400,7 @@ doSubmitRequest(): void {
     this.showSuccessCard = false;
 
     this.loadSessionHistory(session.id);
+    this.initGuestLimits();
   }
 
   async startNewChat(): Promise<void> {
@@ -1424,6 +1428,7 @@ doSubmitRequest(): void {
 
     await this.ensureSession();
     this.loadUserSessions();
+    this.initGuestLimits();
   }
 
   getUserInitials(): string {
