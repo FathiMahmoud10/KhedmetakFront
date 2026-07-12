@@ -4245,4 +4245,328 @@
   padding-bottom: 10px !important;
 }
 
+/*==========================================
+=     PAYMENT CARD REDESIGN — NEW STYLES
+==========================================*/
+
+// Red header variant for chat payment
+.pc-header--red {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 60%, #f87171 100%) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+// Decorative glow element inside header
+.pc-header-glow {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+// Red fee banner
+.pc-fee-banner--red {
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.07), transparent) !important;
+}
+
+.red-num {
+  color: #b91c1c !important;
+}
+
+.red-note {
+  color: #b91c1c !important;
+}
+
+// Visual stepper
+.pc-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  gap: 0;
+  background: #fafafa;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Cairo', sans-serif;
+}
+
+.pc-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 52px;
+
+  .pcs-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .pcs-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+    transition: color 0.3s;
+  }
+
+  &.active {
+    .pcs-circle {
+      background: #ef4444;
+      color: #fff;
+      border-color: rgba(239,68,68,0.3);
+      box-shadow: 0 2px 8px rgba(239,68,68,0.25);
+    }
+    .pcs-label {
+      color: #b91c1c;
+      font-weight: 700;
+    }
+  }
+
+  &.done {
+    .pcs-circle {
+      background: #dcfce7;
+      color: #16a34a;
+      border-color: rgba(22,163,74,0.3);
+      box-shadow: none;
+    }
+    .pcs-label {
+      color: #16a34a;
+    }
+  }
+}
+
+.pcs-line {
+  flex: 1;
+  height: 2px;
+  background: #e2e8f0;
+  margin-bottom: 18px;
+  max-width: 40px;
+  transition: background 0.35s;
+
+  &.done {
+    background: #16a34a;
+  }
+}
+
+// Section label with icon
+.pc-section-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 14px;
+  font-family: 'Cairo', sans-serif;
+
+  i {
+    color: var(--blue);
+    font-size: 13px;
+  }
+}
+
+// User confirm card (step 1 of chat payment)
+.pc-user-confirm-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #fff7f7, #fff);
+  border: 1.5px solid rgba(239,68,68,0.15);
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.pc-user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444, #f87171);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Cairo', sans-serif;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(239,68,68,0.25);
+}
+
+.pc-user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pc-user-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  font-family: 'Cairo', sans-serif;
+}
+
+.pc-user-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  font-family: 'Cairo', sans-serif;
+}
+
+.pc-user-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(239,68,68,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.pc-info-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-family: 'Cairo', sans-serif;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+
+  i {
+    color: #10b981;
+    font-size: 12px;
+  }
+}
+
+// Back button
+.pc-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface2);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    color: var(--text);
+    background: var(--surface);
+    border-color: var(--border2);
+    transform: translateX(2px);
+  }
+
+  i {
+    font-size: 11px;
+  }
+}
+
+// Red variant for chat payment confirm button
+.pc-confirm-btn--red {
+  background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+  box-shadow: 0 3px 12px rgba(239,68,68,0.3) !important;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #b91c1c, #dc2626) !important;
+    box-shadow: 0 5px 18px rgba(239,68,68,0.4) !important;
+    transform: translateY(-1px);
+  }
+}
+
+// Fawry code block (step 3)
+.fawry-code-block {
+  background: #fffbeb;
+  border: 1.5px solid rgba(255, 188, 0, 0.35);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  font-family: 'Cairo', sans-serif;
+}
+
+.fcb-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  i {
+    color: #d97706;
+  }
+}
+
+.fcb-code {
+  font-size: 30px;
+  font-weight: 900;
+  color: #b45309;
+  letter-spacing: 5px;
+  margin-bottom: 10px;
+  font-family: 'Courier New', monospace;
+  background: rgba(255,188,0,0.12);
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: inline-block;
+}
+
+.fcb-note {
+  font-size: 11.5px;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  i {
+    font-size: 11px;
+  }
+}
+
+// Vodafone upload block (step 3)
+.vodafone-upload-block {
+  font-family: 'Cairo', sans-serif;
+}
+
+.vub-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  i {
+    color: var(--red);
+  }
+}
+
+
+
 

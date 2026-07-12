@@ -752,21 +752,23 @@ selectFawryMethod(sub: 'visa' | 'code'): void {
  * Confirms payment and proceeds to request collection
  */
 confirmPayment(): void {
-  this.paymentProcessing = true;
-  this.showPaymentCard = false;
-  this.paymentProcessing = false;
-
   if (this.isPayingForChat) {
     if (this.chatPaymentStep === 1) {
+      // Move to step 2: payment method selection
       this.chatPaymentStep = 2;
+      this.scrollToBottom();
       return;
     } else if (this.chatPaymentStep === 2) {
+      // Move to step 3: confirm payment details
+      if (!this.selectedPaymentMethod) return;
       this.chatPaymentStep = 3;
       if (this.selectedPaymentMethod === 'fawry') {
         this.fawryRandomCode = Math.floor(100000000 + Math.random() * 900000000).toString();
       }
+      this.scrollToBottom();
       return;
     } else if (this.chatPaymentStep === 3) {
+      // Final step: actually process payment
       this.paymentProcessing = true;
       this.http.post<any>(`${environment.apiUrl}/Payment/chat-payment`, {}).subscribe({
         next: (res) => {
@@ -785,6 +787,9 @@ confirmPayment(): void {
       return;
     }
   }
+
+  // For non-chat payment (service request payment)
+  this.showPaymentCard = false;
 }
 
 /**
