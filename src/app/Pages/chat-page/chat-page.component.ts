@@ -113,6 +113,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
   hasPaidForChat = false;
   chatPaymentStep = 1;
   fawryRandomCode = '';
+  filePreviews: { [docId: number]: string } = {};
+  isCheckingFile = false;
   readonly CHAT_PAYMENT_FEE = 50;
 
   // Session list sidebar state
@@ -662,6 +664,8 @@ openSubmitForm(): void {
   this.submitNotes = '';
   this.submitFiles = [];
   this.uploadedDocIds.clear();
+  this.filePreviews = {};
+  this.isCheckingFile = false;
   this.currentRequestStep = 0;
   this.isCollectingRequestInfo = false; // Using form overlay instead of chat collection
   this.showSubmitForm = true;
@@ -960,10 +964,16 @@ doSubmitRequest(): void {
     this.uploadProgress = 0;
     this.uploadSuccessMessage = '';
     this.uploadErrorMessage = '';
+    this.isCheckingFile = true;
+
+    // Save preview if it's an image
+    if (file.type.startsWith('image/')) {
+      this.filePreviews[docId] = URL.createObjectURL(file);
+    } else {
+      delete this.filePreviews[docId];
+    }
 
     // ── خطوة 1: التحقق من المستند أولاً ─────────────────────────────────────
-    this.appendBotMsg(`🔍 جاري التحقق من ملف <strong>${file.name}</strong>...`);
-
     let validationPassed = false;
     try {
       const validationResult = await firstValueFrom(
@@ -972,7 +982,6 @@ doSubmitRequest(): void {
 
       if (validationResult && validationResult.isValid === true) {
         validationPassed = true;
-        this.appendBotMsg(`✅ تم التحقق من المستند بنجاح. جاري الرفع...`);
       } else {
         // عرض أخطاء التحقق في الشات
         const errors: string[] = validationResult?.validationErrors || [];
@@ -991,18 +1000,19 @@ doSubmitRequest(): void {
         }
         this.appendBotMsg(errorHtml);
         this.uploadProgress = null;
+        this.isCheckingFile = false;
         event.target.value = '';
         return;
       }
     } catch (validationErr: any) {
       // إذا فشل الـ endpoint نفسه (خطأ شبكة / سيرفر)، نعرض تحذيراً ونكمل الرفع
       console.warn('Document validation endpoint failed, proceeding with upload:', validationErr);
-      this.appendBotMsg(`⚠️ تعذّر التحقق من المستند، سيتم الرفع مباشرة.`);
       validationPassed = true;
     }
 
     if (!validationPassed) {
       event.target.value = '';
+      this.isCheckingFile = false;
       return;
     }
 
@@ -1010,15 +1020,16 @@ doSubmitRequest(): void {
     if (!this.sessionGuid) {
       this.uploadErrorMessage = 'خطأ: لم يتم العثور على معرف الجلسة. يرجى محاولة إرسال رسالة أولاً.';
       this.appendBotMsg(`فشل الرفع: ${this.uploadErrorMessage}`);
+      this.isCheckingFile = false;
       return;
     }
 
     this.chatApiService.uploadDocument(file, this.sessionGuid, docId).subscribe({
       next: (res) => {
         this.uploadProgress = null;
+        this.isCheckingFile = false;
         if (res && res.success) {
           this.uploadSuccessMessage = `تم رفع الملف بنجاح! المعرف: ${res.data?.id || res.data || ''}`;
-          this.appendBotMsg(`تم رفع <strong>${docName}</strong> بنجاح! ✅ المعرف: ${res.data?.id || res.data || ''}`);
 
           // تسجيل رفع الملف لتحديث الحالة في واجهة الفورم
           this.uploadedDocIds.add(Number(docId));
@@ -1048,9 +1059,9 @@ doSubmitRequest(): void {
       },
       error: (err) => {
         this.uploadProgress = null;
-        this.uploadErrorMessage = err?.error?.message || err?.message || 'حدث خطأ غير متوقع أثناء الرفع.';
-        this.appendBotMsg(`حدث خطأ أثناء الرفع: ${this.uploadErrorMessage} ❌`);
-        this.scrollToBottom();
+        this.isCheckingFile = false;
+        this.uploadErrorMessage = 'فشل الاتصال بالخادم أثناء الرفع.';
+        this.appendBotMsg(`فشل رفع الملف: ${this.uploadErrorMessage} ❌`);
       }
     });
 

@@ -464,13 +464,29 @@
               <label class="request-submit-label">المستندات المطلوبة للخدمة</label>
               <div class="request-submit-docs-list">
                 <div *ngFor="let doc of requiredDocuments" class="request-submit-doc-item" [class.uploaded]="isDocUploaded(doc.id)">
-                  <div class="rs-doc-meta">
-                    <span class="rs-doc-status-icon">
-                      <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check-circle text-success' : 'fa-info-circle text-warning'"></i>
-                    </span>
-                    <div class="rs-doc-text">
-                      <span class="rs-doc-name">{{ doc.documentName }}</span>
-                      <span class="rs-doc-mandatory" *ngIf="doc.isMandatory">مستند إلزامي</span>
+                  <div class="rs-doc-meta" style="flex-direction: column; align-items: flex-start; flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <span class="rs-doc-status-icon">
+                        <i class="fas" [ngClass]="isDocUploaded(doc.id) ? 'fa-check-circle text-success' : (isCheckingFile && selectedDocumentIdForUpload === doc.id ? 'fa-spinner fa-spin text-primary' : 'fa-info-circle text-warning')"></i>
+                      </span>
+                      <div class="rs-doc-text">
+                        <span class="rs-doc-name">{{ doc.documentName }}</span>
+                        <span class="rs-doc-mandatory" *ngIf="doc.isMandatory">مستند إلزامي</span>
+                      </div>
+                    </div>
+                    
+                    <!-- File Preview Section -->
+                    <div *ngIf="isDocUploaded(doc.id) || (isCheckingFile && selectedDocumentIdForUpload === doc.id)" style="margin-top: 10px; margin-right: 25px; margin-bottom: 5px;">
+                       <!-- If we have a preview (image) -->
+                       <img *ngIf="filePreviews[doc.id]" [src]="filePreviews[doc.id]" style="max-height: 80px; max-width: 100%; border-radius: 6px; border: 1px solid #ddd; object-fit: contain; background: #f8f9fa; padding: 2px;" />
+                       <!-- If it's uploaded but no preview (e.g. PDF) -->
+                       <span *ngIf="!filePreviews[doc.id] && isDocUploaded(doc.id)" style="font-size: 13px; color: #15803d; font-weight: 600;">
+                         <i class="fas fa-file-check"></i> تم رفع المستند بنجاح
+                       </span>
+                       <!-- If it's checking -->
+                       <span *ngIf="!isDocUploaded(doc.id) && isCheckingFile && selectedDocumentIdForUpload === doc.id" style="font-size: 13px; color: #0369a1; font-weight: 600;">
+                         <i class="fas fa-spinner fa-spin"></i> جاري فحص الملف...
+                       </span>
                     </div>
                   </div>
                   <div style="display: flex; gap: 8px; align-items: center;">
