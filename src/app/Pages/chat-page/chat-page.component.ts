@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { ChatApiService, ChatResponse, CurrentServiceDetails } from '../../APIServices/SharedServices/chat-api.service';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 import { UserDashboardService } from '../../APIServices/SharedServices/user-dashboard.service';
+import { ProfileService } from '../../APIServices/SharedServices/profile.service';
 import { LocationService, UserLocation } from '../../Services/location.service';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../Utilities/Interfaces/IService';
@@ -110,6 +111,8 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
 
   isPayingForChat = false;
   hasPaidForChat = false;
+  chatPaymentStep = 1;
+  fawryRandomCode = '';
   readonly CHAT_PAYMENT_FEE = 50;
 
   // Session list sidebar state
@@ -204,6 +207,7 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     private chatApiService: ChatApiService,
     private authService: AuthService,
     private dashboardService: UserDashboardService,
+    private profileService: ProfileService,
     private locationService: LocationService
   ) {}
 
@@ -290,7 +294,19 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
       this.guestMessageCount = storedCount ? parseInt(storedCount, 10) : 0;
       this.freeRemaining = this.hasPaidForChat ? 9999 : Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
     } else {
-      this.freeRemaining = 0;
+      this.profileService.getChatStatus().subscribe({
+        next: (res) => {
+          if (res && res.success && res.data) {
+            this.hasPaidForChat = res.data.hasPaidForChat;
+            if (this.hasPaidForChat) {
+              this.freeRemaining = 9999;
+            } else {
+              this.freeRemaining = Math.max(0, res.data.maxFreeMessages - res.data.messagesUsed);
+            }
+          }
+        },
+        error: (err) => console.warn('Failed to load chat status:', err)
+      });
     }
   }
 
@@ -501,13 +517,18 @@ export class ChatPageComponent implements OnInit, AfterViewInit {
     if (!text) return;
 
     // Check guest quota limits
-    if (!this.isLoggedIn && !this.hasPaidForChat) {
+    if (!this.hasPaidForChat) {
       if (this.freeRemaining <= 0) {
         return;
       }
-      this.guestMessageCount++;
-      this.freeRemaining = Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
-      localStorage.setItem('guest_msg_count', this.guestMessageCount.toString());
+      
+      if (!this.isLoggedIn) {
+        this.guestMessageCount++;
+        this.freeRemaining = Math.max(0, this.MAX_FREE_MSGS - this.guestMessageCount);
+        localStorage.setItem('guest_msg_count', this.guestMessageCount.toString());
+      } else {
+        this.freeRemaining--;
+      }
     }
 
     this.msgText = '';
@@ -729,12 +750,33 @@ confirmPayment(): void {
   this.paymentProcessing = false;
 
   if (this.isPayingForChat) {
-    this.hasPaidForChat = true;
-    localStorage.setItem('has_paid_for_chat', 'true');
-    this.freeRemaining = 9999;
-    this.isPayingForChat = false;
-    this.appendBotMsg('✅ تم الدفع بنجاح! تم تفعيل المحادثة غير المحدودة لك كضيف.');
-    return;
+    if (this.chatPaymentStep === 1) {
+      this.chatPaymentStep = 2;
+      return;
+    } else if (this.chatPaymentStep === 2) {
+      this.chatPaymentStep = 3;
+      if (this.selectedPaymentMethod === 'fawry') {
+        this.fawryRandomCode = Math.floor(100000000 + Math.random() * 900000000).toString();
+      }
+      return;
+    } else if (this.chatPaymentStep === 3) {
+      this.paymentProcessing = true;
+      this.http.post<any>(`${environment.apiUrl}/Payment/chat-payment`, {}).subscribe({
+        next: (res) => {
+          this.paymentProcessing = false;
+          this.hasPaidForChat = true;
+          this.freeRemaining = 9999;
+          this.isPayingForChat = false;
+          this.showPaymentCard = false;
+          this.appendBotMsg('✅ تم تفعيل المحادثة غير المحدودة بنجاح! يمكنك الآن الاستمرار في طرح الأسئلة.');
+        },
+        error: (err) => {
+          this.paymentProcessing = false;
+          this.appendBotMsg('❌ حدث خطأ أثناء تفعيل المحادثة، يرجى المحاولة مرة أخرى.');
+        }
+      });
+      return;
+    }
   }
 }
 
@@ -774,10 +816,17 @@ confirmGuestPayment(): void {
  */
 openChatPayment(): void {
   this.isPayingForChat = true;
+  this.chatPaymentStep = 1;
   this.selectedPaymentMethod = null;
   this.fawrySubMethod = null;
   this.paymentSuccess = false;
   this.showPaymentCard = true;
+  
+  // prefill user info if logged in
+  if (this.isLoggedIn) {
+    this.submitUserName = this.authService.getUserName() || '';
+  }
+  
   this.scrollToBottom();
 }
 

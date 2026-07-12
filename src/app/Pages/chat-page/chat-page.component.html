@@ -276,11 +276,22 @@
               <div class="pc-fee-note" [style.color]="isPayingForChat ? '#b91c1c' : null">{{ isPayingForChat ? '💡 دفع لمرة واحدة للحصول على رسائل غير محدودة' : '💡 الرسوم الحكومية الرسمية شاملة جميع الخدمات' }}</div>
             </div>
 
-            <!-- Step 1: Payment Method Selection (only for service requests, not chat payment) -->
-            <div class="pc-section" *ngIf="!isPayingForChat">
+            <!-- Step 1: User Info (For Chat Payment) -->
+            <div class="pc-section" *ngIf="isPayingForChat && chatPaymentStep === 1">
+              <div class="pc-section-label">تأكيد بياناتك</div>
+              <div class="rs-field">
+                <label>الاسم الكامل</label>
+                <div class="rs-input-group">
+                  <i class="fas fa-user input-icon"></i>
+                  <input type="text" [(ngModel)]="submitUserName" placeholder="أدخل اسمك ثلاثي" readonly />
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Payment Method Selection (For Chat Payment or Service Request) -->
+            <div class="pc-section" *ngIf="(!isPayingForChat) || (isPayingForChat && chatPaymentStep === 2)">
               <div class="pc-section-label">اختار طريقة الدفع</div>
               <div class="pc-methods">
-
                 <!-- Fawry -->
                 <button class="pc-method pc-method--fawry" [class.selected]="selectedPaymentMethod === 'fawry'"
                   (click)="selectPaymentMethod('fawry')">
@@ -315,64 +326,72 @@
                     <i class="fas fa-check"></i>
                   </div>
                 </button>
-
               </div>
             </div>
 
-            <!-- Step 2: Fawry Sub-method (only if Fawry selected, and not chat payment) -->
+            <!-- Step 3: Fawry Sub-method (For Service Request) -->
             <div class="pc-section pc-fawry-sub" *ngIf="!isPayingForChat && selectedPaymentMethod === 'fawry'">
               <div class="pc-section-label">اختار نوع الدفع بفوري</div>
               <div class="pc-sub-methods">
-
-                <!-- Visa/Mastercard -->
-                <button class="pc-sub-btn" [class.selected]="fawrySubMethod === 'visa'"
-                  (click)="selectFawryMethod('visa')">
-                  <div class="pcsb-icon visa-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                      <line x1="1" y1="10" x2="23" y2="10"/>
-                    </svg>
-                  </div>
+                <button class="pc-sub-btn" [class.selected]="fawrySubMethod === 'visa'" (click)="selectFawryMethod('visa')">
+                  <div class="pcsb-icon visa-icon">💳</div>
                   <div class="pcsb-text">
                     <span class="pcsb-name">فيزا / ماستركارد</span>
                     <span class="pcsb-desc">ادفع ببطاقتك البنكية أونلاين</span>
                   </div>
                   <span class="pcsb-badge" *ngIf="fawrySubMethod === 'visa'">✓</span>
                 </button>
-
-                <!-- Fawry Code -->
-                <button class="pc-sub-btn" [class.selected]="fawrySubMethod === 'code'"
-                  (click)="selectFawryMethod('code')">
-                  <div class="pcsb-icon code-icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-                      <line x1="12" y1="18" x2="12.01" y2="18"/>
-                    </svg>
-                  </div>
+                <button class="pc-sub-btn" [class.selected]="fawrySubMethod === 'code'" (click)="selectFawryMethod('code')">
+                  <div class="pcsb-icon code-icon">🔢</div>
                   <div class="pcsb-text">
                     <span class="pcsb-name">كود فوري</span>
                     <span class="pcsb-desc">ادفع في أي فرع فوري بالكود</span>
                   </div>
                   <span class="pcsb-badge" *ngIf="fawrySubMethod === 'code'">✓</span>
                 </button>
+              </div>
+            </div>
 
+            <!-- Step 3: Chat Payment Specifics (Fawry Code or Vodafone Image) -->
+            <div class="pc-section" *ngIf="isPayingForChat && chatPaymentStep === 3">
+              <div *ngIf="selectedPaymentMethod === 'fawry'">
+                <div class="fawry-code-container" style="text-align: center; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                  <h4 style="color: #333; margin-bottom: 10px;">كود فوري الخاص بك:</h4>
+                  <div style="font-size: 32px; font-weight: bold; color: #ffbc00; letter-spacing: 4px; margin-bottom: 15px;">
+                    {{ fawryRandomCode }}
+                  </div>
+                  <p style="color: #666; font-size: 14px;">يتم سداد التكلفة خلال فترة 48 ساعه من استخراج الكود</p>
+                </div>
+              </div>
+              <div *ngIf="selectedPaymentMethod === 'vodafone'">
+                <div class="rs-field">
+                  <label>صورة إيصال الدفع</label>
+                  <div class="file-upload-box">
+                    <input type="file" id="vodafone-receipt" class="file-input-hidden" accept="image/*" />
+                    <label for="vodafone-receipt" class="file-upload-label">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <span>اضغط هنا لاختيار صورة الإيصال</span>
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- Confirm Button -->
             <div class="pc-footer">
-              <button class="pc-confirm-btn"
-                [disabled]="!isPayingForChat && (!selectedPaymentMethod || (selectedPaymentMethod === 'fawry' && !fawrySubMethod))"
-                (click)="confirmPayment()">
-                <svg *ngIf="!isPayingForChat" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"
-                  stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                <span *ngIf="isPayingForChat">💳 &nbsp;</span>
-                {{ isPayingForChat ? 'ادفع ' + CHAT_PAYMENT_FEE + ' جنيه والاستمرار' : 'تأكيد وإتمام الطلب' }}
+              <button class="pc-confirm-btn" *ngIf="isPayingForChat" [disabled]="paymentProcessing" (click)="confirmPayment()">
+                <span *ngIf="paymentProcessing"><i class="fas fa-spinner fa-spin"></i> جاري المعالجة...</span>
+                <span *ngIf="!paymentProcessing && chatPaymentStep === 1">التالي (طريقة الدفع)</span>
+                <span *ngIf="!paymentProcessing && chatPaymentStep === 2">التالي</span>
+                <span *ngIf="!paymentProcessing && chatPaymentStep === 3">تأكيد وإتمام الدفع</span>
               </button>
+
+              <button class="pc-confirm-btn" *ngIf="!isPayingForChat"
+                [disabled]="!selectedPaymentMethod || (selectedPaymentMethod === 'fawry' && !fawrySubMethod)"
+                (click)="confirmPayment()">
+                تأكيد وإتمام الطلب
+              </button>
+
               <button class="pc-cancel-btn" (click)="cancelPayment()">إلغاء</button>
             </div>
 

@@ -20,6 +20,12 @@ export interface UserProfile {
   avatarUrl?: string;
 }
 
+export interface ChatStatus {
+  messagesUsed: number;
+  hasPaidForChat: boolean;
+  maxFreeMessages: number;
+}
+
 export interface UpdateUserProfile {
   fullName: string;
   phone?: string;
@@ -41,6 +47,10 @@ export class ProfileService {
 
   getProfile(): Observable<ApiResponse<UserProfile>> {
     return this.http.get<ApiResponse<UserProfile>>(`${this.apiUrl}/Profile`);
+  }
+
+  getChatStatus(): Observable<ApiResponse<ChatStatus>> {
+    return this.http.get<ApiResponse<ChatStatus>>(`${this.apiUrl}/Profile/chat-status`);
   }
 
   updateProfile(data: UpdateUserProfile): Observable<ApiResponse<string>> {
