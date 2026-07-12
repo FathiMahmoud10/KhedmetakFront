@@ -43,38 +43,35 @@
         </span>
       </div>
       <i class="fas fa-chevron-left user-profile-card__arrow"></i>
-    </a>
-
-    <!-- Nav -->
+    </a>    <!-- Nav -->
     <nav class="admin-drawer__nav">
       <span class="admin-drawer__nav-label">التنقل</span>
       <ul class="admin-drawer__list">
         <li>
-          <a routerLink="/user-dashboard" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-gauge-high"></i></span>
-            <span class="admin-drawer__link-text">الداشبورد</span>
+          <a routerLink="/chat" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-robot"></i></span>
+            <span class="admin-drawer__link-text">المساعد الذكي (الـ AI)</span>
           </a>
         </li>
         <li>
-          <a routerLink="/chat" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-robot"></i></span>
-            <span class="admin-drawer__link-text">المساعد الذكي</span>
+          <a routerLink="/user-dashboard" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-gauge-high"></i></span>
+            <span class="admin-drawer__link-text">الرئيسية (الداشبورد)</span>
           </a>
         </li>
         <li>
           <a routerLink="/my-requests" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
             <span class="admin-drawer__link-icon"><i class="fas fa-file-circle-check"></i></span>
-            <span class="admin-drawer__link-text">طلباتي</span>
+            <span class="admin-drawer__link-text">طلباتي الحالية</span>
           </a>
         </li>
         <li>
           <a routerLink="/my-files" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
             <span class="admin-drawer__link-icon"><i class="fas fa-folder-open"></i></span>
-            <span class="admin-drawer__link-text">ملفاتي</span>
+            <span class="admin-drawer__link-text">ملفاتي المرفوعة</span>
           </a>
         </li>
       </ul>
-
       <span class="admin-drawer__nav-label">الحساب</span>
       <ul class="admin-drawer__list">
         <li>

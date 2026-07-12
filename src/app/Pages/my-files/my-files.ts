@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AuthService } from '../../APIServices/SharedServices/auth.service';
 import { DocumentsApiService, UserDocument } from '../../APIServices/SharedServices/documents-api.service';
 
@@ -20,11 +21,13 @@ export class MyFiles implements OnInit {
   successMsg = '';
 
   files: UserDocument[] = [];
+  selectedPreviewFile: UserDocument | null = null;
 
   constructor(
     private documentsService: DocumentsApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -85,6 +88,23 @@ export class MyFiles implements OnInit {
 
   fileUrl(filePath: string): string {
     return this.documentsService.fileUrl(filePath);
+  }
+
+  getSafeUrl(filePath: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.fileUrl(filePath));
+  }
+
+  isImage(fileType: string): boolean {
+    const ext = (fileType || '').toLowerCase().replace('.', '');
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+  }
+
+  openPreview(file: UserDocument): void {
+    this.selectedPreviewFile = file;
+  }
+
+  closePreview(): void {
+    this.selectedPreviewFile = null;
   }
 
   getFileIcon(fileType: string): string {

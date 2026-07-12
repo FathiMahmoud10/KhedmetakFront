@@ -22,18 +22,13 @@
 
     <!-- Nav -->
     <nav class="admin-drawer__nav">
-      <span class="admin-drawer__nav-label">القائمة الرئيسية</span>
+      <!-- Section 1: Main Panel -->
+      <span class="admin-drawer__nav-label">الرئيسية والمتابعة</span>
       <ul class="admin-drawer__list">
         <li>
           <a routerLink="/admin-dashboard" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
             <span class="admin-drawer__link-icon"><i class="fas fa-chart-pie"></i></span>
             <span class="admin-drawer__link-text">الرئيسية (الإحصائيات)</span>
-          </a>
-        </li>
-        <li>
-          <a routerLink="/admin-portal-log" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-landmark"></i></span>
-            <span class="admin-drawer__link-text">سجل بوابة مصر الرقمية</span>
           </a>
         </li>
         <li>
@@ -43,34 +38,29 @@
           </a>
         </li>
         <li>
-          <a routerLink="/manage-services" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-cogs"></i></span>
-            <span class="admin-drawer__link-text">إدارة الخدمات</span>
+          <a routerLink="/admin-portal-log" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-landmark"></i></span>
+            <span class="admin-drawer__link-text">سجل بوابة مصر الرقمية</span>
           </a>
         </li>
       </ul>
 
-      <span class="admin-drawer__nav-label">الحساب</span>
+      <!-- Section 2: Services Management -->
+      <span class="admin-drawer__nav-label">إدارة الخدمات الحكومية</span>
       <ul class="admin-drawer__list">
         <li>
-          <a routerLink="/admin-profile" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-user-gear"></i></span>
-            <span class="admin-drawer__link-text">إدارة حسابي</span>
-          </a>
-        </li>
-        <li>
-          <a href="javascript:void(0)" class="admin-drawer__link" (click)="previewAsUser()">
-            <span class="admin-drawer__link-icon"><i class="fas fa-eye"></i></span>
-            <span class="admin-drawer__link-text">معاينة كمستخدم</span>
+          <a routerLink="/manage-services" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-cogs"></i></span>
+            <span class="admin-drawer__link-text">إدارة الخدمات الرئيسية</span>
           </a>
         </li>
       </ul>
 
-      <!-- Collapsible: الخدمات -->
-      <div class="admin-drawer__collapsible">
+      <!-- Collapsible: تفاصيل وإعدادات الخدمات -->
+      <div class="admin-drawer__collapsible" style="margin-top: 10px;">
         <button class="admin-drawer__nav-label admin-drawer__collapsible-btn" (click)="toggleServicesCollapse()"
           [class.admin-drawer__collapsible-btn--open]="!isServicesCollapsed" type="button">
-          <span class="admin-drawer__collapsible-label">الخدمات</span>
+          <span class="admin-drawer__collapsible-label">تخصيص الإعدادات</span>
           <i class="fas fa-chevron-down admin-drawer__collapsible-icon" aria-hidden="true"></i>
         </button>
 
@@ -101,7 +91,6 @@
               <span class="admin-drawer__link-text">المستندات القياسية</span>
             </a>
           </li>
-
           <li>
             <a routerLink="/admin-steps" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
               <span class="admin-drawer__link-icon"><i class="fas fa-list-ol"></i></span>
@@ -110,6 +99,23 @@
           </li>
         </ul>
       </div>
+
+      <!-- Section 3: Account control -->
+      <span class="admin-drawer__nav-label">التحكم العام</span>
+      <ul class="admin-drawer__list">
+        <li>
+          <a routerLink="/admin-profile" routerLinkActive="is-active" class="admin-drawer__link" (click)="close()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-user-gear"></i></span>
+            <span class="admin-drawer__link-text">إدارة حسابي</span>
+          </a>
+        </li>
+        <li>
+          <a href="javascript:void(0)" class="admin-drawer__link" (click)="previewAsUser()">
+            <span class="admin-drawer__link-icon"><i class="fas fa-eye"></i></span>
+            <span class="admin-drawer__link-text">معاينة كمستخدم</span>
+          </a>
+        </li>
+      </ul>
     </nav>
 
     <!-- Footer: بيانات الأدمن الحقيقية من التوكن، وضغطة عليها تودي لملف الأدمن -->

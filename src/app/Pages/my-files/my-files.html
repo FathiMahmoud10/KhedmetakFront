@@ -37,20 +37,69 @@
     </div>
 
     <div class="ufiles-grid" *ngIf="files.length > 0">
-      <article class="ufiles-card" *ngFor="let file of files">
-        <div class="ufiles-card__icon">
-          <i class="fas" [ngClass]="getFileIcon(file.fileType)"></i>
+      <article class="ufiles-card" *ngFor="let file of files" (click)="openPreview(file)">
+        <div class="ufiles-card__thumb-container">
+          <img *ngIf="isImage(file.fileType)" [src]="fileUrl(file.filePath)" class="ufiles-card__img" alt="File Preview" />
+          <div *ngIf="!isImage(file.fileType)" class="ufiles-card__doc-icon">
+            <i class="fas" [ngClass]="getFileIcon(file.fileType)"></i>
+            <span class="ufiles-card__ext-badge">{{ file.fileType.toUpperCase().replace('.', '') }}</span>
+          </div>
         </div>
+        
         <div class="ufiles-card__body">
           <span class="ufiles-card__name" [title]="file.fileName">{{ file.fileName }}</span>
-          <span class="ufiles-card__meta">{{ file.uploadedAt | date:'dd/MM/yyyy' }} · {{ file.fileType }}</span>
+          <div class="ufiles-card__footer">
+            <span class="ufiles-card__meta">{{ file.uploadedAt | date:'dd/MM/yyyy' }}</span>
+            <button class="ufiles-card__preview-btn">
+              <i class="fas fa-expand"></i> معاينة
+            </button>
+          </div>
         </div>
-        <a class="ufiles-card__action" [href]="fileUrl(file.filePath)" target="_blank" rel="noopener">
-          <i class="fas fa-eye"></i>
-        </a>
       </article>
     </div>
 
   </ng-container>
+
+  <!-- ═══ PREVIEW MODAL OVERLAY ═══ -->
+  <div class="ufiles-overlay" *ngIf="selectedPreviewFile" (click)="closePreview()">
+    <div class="ufiles-preview-modal animate-scale-up" (click)="$event.stopPropagation()">
+      <header class="ufiles-preview-modal__header">
+        <div class="ufiles-preview-modal__title-wrap">
+          <i class="fas text-primary me-2" [ngClass]="getFileIcon(selectedPreviewFile.fileType)"></i>
+          <h3 class="ufiles-preview-modal__title" [title]="selectedPreviewFile.fileName">
+            {{ selectedPreviewFile.fileName }}
+          </h3>
+        </div>
+        <button class="ufiles-preview-modal__close" (click)="closePreview()" aria-label="إغلاق">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <div class="ufiles-preview-modal__content">
+        <!-- Image Preview -->
+        <div *ngIf="isImage(selectedPreviewFile.fileType)" class="ufiles-preview-modal__media-wrap">
+          <img [src]="fileUrl(selectedPreviewFile.filePath)" class="ufiles-preview-modal__img" alt="Preview Image" />
+        </div>
+
+        <!-- PDF Preview -->
+        <iframe *ngIf="selectedPreviewFile.fileType.toLowerCase().replace('.', '') === 'pdf'" 
+          [src]="getSafeUrl(selectedPreviewFile.filePath)" 
+          class="ufiles-preview-modal__iframe">
+        </iframe>
+
+        <!-- Fallback for other documents (Word, Excel, Zip, etc.) -->
+        <div *ngIf="!isImage(selectedPreviewFile.fileType) && selectedPreviewFile.fileType.toLowerCase().replace('.', '') !== 'pdf'" 
+          class="ufiles-preview-modal__fallback">
+          <div class="ufiles-preview-modal__fallback-icon">
+            <i class="fas fa-5x" [ngClass]="getFileIcon(selectedPreviewFile.fileType)"></i>
+          </div>
+          <p class="ufiles-preview-modal__fallback-text">لا توجد معاينة مباشرة متاحة لهذا النوع من الملفات ({{ selectedPreviewFile.fileType }})</p>
+          <a [href]="fileUrl(selectedPreviewFile.filePath)" target="_blank" download class="ufiles-preview-modal__download-btn">
+            <i class="fas fa-download"></i> تحميل المستند
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
